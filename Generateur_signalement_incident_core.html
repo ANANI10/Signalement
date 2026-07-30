@@ -1568,7 +1568,8 @@ openFromHash();
     var out = [
       SIREN + "SIGNALEMENT D'INCIDENT" + SIREN,
       DASH_HEAD,
-      ARROW + "*STATUT INCIDENT : *" + (inc.statut || "DEBUT") + "* ",
+      // l'étoile ouvre la ligne, avant la flèche : tout est en gras
+      "*" + ARROW + " STATUT INCIDENT : " + (inc.statut || "DEBUT") + "*",
       DASH_HEAD,
       "Details :",
       "Nature de l'incident :"
