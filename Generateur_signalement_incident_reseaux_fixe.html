@@ -9,10 +9,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="components/image-drop.css">
-<link rel="stylesheet" href="components/date-picker.css">
-<link rel="stylesheet" href="components/search-select.css">
-<link rel="stylesheet" href="components/dropdown.css">
 <script>
 // ── Éclairage : applique le thème enregistré avant le rendu (évite le flash) ──
 (function () {
@@ -96,47 +92,13 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/><line x1="19" y1="5" x2="19" y2="11"/><line x1="16" y1="8" x2="22" y2="8"/></svg>
       </button>
     </div>
-    <!-- Composant réutilisable : voir components/date-picker.js -->
-    <isoc-date-picker id="startDate" placeholder="Début de l'incident"></isoc-date-picker>
     <button class="btn-ghost" id="manageOltBtn" type="button">
       <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
       Base OLT
     </button>
-    <!-- Composant réutilisable : voir components/dropdown.js -->
-    <isoc-dropdown
-      id="impactPick"
-      label="Impact"
-      placeholder="Non défini"
-      options="Aucun impact|Impact Réseau"
-      states="ok|warn"></isoc-dropdown>
     <div class="tb-sep" aria-hidden="true"></div>
     <div class="status-msg" id="msg" role="status" aria-live="polite">
       <span class="dot" aria-hidden="true"></span>Prêt
-    </div>
-  </div>
-
-  <!-- Composants réutilisables : components/search-select.js + components/image-drop.js -->
-  <div class="tools-row">
-    <isoc-image-drop
-      id="reportImages"
-      label="Captures &amp; preuves"
-      hint="Coller, déposer ou importer : capture d'alarme, graphe de trafic, ticket… — PNG, JPG, GIF ou WEBP, 5 Mo max"
-      multiple
-      max-size="5"></isoc-image-drop>
-    <div class="tools-col">
-      <isoc-search-select
-        id="routerPick"
-        label="Routeur"
-        placeholder="Aucun routeur sélectionné"
-        search-placeholder="Rechercher un routeur…"
-        multiple></isoc-search-select>
-
-      <isoc-search-select
-        id="sitePick"
-        label="Site"
-        placeholder="Aucun site sélectionné"
-        search-placeholder="Rechercher un site…"
-        multiple></isoc-search-select>
     </div>
   </div>
 
@@ -1286,44 +1248,6 @@ window.addEventListener("hashchange", openFromHash);
 // Initialisation
 syncTechInput();
 openFromHash();
-</script>
-
-<!-- Composants partagés -->
-<script src="components/image-drop.js"></script>
-<script src="components/date-picker.js"></script>
-<script src="components/search-select.js"></script>
-<script src="components/dropdown.js"></script>
-<script src="data/sites.js"></script>
-
-<script>
-// Alimente le sélecteur de routeurs à partir de la base OLT
-(function () {
-  var sel = window.SearchSelect && SearchSelect.get("routerPick");
-  if (!sel || typeof oltDb === "undefined") return;
-  var map = {};
-  oltDb.forEach(function (o) {
-    var r = (o.router || "").trim();
-    if (!r) return;
-    var key = r.toLowerCase();
-    if (!map[key]) map[key] = { value: r, label: r, region: o.region || "", count: 0 };
-    map[key].count++;
-  });
-  var list = Object.keys(map)
-    .map(function (k) { return map[k]; })
-    .sort(function (a, b) { return a.label.localeCompare(b.label, "fr", { sensitivity: "base" }); })
-    .map(function (e) {
-      return {
-        value: e.value,
-        label: e.label,
-        meta: (e.region ? e.region + " · " : "") + e.count + (e.count > 1 ? " OLT" : " OLT")
-      };
-    });
-  sel.setOptions(list);
-
-  // Alimente le sélecteur de sites (data/sites.js, genere depuis l'Excel)
-  var siteSel = window.SearchSelect && SearchSelect.get("sitePick");
-  if (siteSel && Array.isArray(window.ISOC_SITES)) siteSel.setOptions(window.ISOC_SITES);
-})();
 </script>
 
 </body>
