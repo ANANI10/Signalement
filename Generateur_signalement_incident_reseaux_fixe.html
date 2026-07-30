@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signalement d'incident fixe</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCc+PHJlY3Qgd2lkdGg9JzI0JyBoZWlnaHQ9JzI0JyByeD0nNicgZmlsbD0nIzRmOGRmYicvPjxwYXRoIGQ9J00xOSAxMkgxNi4yTDE0LjEgMTguM0w5LjkgNS43TDcuOCAxMkg1JyBzdHJva2U9J3doaXRlJyBzdHJva2Utd2lkdGg9JzInIGZpbGw9J25vbmUnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjwvc3ZnPgo=">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="components/image-drop.css">
+<link rel="stylesheet" href="components/date-picker.css">
+<link rel="stylesheet" href="components/search-select.css">
+<link rel="stylesheet" href="components/dropdown.css">
+<script>
+// ── Éclairage : applique le thème enregistré avant le rendu (évite le flash) ──
+(function () {
+  try {
+    var saved = localStorage.getItem("isoc_theme");
+    var theme = (saved === "light" || saved === "dark")
+      ? saved
+      : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", theme);
+  } catch (e) {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }
+})();
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Aller au contenu principal</a>
+
+<!-- TOP BAR -->
+<nav class="topbar" aria-label="Navigation principale">
+  <a class="topbar-brand" href="accueil.html" title="Retour à l'accueil">
+    <div class="brand-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    </div>
+    <span class="brand-name">iSOC</span>
+    <span class="brand-sep" aria-hidden="true">/</span>
+    <span class="brand-sub">Signalement d'incident</span>
+  </a>
+  <div class="topbar-right">
+    <div class="clock-chip" aria-label="Heure UTC">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span id="clockEl">--:--:-- UTC</span>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button"
+            title="Éclairage : basculer clair / sombre"
+            aria-label="Éclairage de la plateforme" aria-pressed="false">
+      <svg class="ic-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+      <svg class="ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="1.5" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="4.6" x2="6.4" y2="6.4"/><line x1="17.6" y1="17.6" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6.4" y2="17.6"/><line x1="17.6" y1="6.4" x2="19.4" y2="4.6"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+  <header class="page-hd">
+    <div class="page-hd-left">
+      <h1>Générateur de signalement</h1>
+      <p class="page-desc">Collez vos lignes d'alarme brutes (alarmes PON, cartes ou OLT), puis cliquez sur <strong>Générer</strong> pour obtenir le bloc de signalement formaté.</p>
+    </div>
+    <div class="status-chip" role="status">
+      <span class="status-chip-dot" aria-hidden="true"></span>
+      Signalement Réseaux Fixe
+    </div>
+  </header>
+
+  <div class="toolbar" role="toolbar" aria-label="Actions">
+    <button class="btn-primary" id="genBtn" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Générer le rapport
+    </button>
+    <button class="btn-ghost" id="copyBtn" type="button" aria-label="Copier le résultat">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copier le résultat
+    </button>
+    <button class="btn-ghost" id="deleteBtn" type="button" aria-label="Effacer">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      Effacer
+    </button>
+    <div class="tb-sep" aria-hidden="true"></div>
+    <div class="tb-select-wrap">
+      <div class="tb-combo" id="techCombo">
+        <input type="text" class="tb-combo-input" id="techSearch" placeholder="Technicien — À renseigner" autocomplete="off" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="techDropdown" aria-label="Rechercher un technicien">
+        <span class="tb-combo-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <div class="tb-combo-dropdown" id="techDropdown" role="listbox" aria-label="Résultats technicien"></div>
+      </div>
+      <button class="icon-btn" id="manageTechBtn" type="button" title="Gérer les techniciens" aria-label="Gérer les techniciens">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/><line x1="19" y1="5" x2="19" y2="11"/><line x1="16" y1="8" x2="22" y2="8"/></svg>
+      </button>
+    </div>
+    <!-- Composant réutilisable : voir components/date-picker.js -->
+    <isoc-date-picker id="startDate" placeholder="Début de l'incident"></isoc-date-picker>
+    <button class="btn-ghost" id="manageOltBtn" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      Base OLT
+    </button>
+    <!-- Composant réutilisable : voir components/dropdown.js -->
+    <isoc-dropdown
+      id="impactPick"
+      label="Impact"
+      placeholder="Non défini"
+      options="Aucun impact|Impact Réseau"
+      states="ok|warn"></isoc-dropdown>
+    <div class="tb-sep" aria-hidden="true"></div>
+    <div class="status-msg" id="msg" role="status" aria-live="polite">
+      <span class="dot" aria-hidden="true"></span>Prêt
+    </div>
+  </div>
+
+  <!-- Composants réutilisables : components/search-select.js + components/image-drop.js -->
+  <div class="tools-row">
+    <isoc-image-drop
+      id="reportImages"
+      label="Captures &amp; preuves"
+      hint="Coller, déposer ou importer : capture d'alarme, graphe de trafic, ticket… — PNG, JPG, GIF ou WEBP, 5 Mo max"
+      multiple
+      max-size="5"></isoc-image-drop>
+    <div class="tools-col">
+      <isoc-search-select
+        id="routerPick"
+        label="Routeur"
+        placeholder="Aucun routeur sélectionné"
+        search-placeholder="Rechercher un routeur…"
+        multiple></isoc-search-select>
+
+      <isoc-search-select
+        id="sitePick"
+        label="Site"
+        placeholder="Aucun site sélectionné"
+        search-placeholder="Rechercher un site…"
+        multiple></isoc-search-select>
+    </div>
+  </div>
+
+  <div class="resolve-banner" id="resolveBanner">
+    <div class="resolve-hd">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      OLT non reconnu(s) dans la base — le total de clients affiché est incomplet
+    </div>
+    <div id="resolveRows"></div>
+  </div>
+
+  <div class="grid">
+
+    <!-- Panneau entrée -->
+    <section class="card" aria-labelledby="lbl-input">
+      <div class="card-hd">
+        <div class="card-label" id="lbl-input">
+          <span class="clabel-dot dot-blue" aria-hidden="true"></span>
+          Entrée — Données brutes
+        </div>
+        <span class="card-tag" aria-hidden="true">STREAM / IN</span>
+      </div>
+      <div class="card-body">
+        <label for="input" class="sr-only">Lignes CSV d'alarmes réseau</label>
+        <textarea
+          id="input"
+          spellcheck="false"
+          autocomplete="off"
+          placeholder="Severity,Event Time,Cleared Time,Source Name,Mnemonic,...
+Major,6 juillet 2026 00:46:55 GMT,,PON Port:YOKOE-FX8:R1.S1.LT5.PON16,LOS,..."
+        ></textarea>
+
+        <div class="infobox" role="note">
+          <div class="infobox-hd">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Types reconnus automatiquement
+          </div>
+          <div class="infobox-rows">
+            <div class="inforow">
+              <span class="ir-dot" aria-hidden="true"></span>
+              <span><span class="ir-code">PON Port:OLT:R.S.LTn.PONm</span> <span class="ir-sep">→</span> Alarme port PON</span>
+            </div>
+            <div class="inforow">
+              <span class="ir-dot" aria-hidden="true"></span>
+              <span><span class="ir-code">Slot:OLT:R.S.LTn</span> <span class="ir-sep">→</span> Alarme carte (LT)</span>
+            </div>
+            <div class="inforow">
+              <span class="ir-dot" aria-hidden="true"></span>
+              <span><span class="ir-code">Agent:OLT:IACM/IHUB</span> <span class="ir-sep">→</span> Alarme OLT (Resource Isolation)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panneau sortie -->
+    <section class="card" aria-labelledby="lbl-output">
+      <div class="card-hd">
+        <div class="card-label" id="lbl-output">
+          <span class="clabel-dot dot-green" aria-hidden="true"></span>
+          Sortie — Signalement généré
+        </div>
+        <span class="card-tag" aria-hidden="true">STREAM / OUT</span>
+      </div>
+      <div class="card-body">
+        <div class="outbox" id="preview" role="region" aria-label="Résultat du signalement" aria-live="polite">
+          <div class="empty-st">
+            <div class="empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <p class="empty-text">Aucun signalement généré</p>
+          </div>
+        </div>
+        <textarea id="output" class="is-hidden" readonly aria-hidden="true" tabindex="-1"></textarea>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Modal Base OLT -->
+<div class="modal-overlay" id="oltModal" role="dialog" aria-modal="true" aria-labelledby="oltModalTitle">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <span class="modal-title" id="oltModalTitle">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        Base OLT — Clients, région &amp; routeur
+      </span>
+      <button class="modal-close" id="oltModalClose" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p class="mod-hint">Le nom d'un OLT doit correspondre (à peu près) à celui utilisé dans l'export d'alarmes. La région, le routeur et le port alimentent le diagnostic OLT. Modifiez ces valeurs si besoin — c'est sauvegardé automatiquement dans ce navigateur.</p>
+      <input class="mod-search" id="oltSearch" type="text" placeholder="Rechercher un OLT…" autocomplete="off">
+      <div class="mod-table" id="oltTable"></div>
+      <div class="mod-add-row">
+        <input type="text" class="mr-name" id="oltNewName" placeholder="Nom de l'OLT (ex: KARA_TOMDE-FX4)">
+        <input type="text" class="mr-region" id="oltNewRegion" placeholder="Région">
+        <input type="text" class="mr-router" id="oltNewRouter" placeholder="Routeur">
+        <input type="text" class="mr-port" id="oltNewPort" placeholder="Port">
+        <input type="number" class="mr-num" id="oltNewClients" placeholder="Clients" min="0">
+        <button class="mod-add-btn" id="oltAddBtn" type="button">Ajouter</button>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <span class="mod-hint" id="oltCount"></span>
+      <div class="modal-ft-actions">
+        <button class="btn-ghost modal-ft-btn" id="oltExportBtn" type="button">Exporter JSON</button>
+        <button class="btn-ghost modal-ft-btn" id="oltImportBtn" type="button">Importer JSON</button>
+        <input type="file" id="oltImportFile" class="is-hidden" accept="application/json">
+        <button class="btn-ghost modal-ft-btn" id="oltResetBtn" type="button">Réinitialiser</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Techniciens -->
+<div class="modal-overlay" id="techModal" role="dialog" aria-modal="true" aria-labelledby="techModalTitle">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <span class="modal-title" id="techModalTitle">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg>
+        Techniciens
+      </span>
+      <button class="modal-close" id="techModalClose" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p class="mod-hint">Cette liste alimente la recherche "Technicien" du bandeau d'outils, utilisée pour PON, carte et OLT. Sauvegardé automatiquement dans ce navigateur.</p>
+      <div class="mod-table" id="techTable"></div>
+      <div class="mod-add-row">
+        <input type="text" class="mr-name" id="techNewName" placeholder="Nom du technicien">
+        <input type="text" class="mr-num mr-num-wide" id="techNewNum" placeholder="Numéro">
+        <button class="mod-add-btn" id="techAddBtn" type="button">Ajouter</button>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <span class="mod-hint" id="techCount"></span>
+      <button class="btn-ghost modal-ft-btn" id="techResetBtn" type="button">Réinitialiser</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════ ÉCLAIRAGE DE LA PLATEFORME (thème clair / sombre) ══════════════
+// Le thème initial est déjà posé sur <html> par le script du <head> (anti-flash).
+const THEME_KEY = "isoc_theme";
+const themeBtn = document.getElementById("themeBtn");
+
+function currentTheme() {
+  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+}
+
+function applyTheme(theme, persist) {
+  const t = theme === "light" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", t);
+  themeBtn.setAttribute("aria-pressed", t === "light" ? "true" : "false");
+  themeBtn.title = t === "light"
+    ? "Éclairage : passer en mode sombre"
+    : "Éclairage : passer en mode clair";
+  if (persist) { try { localStorage.setItem(THEME_KEY, t); } catch (e) {} }
+}
+
+function toggleTheme() {
+  const next = currentTheme() === "light" ? "dark" : "light";
+  applyTheme(next, true);
+  if (typeof setMsg === "function") {
+    setMsg("Éclairage : mode " + (next === "light" ? "clair" : "sombre"), "");
+  }
+}
+
+themeBtn.addEventListener("click", toggleTheme);
+
+// Raccourci clavier : Ctrl + Alt + L
+document.addEventListener("keydown", (e) => {
+  if (e.ctrlKey && e.altKey && (e.key === "l" || e.key === "L")) {
+    e.preventDefault();
+    toggleTheme();
+  }
+});
+
+// Suit l'éclairage du système tant que l'utilisateur n'a pas choisi manuellement
+if (window.matchMedia) {
+  const mq = window.matchMedia("(prefers-color-scheme: light)");
+  const onSystemChange = (e) => {
+    let saved = null;
+    try { saved = localStorage.getItem(THEME_KEY); } catch (err) {}
+    if (saved !== "light" && saved !== "dark") applyTheme(e.matches ? "light" : "dark", false);
+  };
+  if (mq.addEventListener) mq.addEventListener("change", onSystemChange);
+  else if (mq.addListener) mq.addListener(onSystemChange);
+}
+
+// Synchronise le libellé/état du bouton avec le thème déjà appliqué
+applyTheme(currentTheme(), false);
+
+// ── Horloge UTC ──
+(function tick() {
+  const n = new Date(), p = v => String(v).padStart(2, '0');
+  document.getElementById('clockEl').textContent =
+    p(n.getHours()) + ':' + p(n.getMinutes()) + ':' + p(n.getSeconds());
+  setTimeout(tick, 1000);
+})();
+
+// ══════════════ LOGIQUE MÉTIER ══════════════
+const MOIS = {
+  "janvier":1,"février":2,"fevrier":2,"mars":3,"avril":4,"mai":5,"juin":6,
+  "juillet":7,"août":8,"aout":8,"septembre":9,"octobre":10,"novembre":11,
+  "décembre":12,"decembre":12
+};
+const EMOJI = {
+
+  siren:   "\u{1F6A8}",
+  clock:   "\u{1F550}",
+  chart:   "\u{1F4C9}",
+  family:  "\u{1F9D1}\u200D\u{1F9D2}\u200D\u{1F9D2}",
+  mensRoom:"\u{1F6B9}",
+  warning: "\u26A0\uFE0F",
+  zero:    "0\uFE0F\u20E3"
+};
+
+// ══════════════ BASE OLT ══════════════
+const OLT_DB_SEED = [
+{id:'seed_0', name:'ABLO', clients:495, region:'LOME', router:'lom-169_ablo-sra4-01', port:'1/3/14'},
+  {id:'seed_1', name:'ADAKPAME-FX4', clients:696, region:'LOME', router:'lom-194_port-ixr-r6-03', port:'1/2/3'},
+  {id:'seed_2', name:'ADAMAVO-FX4_1', clients:760, region:'LOME', router:'lom-176_adam1-ixrec-01', port:'1/1/30'},
+  {id:'seed_3', name:'ADAMAVO-FX4_2', clients:619, region:'LOME', router:'lom-176_adam1-ixrec-02', port:''},
+  {id:'seed_4', name:'ADETA-FX4', clients:310, region:'PLATEAUX', router:'pla-061_adeta-ixre-01', port:'1/1/12'},
+  {id:'seed_5', name:'ADETICOPE-FX8', clients:2040, region:'LOME', router:'ADETI1-IXR-R6-01', port:''},
+  {id:'seed_6', name:'ADETICOPE-FX8_2', clients:539, region:'LOME', router:'ADETI1-IXR-R6-01', port:''},
+  {id:'seed_7', name:'ADETIKOPE_CEG-FX8', clients:1173, region:'LOME', router:'ADETCEG-IXRec-01', port:''},
+  {id:'seed_8', name:'ADIDO-7360-FX8', clients:1228, region:'LOME', router:'lom-076_adg1-ixre-01', port:'1/1/12'},
+  {id:'seed_9', name:'ADIDO1', clients:724, region:'LOME', router:'lom-076_adg1-ixre-01', port:'1/1/14'},
+  {id:'seed_10', name:'ADIDO1-FX16', clients:541, region:'LOME', router:'lom-076_adg1-ixre-01', port:'1/1/13'},
+  {id:'seed_11', name:'ADIDO2-FX16', clients:667, region:'LOME', router:'lom-070_adg2-ixre-01', port:'1/1/5'},
+  {id:'seed_12', name:'ADJOUGBA-FX8', clients:1519, region:'LOME', router:'lom-005_adgba-sra4-01', port:'1/3/2'},
+  {id:'seed_13', name:'AEROPORT-FX8', clients:1086, region:'LOME', router:'lom-194_port-ixr-r6-03', port:'1/5/2'},
+  {id:'seed_14', name:'AFIDEGNIGBAN-FX8', clients:2733, region:'LOME', router:'lom-197_afid-ixr-r6-01', port:'1/2/6'},
+  {id:'seed_15', name:'AGBALEPEDO-FX16', clients:979, region:'LOME', router:'AGBL1-IXRec-R6-01', port:'1/1/30'},
+  {id:'seed_16', name:'AGBODRAFO-FX4', clients:1455, region:'MARITIME', router:'mar-011_agbod-ixre-01', port:'1/1/10'},
+  {id:'seed_17', name:'AGODEKE-FX8', clients:1399, region:'LOME', router:'lom-197_afid-ixr-r6-01', port:'1/2/5'},
+  {id:'seed_18', name:'AMADAHOME2-FX8', clients:219, region:'LOME', router:'lom-058_amad2-ixre-01', port:'1/1/10'},
+  {id:'seed_19', name:'APEDOKOE-FX8', clients:1550, region:'LOME', router:'lom-073_aved1-ixr-r6-02', port:'1/2/3'},
+  {id:'seed_20', name:'APESSITO-FX8', clients:1485, region:'LOME', router:'APES-IXRe-01', port:''},
+  {id:'seed_21', name:'ASSIGOME-FX4', clients:503, region:'LOME', router:'lom-232_assg-sar08-01', port:'1/3/6'},
+  {id:'seed_22', name:'AVEDJI1', clients:0, region:'LOME', router:'lom-073_aved1-ixr-r6-02', port:'1/3/7'},
+  {id:'seed_23', name:'AVEDJI1-FX4', clients:125, region:'LOME', router:'lom-073_aved1-ixr-r6-02', port:'1/5/5'},
+  {id:'seed_24', name:'AVEDJI1-FX8', clients:1016, region:'LOME', router:'lom-073_aved1-ixr-r6-02', port:'1/1/1'},
+  {id:'seed_25', name:'AVEDJI_2', clients:0, region:'LOME', router:'lom-073_aved1-ixr-r6-02', port:'1/4/1'},
+  {id:'seed_26', name:'AVEDJI2-FX16', clients:419, region:'LOME', router:'lom-073_aved2-ixre-01', port:'1/1/6'},
+  {id:'seed_27', name:'AWANDJELO', clients:35, region:'KARA', router:'AWAND-IXRec-01', port:''},
+  {id:'seed_28', name:'BAGUIDA-FX8', clients:1304, region:'LOME', router:'lom-180_bag3-ixre-01', port:'1/1/10'},
+  {id:'seed_29', name:'BE-CHATEAU-FX8', clients:1092, region:'LOME', router:'lom-165_bech-ixr-r6-02', port:'1/1/1'},
+  {id:'seed_30', name:'CACN-FX4', clients:2155, region:'LOME', router:'lom-011_cacn-sra8-01', port:'2/1/3'},
+  {id:'seed_31', name:'CACAVELI-FX8', clients:401, region:'LOME', router:'CACN-SRa8-01', port:''},
+  {id:'seed_32', name:'CAMPUS-MOOV', clients:8, region:'LOME', router:'lom-105_camp-ixr-r6-02', port:'1/1/2'},
+  {id:'seed_33', name:'DGTG', clients:648, region:'LOME', router:'lom-143_tgtnkp-sra4-01', port:'1/1/1'},
+  {id:'seed_34', name:'DGTG-FX16', clients:1497, region:'LOME', router:'lom-143_tgtnkp-sra4-01', port:'1/1/3'},
+  {id:'seed_35', name:'DGTG_2', clients:291, region:'LOME', router:'lom-143_tgtnkp-sra4-01', port:'1/1/2'},
+  {id:'seed_36', name:'DICAME-FX8', clients:2666, region:'LOME', router:'lom-020_moto-sra4-01', port:'1/3/2'},
+  {id:'seed_37', name:'DJAGBLE-FX16', clients:3201, region:'LOME', router:'DJAG-IXR-R6-01', port:''},
+  {id:'seed_38', name:'DJIFAKPOTA-FX8', clients:1478, region:'LOME', router:'lom-207_djif-ixre-01', port:'1/1/18'},
+  {id:'seed_39', name:'GBADAGO-FX4', clients:687, region:'LOME', router:'lom-121_gbad-ixre-01', port:'1/1/10'},
+  {id:'seed_40', name:'GBENYEDJI-FX4', clients:1021, region:'LOME', router:'lom-174_gben2-sra4-01', port:'1/4/14'},
+  {id:'seed_41', name:'GTA-FX8', clients:1590, region:'LOME', router:'lom-107_gta-ixr-r6-06', port:'1/1/1'},
+  {id:'seed_42', name:'HEDZRANAWE1', clients:790, region:'LOME', router:'lom-097_hed1-ixr-r6-03', port:'1/2/2'},
+  {id:'seed_43', name:'HIHEATRO-FX4', clients:354, region:'PLATEAUX', router:'HIHE-IXRe-01', port:''},
+  {id:'seed_44', name:'HOUNTIGOME', clients:790, region:'LOME', router:'lom-101_hgom-sar8-01', port:'1/4/5'},
+  {id:'seed_45', name:'HOUNTIGOME -7330', clients:641, region:'LOME', router:'lom-101_hgom-sar8-01', port:'1/4/6'},
+  {id:'seed_46', name:'KEGUE', clients:0, region:'LOME', router:'lom-091_keg1-ixr-r6-02', port:'1/1/1'},
+  {id:'seed_47', name:'KEGUE-2', clients:0, region:'LOME', router:'lom-091_keg1-ixr-r6-02', port:'1/4/9'},
+  {id:'seed_48', name:'KEGUE-FX8', clients:1551, region:'LOME', router:'lom-091_keg1-ixr-r6-02', port:'1/2/2'},
+  {id:'seed_49', name:'KODJOVIAKOPE-FX8', clients:272, region:'LOME', router:'KODJ-IXRec-01', port:''},
+  {id:'seed_50', name:'KELEGOUGAN-FX4', clients:1783, region:'LOME', router:'lom-007_kele1-ixr-r6-01', port:'1/2/6'},
+  {id:'seed_51', name:'KLEME-FX8', clients:825, region:'LOME', router:'lom-059-klem-ixre-01', port:'1/1/9'},
+  {id:'seed_52', name:'KLIKAME-FX16', clients:498, region:'LOME', router:'lom-113_klik-ixre-01', port:'1/1/6'},
+  {id:'seed_53', name:'KOVE1-FX8', clients:1842, region:'LOME', router:'KOVE1-IXRe-01', port:''},
+  {id:'seed_54', name:'LEGBA7362', clients:416, region:'LOME', router:'lom-024_legb-ixr-r6-01', port:'1/1/6'},
+  {id:'seed_55', name:'LEGBASSITO-FX4', clients:1517, region:'LOME', router:'LEGB-IXRe-01', port:''},
+  {id:'seed_56', name:'LOGOPE-FX4', clients:1146, region:'LOME', router:'LOGO1-IXRe-01', port:''},
+  {id:'seed_57', name:'LOME_RP-FX8', clients:1128, region:'LOME', router:'lom-155_lome-ixrec-01', port:'1/1/29'},
+  {id:'seed_58', name:'LOME_RP-FX16', clients:1648, region:'LOME', router:'LOME-sra8-10', port:''},
+  {id:'seed_59', name:'MADJIKPETO-FX8', clients:918, region:'LOME', router:'lom-283_madj-ixre-01', port:'1/1/10'},
+  {id:'seed_60', name:'MINAMADOU-FX8', clients:1969, region:'LOME', router:'lom-041_mina-sra4-01', port:'1/4/13'},
+  {id:'seed_61', name:'MINAMADOU1-FX16', clients:706, region:'LOME', router:'lom-041_mina-sra4-01', port:'1/3/13'},
+  {id:'seed_62', name:'NUKAFU', clients:0, region:'LOME', router:'lom-134_nuk1-sra4-01', port:'1/3/14'},
+  {id:'seed_63', name:'NUKAFU-FX4', clients:987, region:'LOME', router:'lom-134_nuk1-sra4-01', port:'1/4/14'},
+  {id:'seed_64', name:'PORT-FTTN-I', clients:1355, region:'LOME', router:'PORT-IXR-R6-03', port:''},
+  {id:'seed_65', name:'PORT-FX8', clients:622, region:'LOME', router:'lom-194_port-ixr-r6-03', port:'1/5/1'},
+  {id:'seed_66', name:'SAGBADO1-FX8', clients:1797, region:'LOME', router:'SAGB1-IXRe-01', port:''},
+  {id:'seed_67', name:'SEGBE-FX4', clients:2532, region:'LOME', router:'segb-ixre-01', port:'1/1/15'},
+  {id:'seed_68', name:'SEMINAIRE-FX8', clients:1791, region:'LOME', router:'lom-126_semi-ixre-01', port:'1/1/10'},
+  {id:'seed_69', name:'SOS-FX8', clients:946, region:'LOME', router:'lom-116_sos-sra4-01', port:'1/3/14'},
+  {id:'seed_70', name:'SOVIEPE-FX8', clients:339, region:'LOME', router:'lom-087_sovi-ixre-01', port:'1/1/10'},
+  {id:'seed_71', name:'TELESSOU-FX8', clients:271, region:'LOME', router:'lom-042_tele1-ixre-01', port:'1/1/10'},
+  {id:'seed_72', name:'TOGO2000', clients:0, region:'LOME', router:'HED1-IXR-R6-03', port:''},
+  {id:'seed_73', name:'TOGO2000-2', clients:0, region:'LOME', router:'T2000-IXRe-01', port:''},
+  {id:'seed_74', name:'TOGO2000-FX8', clients:1181, region:'LOME', router:'T2000-IXRe-01', port:''},
+  {id:'seed_75', name:'TOTSI1-FX16', clients:894, region:'LOME', router:'lom-074_tots1-ixre-01', port:'1/1/9'},
+  {id:'seed_76', name:'TOTSI2-FX8', clients:501, region:'LOME', router:'lom-080_tots2-ixre-01', port:'1/1/9'},
+  {id:'seed_77', name:'YOKOE-FX8', clients:1676, region:'LOME', router:'lom-081_yoko-ixre-01', port:'1/1/10'},
+  {id:'seed_78', name:'ZANG_PEAGE-FX4', clients:1328, region:'LOME', router:'lom-055_zangp-ixre-01', port:'1/1/12'},
+  {id:'seed_79', name:'ZANGUERA2-FX8', clients:1810, region:'LOME', router:'VAKPO-IXR-R6-02', port:''},
+  {id:'seed_80', name:'ZONGO', clients:7, region:'LOME', router:'ZON2-IXRe-01', port:''},
+  {id:'seed_81', name:'ZONGO-FX4', clients:2162, region:'LOME', router:'ZON2-IXRe-01', port:''},
+  {id:'seed_82', name:'ZOSSIME-FX8', clients:2792, region:'LOME', router:'lom-056_zoss-ixr-r6-01', port:'1/5/1'},
+  {id:'seed_83', name:'AGBONOU1_FX4', clients:2169, region:'PLATEAUX', router:'AGB2-IXR-R6-01', port:''},
+  {id:'seed_84', name:'AGBONOU1_FX4_2', clients:300, region:'PLATEAUX', router:'AGBO1-IXRe-01', port:''},
+  {id:'seed_85', name:'AGBELOUVE-FX4', clients:163, region:'MARITIME', router:'AGBEL-IXRec-01', port:''},
+  {id:'seed_86', name:'AGOU_GARE-FX4', clients:157, region:'MARITIME', router:'AGOG-IXRe-01', port:''},
+  {id:'seed_87', name:'ANEHO-PEAGE-1', clients:139, region:'MARITIME', router:'ANEHP-SAR08-01', port:''},
+  {id:'seed_88', name:'ANEHO-PEAGE-2', clients:174, region:'MARITIME', router:'ANEHP-SAR08-01', port:''},
+  {id:'seed_89', name:'ANEHO1_RE-FX4', clients:814, region:'MARITIME', router:'ANEH1-IXR-R6-01', port:''},
+  {id:'seed_90', name:'ANEHO2-7362', clients:266, region:'MARITIME', router:'ANEH2-SAR08-01', port:''},
+  {id:'seed_91', name:'ANEHO3-7362-1', clients:332, region:'MARITIME', router:'ANEH3-SAR08-01', port:''},
+  {id:'seed_92', name:'ANEHO3-7362-2', clients:490, region:'MARITIME', router:'ANEH3-SAR08-01', port:''},
+  {id:'seed_93', name:'ANIE-FX4', clients:779, region:'PLATEAUX', router:'pla-083_anie1-sra4-01', port:'1/2/2'},
+  {id:'seed_94', name:'ATAKPAME_RE-FX4', clients:1433, region:'PLATEAUX', router:'pla-259_atkcom-ixr-r6-01', port:'1/5/10'},
+  {id:'seed_95', name:'ATCHANGBADE', clients:30, region:'KARA', router:'', port:''},
+  {id:'seed_96', name:'BASSAR-FX4', clients:676, region:'KARA', router:'kar-071_bass1-sra4-02', port:'1/1/3'},
+  {id:'seed_97', name:'BAFILO-FX4', clients:298, region:'KARA', router:'', port:''},
+  {id:'seed_98', name:'BLITTA-FX4', clients:333, region:'CENTRALE', router:'cen-065_blit-ixr-r6-01', port:'1/2/6'},
+  {id:'seed_99', name:'CINKASSE-FX4', clients:1127, region:'SAVANES', router:'sav-010_cink-sra4-01', port:'1/1/7'},
+  {id:'seed_100', name:'CINKASSE-FX4_2', clients:305, region:'SAVANES', router:'', port:'1/3/14'},
+  {id:'seed_101', name:'DAPAONG1-FX4', clients:1613, region:'SAVANES', router:'DAPA-SRa4-02', port:'1/1/8'},
+  {id:'seed_102', name:'DAPAONG1-FX8', clients:430, region:'SAVANES', router:'DAPA-SRa4-02', port:'1/1/7'},
+  {id:'seed_103', name:'DAPAONG_LAMIREL-FX4', clients:1337, region:'SAVANES', router:'DAPA-SRa4-02', port:'1/1/10'},
+  {id:'seed_104', name:'DAPAONG_LAMIREL-FX4_2', clients:140, region:'SAVANES', router:'DAPA-SRa4-02', port:''},
+  {id:'seed_105', name:'DAPAONG_NASSABLE-FX8', clients:389, region:'SAVANES', router:'sav-007_nasb-ixr-r6-01', port:'1/5/1'},
+  {id:'seed_106', name:'KANTE-FX4', clients:310, region:'KARA', router:'KANT-SRa4-02', port:''},
+  {id:'seed_107', name:'KARA_RE-FX4', clients:2128, region:'KARA', router:'kar-com_kcom-ixr-r6-01', port:'1/5/10'},
+  {id:'seed_108', name:'KARA_RE-FX8', clients:1125, region:'KARA', router:'kar-com_kcom-ixr-r6-01', port:'1/2/6'},
+  {id:'seed_109', name:'KARA_SUD-FX4', clients:586, region:'KARA', router:'kar-007_ksud-ixre-01', port:'1/1/7'},
+  {id:'seed_110', name:'KARA_SUD-FX8', clients:1053, region:'KARA', router:'kar-007_ksud-ixre-01', port:'1/1/9'},
+  {id:'seed_111', name:'KARA_TOMDE-FX4', clients:2453, region:'KARA', router:'KCOM-IXR-R6-01', port:''},
+  {id:'seed_112', name:'KARA_TOMDE-FX4_2', clients:725, region:'KARA', router:'kar-com_kcom-ixr-r6-01', port:'1/2/5'},
+  {id:'seed_113', name:'KPALIME2-FX4', clients:1301, region:'MARITIME', router:'KPAL2-IXRe-01', port:''},
+  {id:'seed_114', name:'KPALIME_KPODJI-FX4', clients:549, region:'MARITIME', router:'pla-019_kpal_kp-ixr-r6-01', port:'1/5/1'},
+  {id:'seed_115', name:'KPALIME_RE-FX4', clients:147, region:'MARITIME', router:'', port:''},
+  {id:'seed_116', name:'KPALIME_RE-FX8', clients:2278, region:'MARITIME', router:'KPAL-IXR-R6-01', port:''},
+  {id:'seed_117', name:'MANGO-FX4', clients:788, region:'SAVANES', router:'sav-045_mang-ixr-r6-01', port:'1/5/1'},
+  {id:'seed_118', name:'NIAMTOUGOU-FX4', clients:334, region:'PLATEAUX', router:'kar-030_niam-sra4-02', port:'1/1/13'},
+  {id:'seed_119', name:'NOTSE_GAPEDJI-FX8', clients:1418, region:'PLATEAUX', router:'pla-053_nots-sra4-01', port:'1/1/6'},
+  {id:'seed_120', name:'PYA-FX4', clients:470, region:'KARA', router:'kar-021_pyab-sra4-01', port:'1/1/4'},
+  {id:'seed_121', name:'SOKODE_KOMA-FX4', clients:951, region:'CENTRALE', router:'cen-001_akam-ixr-r6-01', port:'1/2/3'},
+  {id:'seed_122', name:'SOKODE_KOMA-FX4_2', clients:207, region:'CENTRALE', router:'cen-001_akam-ixr-r6-01', port:'1/1/4'},
+  {id:'seed_123', name:'SOKODE_POSTE-FX4', clients:465, region:'CENTRALE', router:'cen-012_sok5-ixr-r6-01', port:'1/1/6'},
+  {id:'seed_124', name:'SOKODE_POSTE-FX8', clients:3567, region:'CENTRALE', router:'cen-012_sok5-ixr-r6-01', port:'1/2/4'},
+  {id:'seed_125', name:'SOTOUBOUA-FX4', clients:490, region:'CENTRALE', router:'cen-030_soto-sra4-02', port:'1/1/3'},
+  {id:'seed_126', name:'TEMEDJA-FX4', clients:119, region:'PLATEAUX', router:'TEME-IXRe-01', port:''},
+  {id:'seed_127', name:'TABLIGBO1-FX4', clients:462, region:'MARITIME', router:'mar-041_tabl1-ixr-r6-01', port:'1/2/2'},
+  {id:'seed_128', name:'TCHAMBA-FX4', clients:638, region:'CENTRALE', router:'TCHBS-IXRe-01', port:''},
+  {id:'seed_129', name:'TSEVIE1-FX8', clients:445, region:'MARITIME', router:'mar-008_tsev-ixr-r6-01', port:'1/5/1'},
+  {id:'seed_130', name:'TSEVIE_RE-FX4', clients:1525, region:'MARITIME', router:'mar-008_tsev-ixr-r6-01', port:'1/2/6'},
+  {id:'seed_131', name:'TSEVIE_WUGBA-FX4', clients:1514, region:'MARITIME', router:'TSEV-IXR-R6-01', port:''},
+  {id:'seed_132', name:'VOGAN-FX4', clients:651, region:'MARITIME', router:'VOGA-IXRec-01', port:''}
+];
+
+// ══════════════ BASE TECHNICIENS ══════════════
+const TECH_DB_SEED = [
+    {id:'tseed_0', name:'AMEDJONEKOU', num:'90008829'},
+    {id:'tseed_1', name:'NABEDE', num:'90359076'},
+    {id:'tseed_2', name:'KOUGNON', num:'70450107'},
+    {id:'tseed_3', name:'LAWSON-TOGLA', num:'90124168'},
+    {id:'tseed_4', name:'DJAGBA', num:'90021274'},
+    {id:'tseed_5', name:'WARALIOUA', num:'90026819'},
+    {id:'tseed_6', name:'TELOU', num:'90128005'},
+    {id:'tseed_7', name:'MAKPAO', num:'92334948'},
+    {id:'tseed_8', name:'KODJOVI', num:'90279969'},
+    {id:'tseed_9', name:'N\'GUISSAN', num:'70450223'},
+    {id:'tseed_10', name:'TOGBONOU', num:'90530815'},
+    {id:'tseed_11', name:'ESAW', num:'70433559'},
+    {id:'tseed_12', name:'KAMMOUK', num:'92772525'},
+    {id:'tseed_13', name:'ABOTSI Kokou Pascal', num:'90232758'},
+    {id:'tseed_14', name:'LORA Alfa', num:'90018471'},
+    {id:'tseed_15', name:'BEKETI Simkoumodom', num:'90312326'},
+    {id:'tseed_16', name:'ADANI Kossi', num:'90222899'},
+    {id:'tseed_17', name:'TAHARE', num:'90003766'},
+    {id:'tseed_18', name:'TAGBA', num:'91437890'},
+    {id:'tseed_19', name:'YERIMA', num:'90834590'},
+    {id:'tseed_20', name:'ATILADE', num:'90316927'},
+    {id:'tseed_21', name:'BILAZA', num:'70453424'},
+    {id:'tseed_22', name:'DAOUDA', num:'70447413'},
+    {id:'tseed_23', name:'YABRE', num:'90174158'},
+    {id:'tseed_24', name:'WITCHA', num:'90349969'},
+    {id:'tseed_25', name:'DJADAM', num:'70454032'},
+    {id:'tseed_26', name:'BOUTIBIYA', num:'90023013'},
+    {id:'tseed_27', name:'YODO', num:'70455593'},
+    {id:'tseed_28', name:'LEMOU', num:'70450227'},
+    {id:'tseed_29', name:'TODOM', num:'70452290'},
+    {id:'tseed_30', name:'OURO', num:'93922077'},
+    {id:'tseed_31', name:'DOUTI', num:'70401401'},
+    {id:'tseed_32', name:'KOSSI-BUKO', num:'90125103'},
+    {id:'tseed_33', name:'FREDERIC', num:'90008829'},
+    {id:'tseed_34', name:'ALEMA', num:'70401754'},
+    {id:'tseed_35', name:'ADODO', num:'90224250'},
+    {id:'tseed_36', name:'CHRISTIAN', num:'72648300'}
+  ];
+
+// ══════════════ PERSISTANCE (localStorage) ══════════════
+function loadJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return parsed;
+  } catch (e) { return fallback; }
+}
+function saveJSON(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+}
+
+let oltDb = loadJSON("isoc_olt_db", null);
+
+if (!oltDb || !Array.isArray(oltDb) || oltDb.length === 0) {
+  // Première utilisation
+  oltDb = OLT_DB_SEED.map(e => ({
+    id: e.id,
+    name: e.name,
+    clients: e.clients,
+    region: e.region || "",
+    router: e.router || "",
+    port: e.port || ""
+  }));
+} else {
+  // Mise à jour automatique du nombre de clients / région / routeur / port connus
+  OLT_DB_SEED.forEach(seed => {
+    const olt = oltDb.find(o => o.id === seed.id);
+    if (olt) {
+      olt.clients = seed.clients;
+      if (!olt.region) olt.region = seed.region || "";
+      if (!olt.router) olt.router = seed.router || "";
+      if (!olt.port) olt.port = seed.port || "";
+    }
+  });
+  // S'assurer que chaque entrée existante a bien les champs région/routeur/port
+  oltDb.forEach(o => {
+    if (typeof o.region === "undefined" || o.region === null) o.region = "";
+    if (typeof o.router === "undefined" || o.router === null) o.router = "";
+    if (typeof o.port === "undefined" || o.port === null) o.port = "";
+  });
+}
+
+// Sauvegarde 
+saveJSON("isoc_olt_db", oltDb);
+
+let oltAliases = loadJSON("isoc_olt_alias", {}); 
+let techList = loadJSON("isoc_tech_list", null);
+
+if (!techList || !Array.isArray(techList) || techList.length === 0) {
+
+    techList = [...TECH_DB_SEED];
+
+} else {
+
+    // Ajouter automatiquement les nouveaux techniciens
+    TECH_DB_SEED.forEach(seed => {
+        const existe = techList.some(t => t.id === seed.id);
+
+        if (!existe) {
+            techList.push({
+                id: seed.id,
+                name: seed.name,
+                num: seed.num
+            });
+        }
+    });
+
+    // Mettre à jour les infos des techniciens existants
+    TECH_DB_SEED.forEach(seed => {
+        const tech = techList.find(t => t.id === seed.id);
+        if (tech) {
+            tech.name = seed.name;
+            tech.num = seed.num;
+        }
+    });
+}
+
+techList.sort((a, b) =>
+    a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
+);
+
+saveJSON("isoc_tech_list", techList);
+
+let genIdCounter = 0;
+function newId() { genIdCounter++; return "u" + Date.now().toString(36) + genIdCounter; }
+
+// ══════════════ MATCHING OLT ══════════════
+function normOlt(s) {
+  return (s || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/g, "");
+}
+function oltLookupMap() {
+  const map = {};
+  oltDb.forEach(e => { map[normOlt(e.name)] = e; });
+  return map;
+}
+function resolveOltEntry(rawName) {
+  const key = normOlt(rawName);
+  if (!key) return null;
+  const aliasId = oltAliases[key];
+  if (aliasId) {
+    const aliased = oltDb.find(e => e.id === aliasId);
+    if (aliased) return aliased;
+  }
+  const map = oltLookupMap();
+  return map[key] || null;
+}
+function computeClientsForNames(oltNames) {
+  let total = 0;
+  const missing = [];
+  oltNames.forEach(n => {
+    const e = resolveOltEntry(n);
+    if (e) total += (Number(e.clients) || 0);
+    else missing.push(n);
+  });
+  return { total, missing, matchedCount: oltNames.length - missing.length };
+}
+function getOltRegion(rawName) {
+  const e = resolveOltEntry(rawName);
+  return (e && e.region) ? e.region : "";
+}
+function getOltRouter(rawName) {
+  const e = resolveOltEntry(rawName);
+  return (e && e.router) ? e.router : "";
+}
+function getOltPort(rawName) {
+  const e = resolveOltEntry(rawName);
+  return (e && e.port) ? e.port : "";
+}
+
+function parseDate(str) {
+  const m = str.trim().match(/^(\d{1,2})\s+(\S+)\s+(\d{4})\s+(\d{2}):(\d{2}):(\d{2})/);
+  if (!m) return null;
+  const [, d, moisNom, y, h, min] = m;
+  const moisNum = MOIS[moisNom.toLowerCase()];
+  if (!moisNum) return null;
+  const day = parseInt(d, 10);
+  return {
+    timestamp: new Date(Date.UTC(+y, moisNum-1, day, +h, +min, 0)).getTime(),
+    formatted: String(day).padStart(2,'0') + "/" + String(moisNum).padStart(2,'0') + "/" + y + "@" + h + "h" + min,
+    formattedDiag: String(day).padStart(2,'0') + "-" + String(moisNum).padStart(2,'0') + "-" + y + " @" + h + "H" + min
+  };
+}
+
+function frenchJoin(items) {
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return items[0] + " et " + items[1];
+  return items.slice(0,-1).join(", ") + " et " + items[items.length-1];
+}
+
+function parseLines(raw) {
+  const events = [];
+  for (const line of raw.split(/\r?\n/)) {
+    if (line.trim().startsWith("Severity,")) continue;
+    if (!line.includes(",")) continue;
+    const fields = line.split(",");
+    if (fields.length < 4) continue;
+    const dateInfo = parseDate(fields[1]);
+    const src = fields[3];
+    let m;
+    if ((m = src.match(/PON Port:([^:]+):(.+)/))) {
+      const lp = m[2].trim().match(/LT(\d+)\.PON(\d+)/);
+      if (!lp) continue;
+      events.push({ type:"pon", oltName:m[1].trim(), lt:lp[1], pon:lp[2], dateInfo });
+    } else if ((m = src.match(/Slot:([^:]+):(.+)/))) {
+      const lm = m[2].trim().match(/LT(\d+)/);
+      if (!lm) continue;
+      events.push({ type:"card", oltName:m[1].trim(), lt:lm[1], dateInfo });
+    } else if ((m = src.match(/Agent:([^:]+):(.+)/))) {
+      events.push({ type:"olt", oltName:m[1].trim(), dateInfo });
+    }
+  }
+  return events;
+}
+
+function buildPonSentence(oltName, ltGroups) {
+  const segs = ltGroups.map(g => "PON " + g.pons.join(",") + " de la carte LT" + g.lt);
+  const firstPlural = ltGroups[0].pons.length > 1;
+  const parts = segs.map((s,i) => i===0 ? ((firstPlural?"des ":"du ")+s) : s);
+  let r = parts[0];
+  for (let i=1; i<parts.length; i++) r += (i===parts.length-1?" et ":" ; ") + parts[i];
+  return "Indisponibilité " + r + " de l'OLT " + oltName + ".";
+}
+
+function buildCardSentence(oltName, lts) {
+  return "Indisponibilité " + (lts.length>1?"des cartes ":"de la carte ") +
+    frenchJoin(lts.map(n => "LT"+n)) + " de l'OLT " + oltName + ".";
+}
+
+function buildOltSentence(oltName) {
+  return "Indisponibilité de l'OLT " + oltName + ".";
+}
+
+function getBaseName(n) {
+  return n.replace(/[_-](FX)?\d+$/i, "");
+}
+
+function techLine(tech) {
+  if (!tech) return "À renseigner";
+
+  const nom = "M. " + tech.name;
+
+  return tech.num
+      ? nom + "/" + tech.num
+      : nom;
+
+}
+
+// ══════════════ DIAGNOSTIC OLT ══════════════
+function buildOltDiagnosticBlock(oltName, diagDate, tech) {
+  const region = getOltRegion(oltName);
+  const router = getOltRouter(oltName);
+  const port = getOltPort(oltName);
+  const routerLine = router
+    ? "*ROUTEUR*:*" + router + "* /JOIGNABLE"
+    : "*ROUTEUR*:*À renseigner* /JOIGNABLE";
+  const portLine = port
+    ? "*PORT ROUTEUR* : NUMERO PORT" + port + "/ DOWN "
+    : "*PORT ROUTEUR* : NUMERO PORT(À renseigner)DOWN";
+  return [
+    "*NOM OLT* (" + oltName + ")",
+    "*DATE*: " + (diagDate || "À renseigner"),
+    "*REGION*: " + (region || "À renseigner"),
+    "*OLT*: INJOIGNABLE",
+    routerLine,
+    portLine,
+    "*TRAFIC OLT* : 0MBits/s",
+    "*TECH INF*: " + techLine(tech)
+  ];
+}
+
+function buildClusterBlock(oltNames, events, tech) {
+  let ts=null, fmt=null, fmtDiag=null;
+  for (const e of events)
+    if (e.dateInfo && (ts===null || e.dateInfo.timestamp<ts)) { ts=e.dateInfo.timestamp; fmt=e.dateInfo.formatted; fmtDiag=e.dateInfo.formattedDiag; }
+  const clientsInfo = computeClientsForNames(oltNames);
+  const impactsValue = clientsInfo.matchedCount > 0
+    ? (clientsInfo.total + " CLIENTS FTTH")
+    : "À renseigner";
+  const dash = "------------------------------------------------------------------------";
+  const lines = [
+    dash, EMOJI.siren+" SIGNALEMENT D'INCIDENT "+EMOJI.siren, dash,
+    "*➡️STATUT INCIDENT : DEBUT* ", dash,
+    "Details :",
+    "Nature de l'incident :",
+    "Indisponibilité de l'OLT "+oltNames.join("/")+".",
+    "",
+    "Début :", EMOJI.clock+" "+(fmt||"À renseigner"),
+    "",
+    EMOJI.chart+" IMPACTS RX FIXE : "+impactsValue,
+    "",
+    EMOJI.family+" Escalade : EMEF",
+    "",
+    EMOJI.mensRoom+" TECH INF : "+techLine(tech),
+    "",
+    EMOJI.warning+" CAUSE : INVESTIGATION EN COURS."
+  ];
+  oltNames.forEach(name => {
+    lines.push(...buildOltDiagnosticBlock(name, fmtDiag, tech));
+  });
+  return lines;
+}
+
+function buildBlockForOlt(oltName, events, tech) {
+  const groupOrder=[], groups={};
+  let ts=null, fmt=null;
+  for (const e of events) {
+    if (e.dateInfo && (ts===null||e.dateInfo.timestamp<ts)) { ts=e.dateInfo.timestamp; fmt=e.dateInfo.formatted; }
+    if (e.type==="pon") {
+      if (!groups.pon) { groups.pon={type:"pon",ltOrder:[],byLt:{}}; groupOrder.push("pon"); }
+      const g = groups.pon;
+      if (!g.byLt[e.lt]) { g.byLt[e.lt]=[]; g.ltOrder.push(e.lt); }
+      if (!g.byLt[e.lt].includes(e.pon)) g.byLt[e.lt].push(e.pon);
+    } else if (e.type==="card") {
+      if (!groups.card) { groups.card={type:"card",lts:[]}; groupOrder.push("card"); }
+      if (!groups.card.lts.includes(e.lt)) groups.card.lts.push(e.lt);
+    } else if (e.type==="olt") {
+      if (!groups.olt) { groups.olt={type:"olt"}; groupOrder.push("olt"); }
+    }
+  }
+  const sentences = groupOrder.map(k => {
+    const g = groups[k];
+    if (g.type==="pon")  return buildPonSentence(oltName, g.ltOrder.map(lt=>({lt, pons:g.byLt[lt]})));
+    if (g.type==="card") return buildCardSentence(oltName, g.lts);
+    return buildOltSentence(oltName);
+  });
+  const esc = [];
+  groupOrder.forEach(k => {
+    const l = groups[k].type==="pon" ? "TRANS FO/FTTH" : "EMEF";
+    if (!esc.includes(l)) esc.push(l);
+  });
+  const dash = "------------------------------------------------------------------------";
+  return [
+    dash, EMOJI.siren+" SIGNALEMENT D'INCIDENT "+EMOJI.siren, dash,
+    "*➡️STATUT INCIDENT : DEBUT* ", dash,
+    "Details :",
+    "Nature de l'incident :", ...sentences,
+    "",
+    "Début :", EMOJI.clock+" "+(fmt||"À renseigner"),
+    "",
+    EMOJI.chart+" IMPACTS RX FIXE : À renseigner",
+    "",
+    EMOJI.family+" Escalade : "+esc.join(" / "),
+    "",
+    EMOJI.mensRoom+" TECH INF : "+techLine(tech),
+    "",
+    EMOJI.warning+" CAUSE : INVESTIGATION EN COURS."
+  ];
+}
+
+let lastReport = "";
+
+function setMsg(text, state) {
+  const el = document.getElementById("msg");
+  el.innerHTML = '<span class="dot" aria-hidden="true"></span>' + text;
+  el.className = "status-msg" + (state ? " " + state : "");
+}
+
+function clearAll() {
+  document.getElementById("input").value = "";
+  document.getElementById("output").value = "";
+  document.getElementById("preview").innerHTML =
+    '<div class="empty-st"><div class="empty-icon" aria-hidden="true">' +
+    '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
+    '</div><p class="empty-text">Aucun signalement généré</p></div>';
+  lastReport = "";
+  hideResolveBanner();
+  setMsg("Effacé", "");
+}
+
+// ══════════════ RECHERCHE TECHNICIEN  ══════════════
+let selectedTechId = null;
+
+function normSearch(s) {
+  return (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function getSelectedTech() {
+  if (!selectedTechId) return null;
+  return techList.find(t => t.id === selectedTechId) || null;
+}
+
+function techDisplayLabel(t) {
+  return t.name + (t.num ? " (" + t.num + ")" : "");
+}
+
+// Garde l'input synchronisé si la liste des techniciens change (ajout/suppression/édition)
+function syncTechInput() {
+  const input = document.getElementById("techSearch");
+  if (selectedTechId && !techList.some(t => t.id === selectedTechId)) {
+    selectedTechId = null;
+    input.value = "";
+  } else if (selectedTechId) {
+    const t = techList.find(t => t.id === selectedTechId);
+    if (t) input.value = techDisplayLabel(t);
+  }
+}
+
+function openTechDropdown() {
+  renderTechDropdownList(document.getElementById("techSearch").value);
+  document.getElementById("techDropdown").classList.add("show");
+  document.getElementById("techSearch").setAttribute("aria-expanded", "true");
+}
+function closeTechDropdown() {
+  document.getElementById("techDropdown").classList.remove("show");
+  document.getElementById("techSearch").setAttribute("aria-expanded", "false");
+}
+
+function chooseTech(tech) {
+  const input = document.getElementById("techSearch");
+  if (tech) {
+    selectedTechId = tech.id;
+    input.value = techDisplayLabel(tech);
+  } else {
+    selectedTechId = null;
+    input.value = "";
+  }
+  closeTechDropdown();
+  if (lastReport) generate();
+}
+
+function renderTechDropdownList(query) {
+  const dropdown = document.getElementById("techDropdown");
+  const q = normSearch(query);
+  const list = techList
+    .filter(t => !q || normSearch(t.name).includes(q) || (t.num && t.num.includes(query.trim())))
+    .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
+
+  dropdown.innerHTML = "";
+
+  const clearItem = document.createElement("div");
+  clearItem.className = "tb-combo-item clear";
+  clearItem.textContent = "— À renseigner —";
+  clearItem.addEventListener("mousedown", (e) => { e.preventDefault(); chooseTech(null); });
+  dropdown.appendChild(clearItem);
+
+  if (list.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "tb-combo-empty";
+    empty.textContent = "Aucun technicien trouvé";
+    dropdown.appendChild(empty);
+    return;
+  }
+
+  list.forEach(t => {
+    const item = document.createElement("div");
+    item.className = "tb-combo-item";
+    item.setAttribute("role", "option");
+    const nameEsc = t.name.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    item.innerHTML = nameEsc + (t.num ? ' <span class="tci-num">' + t.num + '</span>' : "");
+    item.addEventListener("mousedown", (e) => { e.preventDefault(); chooseTech(t); });
+    dropdown.appendChild(item);
+  });
+}
+
+document.getElementById("techSearch").addEventListener("input", () => {
+  selectedTechId = null;
+  openTechDropdown();
+});
+document.getElementById("techSearch").addEventListener("focus", openTechDropdown);
+document.getElementById("techSearch").addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { closeTechDropdown(); document.getElementById("techSearch").blur(); }
+});
+document.addEventListener("click", (e) => {
+  if (!document.getElementById("techCombo").contains(e.target)) closeTechDropdown();
+});
+
+document.getElementById("genBtn").addEventListener("click", generate);
+document.getElementById("copyBtn").addEventListener("click", () => {
+  if (!lastReport) return;
+  navigator.clipboard.writeText(lastReport).then(() => setMsg("Copié dans le presse-papiers", "ok"));
+});
+document.getElementById("deleteBtn").addEventListener("click", clearAll);
+
+function generate() {
+  const raw = document.getElementById("input").value;
+  const events = parseLines(raw);
+  if (events.length === 0) {
+    setMsg("Aucune ligne d'alarme reconnue", "err");
+    document.getElementById("output").value = "";
+    document.getElementById("preview").innerHTML =
+      '<div class="empty-st"><div class="empty-icon" aria-hidden="true">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">' +
+      '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' +
+      '</svg></div><p class="empty-text">Format non reconnu</p></div>';
+    lastReport = ""; hideResolveBanner(); return;
+  }
+
+  const unitOrder=[], units={};
+  for (const e of events) {
+    if (e.type==="olt") {
+      const key = "cluster|" + getBaseName(e.oltName);
+      if (!units[key]) { units[key]={kind:"cluster",oltNames:[],events:[]}; unitOrder.push(key); }
+      if (!units[key].oltNames.includes(e.oltName)) units[key].oltNames.push(e.oltName);
+      units[key].events.push(e);
+    } else {
+      const key = "device|" + e.oltName;
+      if (!units[key]) { units[key]={kind:"device",oltName:e.oltName,events:[]}; unitOrder.push(key); }
+      units[key].events.push(e);
+    }
+  }
+
+  const tech = getSelectedTech();
+  const allLines = [];
+  const missingAll = [];
+  unitOrder.forEach((key, i) => {
+    if (i > 0) allLines.push("");
+    const u = units[key];
+    if (u.kind === "device") {
+      allLines.push(...buildBlockForOlt(u.oltName, u.events, tech));
+    } else {
+      allLines.push(...buildClusterBlock(u.oltNames, u.events, tech));
+      const info = computeClientsForNames(u.oltNames);
+      info.missing.forEach(n => { if (!missingAll.includes(n)) missingAll.push(n); });
+    }
+  });
+
+  lastReport = allLines.join("\n");
+  document.getElementById("output").value = lastReport;
+  renderPreview(allLines);
+  setMsg(events.length + " ligne(s) · " + unitOrder.length + " signalement(s) généré(s)", "ok");
+  if (missingAll.length > 0) renderResolveBanner(missingAll); else hideResolveBanner();
+}
+
+function renderPreview(lines) {
+  const parts = lines.map(line => {
+    if (line === "") return "<div class='l-gap'></div>";
+    if (line.startsWith("---")) return "<div class='l-div'></div>";
+    let cls = "l-sentence";
+    if (line.startsWith("1-") || line.includes("SIGNALEMENT D'INCIDENT")) cls = "l-title";
+    else if (line.startsWith("➡️"))                     cls = "l-update";
+    else if (line==="Nature de l'incident :" ||
+             line==="Début :" ||
+             line==="Details :")                        cls = "l-section";
+    else if (line.startsWith(EMOJI.clock))               cls = "l-date";
+    else if (line.startsWith(EMOJI.chart))                cls = "l-clients";
+    else if (line.startsWith(EMOJI.family) ||
+             line.startsWith(EMOJI.mensRoom))            cls = "l-impact";
+    else if (line.startsWith(EMOJI.warning))              cls = "l-cause";
+    else if (line==="À renseigner")                       cls = "l-todo";
+    else if (line.startsWith("*NOM OLT*"))                cls = "l-diag-title";
+    else if (line.startsWith("*"))                        cls = "l-diag";
+    const esc = line.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    return "<div class='" + cls + "'>" + esc + "</div>";
+  });
+  document.getElementById("preview").innerHTML = parts.join("");
+}
+
+// ══════════════ BANNIÈRE DE RÉSOLUTION (OLT non reconnus) ══════════════
+function hideResolveBanner() {
+  const b = document.getElementById("resolveBanner");
+  b.classList.remove("show");
+  document.getElementById("resolveRows").innerHTML = "";
+}
+function renderResolveBanner(missingNames) {
+  const banner = document.getElementById("resolveBanner");
+  const rows = document.getElementById("resolveRows");
+  rows.innerHTML = "";
+  missingNames.forEach(name => {
+    const row = document.createElement("div");
+    row.className = "resolve-row";
+    const dlId = "dl_" + normOlt(name);
+    row.innerHTML =
+      '<span class="resolve-name">' + name.replace(/&/g,"&amp;").replace(/</g,"&lt;") + '</span>' +
+      '<input class="resolve-input" list="' + dlId + '" placeholder="Associer à un OLT de la base…" autocomplete="off">' +
+      '<datalist id="' + dlId + '">' + oltDb.map(e => '<option value="'+e.name.replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'">').join("") + '</datalist>' +
+      '<button class="resolve-btn" type="button">Associer</button>';
+    const input = row.querySelector(".resolve-input");
+    const btn = row.querySelector(".resolve-btn");
+    input.addEventListener("input", () => input.classList.remove("invalid"));
+    btn.addEventListener("click", () => {
+      const chosen = oltDb.find(e => e.name === input.value.trim());
+      if (!chosen) {
+        input.classList.add("invalid");
+        return;
+      }
+      input.classList.remove("invalid");
+      oltAliases[normOlt(name)] = chosen.id;
+      saveJSON("isoc_olt_alias", oltAliases);
+      generate();
+    });
+    rows.appendChild(row);
+  });
+  banner.classList.add("show");
+}
+
+// ══════════════ MODAL BASE OLT ══════════════
+const oltModal = document.getElementById("oltModal");
+function openOltModal() { renderOltTable(); oltModal.classList.add("show"); document.getElementById("oltSearch").focus(); }
+function closeOltModal() { oltModal.classList.remove("show"); clearHash(); }
+document.getElementById("manageOltBtn").addEventListener("click", openOltModal);
+document.getElementById("oltModalClose").addEventListener("click", closeOltModal);
+oltModal.addEventListener("click", (e) => { if (e.target === oltModal) closeOltModal(); });
+
+function renderOltTable() {
+  const table = document.getElementById("oltTable");
+  const q = normOlt(document.getElementById("oltSearch").value);
+  const list = oltDb
+    .slice()
+    .sort((a,b) => a.name.localeCompare(b.name))
+    .filter(e => !q || normOlt(e.name).includes(q));
+  table.innerHTML = "";
+  if (list.length === 0) {
+    table.innerHTML = '<div class="mod-empty">Aucun OLT trouvé</div>';
+  }
+  list.forEach(entry => {
+    const row = document.createElement("div");
+    row.className = "mod-row";
+    row.innerHTML =
+      '<input type="text" class="mr-name" value="' + entry.name.replace(/&/g,"&amp;").replace(/"/g,"&quot;") + '">' +
+      '<input type="text" class="mr-region" value="' + (entry.region||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;") + '" placeholder="Région">' +
+      '<input type="text" class="mr-router" value="' + (entry.router||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;") + '" placeholder="Routeur">' +
+      '<input type="text" class="mr-port" value="' + (entry.port||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;") + '" placeholder="Port">' +
+      '<input type="number" class="mr-num" min="0" value="' + entry.clients + '">' +
+      '<button class="mr-del" type="button" title="Supprimer"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>';
+    const nameInput = row.querySelector(".mr-name");
+    const regionInput = row.querySelector(".mr-region");
+    const routerInput = row.querySelector(".mr-router");
+    const portInput = row.querySelector(".mr-port");
+    const numInput = row.querySelector(".mr-num");
+    nameInput.addEventListener("change", () => {
+      entry.name = nameInput.value.trim() || entry.name;
+      saveJSON("isoc_olt_db", oltDb);
+    });
+    regionInput.addEventListener("change", () => {
+      entry.region = regionInput.value.trim().toUpperCase();
+      saveJSON("isoc_olt_db", oltDb);
+    });
+    routerInput.addEventListener("change", () => {
+      entry.router = routerInput.value.trim();
+      saveJSON("isoc_olt_db", oltDb);
+    });
+    portInput.addEventListener("change", () => {
+      entry.port = portInput.value.trim();
+      saveJSON("isoc_olt_db", oltDb);
+    });
+    numInput.addEventListener("change", () => {
+      entry.clients = Math.max(0, parseInt(numInput.value, 10) || 0);
+      saveJSON("isoc_olt_db", oltDb);
+    });
+    row.querySelector(".mr-del").addEventListener("click", () => {
+      oltDb = oltDb.filter(e => e.id !== entry.id);
+      saveJSON("isoc_olt_db", oltDb);
+      renderOltTable();
+      updateOltCount();
+    });
+    table.appendChild(row);
+  });
+  updateOltCount();
+}
+function updateOltCount() {
+  document.getElementById("oltCount").textContent = oltDb.length + " OLT en base";
+}
+document.getElementById("oltSearch").addEventListener("input", renderOltTable);
+document.getElementById("oltAddBtn").addEventListener("click", () => {
+  const nameEl = document.getElementById("oltNewName");
+  const regionEl = document.getElementById("oltNewRegion");
+  const routerEl = document.getElementById("oltNewRouter");
+  const portEl = document.getElementById("oltNewPort");
+  const clientsEl = document.getElementById("oltNewClients");
+  const name = nameEl.value.trim();
+  if (!name) { nameEl.focus(); return; }
+  const clients = Math.max(0, parseInt(clientsEl.value, 10) || 0);
+  const region = regionEl.value.trim().toUpperCase();
+  const router = routerEl.value.trim();
+  const port = portEl.value.trim();
+  oltDb.push({ id: newId(), name, clients, region, router, port });
+  saveJSON("isoc_olt_db", oltDb);
+  nameEl.value = ""; regionEl.value = ""; routerEl.value = ""; portEl.value = ""; clientsEl.value = "";
+  renderOltTable();
+});
+document.getElementById("oltResetBtn").addEventListener("click", () => {
+  if (!confirm("Réinitialiser la base OLT avec les données d'origine ? Les modifications seront perdues.")) return;
+  oltDb = OLT_DB_SEED.map(e => ({ id: e.id, name: e.name, clients: e.clients, region: e.region || "", router: e.router || "", port: e.port || "" }));
+  oltAliases = {};
+  saveJSON("isoc_olt_db", oltDb);
+  saveJSON("isoc_olt_alias", oltAliases);
+  renderOltTable();
+});
+document.getElementById("oltExportBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(oltDb, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "base_olt.json";
+  a.click();
+});
+document.getElementById("oltImportBtn").addEventListener("click", () => {
+  document.getElementById("oltImportFile").click();
+});
+document.getElementById("oltImportFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      if (!Array.isArray(parsed)) throw new Error("format invalide");
+      oltDb = parsed.map(e => ({ id: e.id || newId(), name: String(e.name || "").trim(), clients: Math.max(0, parseInt(e.clients,10) || 0), region: String(e.region || "").trim().toUpperCase(), router: String(e.router || "").trim(), port: String(e.port || "").trim() })).filter(e => e.name);
+      saveJSON("isoc_olt_db", oltDb);
+      renderOltTable();
+      setMsg("Base OLT importée (" + oltDb.length + " entrées)", "ok");
+    } catch (err) {
+      setMsg("Fichier JSON invalide", "err");
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+// ══════════════ MODAL TECHNICIENS ══════════════
+const techModal = document.getElementById("techModal");
+function openTechModal() { renderTechTable(); techModal.classList.add("show"); }
+function closeTechModal() { techModal.classList.remove("show"); clearHash(); }
+document.getElementById("manageTechBtn").addEventListener("click", openTechModal);
+document.getElementById("techModalClose").addEventListener("click", closeTechModal);
+techModal.addEventListener("click", (e) => { if (e.target === techModal) closeTechModal(); });
+
+function renderTechTable() {
+  const table = document.getElementById("techTable");
+  table.innerHTML = "";
+  if (techList.length === 0) {
+    table.innerHTML = '<div class="mod-empty">Aucun technicien — ajoutez-en un ci-dessous</div>';
+  }
+  techList.forEach(t => {
+    const row = document.createElement("div");
+    row.className = "mod-row";
+    row.innerHTML =
+      '<input type="text" class="mr-name" value="' + t.name.replace(/&/g,"&amp;").replace(/"/g,"&quot;") + '">' +
+      '<input type="text" class="mr-num" value="' + (t.num||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;") + '">' +
+      '<button class="mr-del" type="button" title="Supprimer"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>';
+    const nameInput = row.querySelector(".mr-name");
+    const numInput = row.querySelector(".mr-num");
+    nameInput.addEventListener("change", () => {
+      t.name = nameInput.value.trim() || t.name;
+      saveJSON("isoc_tech_list", techList);
+      syncTechInput();
+    });
+    numInput.addEventListener("change", () => {
+      t.num = numInput.value.trim();
+      saveJSON("isoc_tech_list", techList);
+      syncTechInput();
+    });
+    row.querySelector(".mr-del").addEventListener("click", () => {
+      techList = techList.filter(x => x.id !== t.id);
+      saveJSON("isoc_tech_list", techList);
+      renderTechTable();
+      syncTechInput();
+      updateTechCount();
+    });
+    table.appendChild(row);
+  });
+  updateTechCount();
+}
+function updateTechCount() {
+  document.getElementById("techCount").textContent = techList.length + " technicien(s)";
+}
+document.getElementById("techAddBtn").addEventListener("click", () => {
+  const nameEl = document.getElementById("techNewName");
+  const numEl = document.getElementById("techNewNum");
+  const name = nameEl.value.trim();
+  if (!name) { nameEl.focus(); return; }
+  techList.push({ id: newId(), name, num: numEl.value.trim() });
+  saveJSON("isoc_tech_list", techList);
+  nameEl.value = ""; numEl.value = "";
+  renderTechTable();
+  syncTechInput();
+});
+document.getElementById("techResetBtn").addEventListener("click", () => {
+  if (!confirm("Réinitialiser la liste des techniciens avec la liste d'origine ? Les modifications seront perdues.")) return;
+  techList = TECH_DB_SEED.map(t => ({ id: t.id, name: t.name, num: t.num }));
+  saveJSON("isoc_tech_list", techList);
+  renderTechTable();
+  syncTechInput();
+});
+
+// ══════════════ ACCÈS DIRECT DEPUIS L'ACCUEIL (#olt / #tech) ══════════════
+function clearHash() {
+  if (location.hash) {
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+}
+function openFromHash() {
+  const h = (location.hash || "").toLowerCase();
+  if (h === "#olt") openOltModal();
+  else if (h === "#tech") openTechModal();
+}
+window.addEventListener("hashchange", openFromHash);
+
+// Initialisation
+syncTechInput();
+openFromHash();
+</script>
+
+<!-- Composants partagés -->
+<script src="components/image-drop.js"></script>
+<script src="components/date-picker.js"></script>
+<script src="components/search-select.js"></script>
+<script src="components/dropdown.js"></script>
+<script src="data/sites.js"></script>
+
+<script>
+// Alimente le sélecteur de routeurs à partir de la base OLT
+(function () {
+  var sel = window.SearchSelect && SearchSelect.get("routerPick");
+  if (!sel || typeof oltDb === "undefined") return;
+  var map = {};
+  oltDb.forEach(function (o) {
+    var r = (o.router || "").trim();
+    if (!r) return;
+    var key = r.toLowerCase();
+    if (!map[key]) map[key] = { value: r, label: r, region: o.region || "", count: 0 };
+    map[key].count++;
+  });
+  var list = Object.keys(map)
+    .map(function (k) { return map[k]; })
+    .sort(function (a, b) { return a.label.localeCompare(b.label, "fr", { sensitivity: "base" }); })
+    .map(function (e) {
+      return {
+        value: e.value,
+        label: e.label,
+        meta: (e.region ? e.region + " · " : "") + e.count + (e.count > 1 ? " OLT" : " OLT")
+      };
+    });
+  sel.setOptions(list);
+
+  // Alimente le sélecteur de sites (data/sites.js, genere depuis l'Excel)
+  var siteSel = window.SearchSelect && SearchSelect.get("sitePick");
+  if (siteSel && Array.isArray(window.ISOC_SITES)) siteSel.setOptions(window.ISOC_SITES);
+})();
+</script>
+
+</body>
+</html>

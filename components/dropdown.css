@@ -1,0 +1,124 @@
+/* ══════════════════════════════════════════════════════════════
+   Composant <isoc-dropdown>
+   Conteneur cliquable qui déroule un menu de choix.
+
+   Réutilisable : lier ce fichier + components/dropdown.js,
+   puis placer <isoc-dropdown options="A|B"></isoc-dropdown>.
+
+   Les couleurs suivent les variables du thème de la page
+   (styles.css) et retombent sur des valeurs neutres ailleurs.
+   ══════════════════════════════════════════════════════════════ */
+
+isoc-dropdown {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+}
+
+/* ══════════════ CONTENEUR CLIQUABLE ══════════════ */
+.dd-field {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 38px; padding: 0 12px;
+  background: transparent;
+  border: 1px solid var(--border, #d8e2ec);
+  border-radius: 7px;
+  color: var(--text2, #51677d);
+  font-family: inherit; font-size: 13.5px; font-weight: 500;
+  cursor: pointer; text-align: left; white-space: nowrap;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.dd-field:hover {
+  background: var(--ov-04, rgba(0,0,0,.04));
+  border-color: var(--text2, #51677d);
+  color: var(--text, #14212e);
+}
+.dd-field:focus-visible,
+.dd-field.is-open {
+  outline: none;
+  border-color: var(--blue, #2563eb);
+  box-shadow: 0 0 0 3px var(--focus-ring, rgba(37,99,235,.12));
+}
+.dd-label { flex-shrink: 0; }
+.dd-value {
+  font-weight: 600; color: var(--text, #14212e);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dd-value.is-empty { color: var(--muted, #7d92a6); font-weight: 500; }
+.dd-caret {
+  display: flex; flex-shrink: 0;
+  color: var(--muted, #7d92a6);
+  transition: transform .15s ease-out;
+}
+.dd-field.is-open .dd-caret { transform: rotate(180deg); }
+.dd-caret svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* pastille d'état */
+.dd-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  background: var(--muted, #7d92a6);
+}
+.dd-field.state-ok   .dd-dot { background: var(--green, #16a34a); box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
+.dd-field.state-warn .dd-dot { background: var(--amber, #f59e0b); box-shadow: 0 0 0 3px rgba(245,158,11,.15); }
+
+/* ══════════════ MENU ══════════════ */
+.dd-menu {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 60;
+  min-width: 100%; width: max-content; max-width: 280px;
+  padding: 4px;
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #d8e2ec);
+  border-radius: 9px;
+  box-shadow: var(--sh-pop, 0 16px 36px -12px rgba(20,40,60,.28));
+  display: none;
+}
+.dd-menu.show { display: block; }
+.dd-menu.to-right { left: auto; right: 0; }
+
+/* ── recherche (listes de plus de 8 options) ── */
+.dd-search-wrap { position: relative; margin-bottom: 5px; }
+.dd-search {
+  width: 100%; height: 32px; padding: 0 10px 0 28px;
+  background: var(--inner, #f7fafd);
+  border: 1px solid var(--border, #d8e2ec); border-radius: 6px;
+  color: var(--text, #14212e);
+  font-family: inherit; font-size: 12.5px;
+}
+.dd-search::placeholder { color: var(--muted, #7d92a6); }
+.dd-search:focus {
+  outline: none; border-color: var(--blue, #2563eb);
+  box-shadow: 0 0 0 3px var(--focus-ring, rgba(37,99,235,.12));
+}
+.dd-search-icon {
+  position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+  display: flex; pointer-events: none; color: var(--muted, #7d92a6);
+}
+.dd-search-icon svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+.dd-list { max-height: 260px; overflow-y: auto; }
+.dd-list::-webkit-scrollbar { width: 4px; }
+.dd-list::-webkit-scrollbar-thumb { background: var(--border, #d8e2ec); border-radius: 2px; }
+
+.dd-empty {
+  padding: 12px 10px; text-align: center;
+  font-size: 12px; color: var(--muted, #7d92a6);
+}
+.dd-empty[hidden] { display: none; }
+
+.dd-opt {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 6px;
+  font-size: 12.5px; color: var(--text, #14212e);
+  cursor: pointer; white-space: nowrap;
+}
+.dd-opt:hover, .dd-opt.is-active { background: var(--blue-dim, rgba(37,99,235,.09)); }
+.dd-opt.is-selected { color: var(--blue, #2563eb); font-weight: 700; }
+.dd-opt-check {
+  width: 13px; flex-shrink: 0; display: flex;
+  color: var(--blue, #2563eb); opacity: 0;
+}
+.dd-opt.is-selected .dd-opt-check { opacity: 1; }
+.dd-opt-check svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dd-field, .dd-caret { transition: none !important; }
+}

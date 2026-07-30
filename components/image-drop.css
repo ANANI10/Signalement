@@ -1,0 +1,207 @@
+/* ══════════════════════════════════════════════════════════════
+   Composant <isoc-image-drop> — version compacte
+   Zone de dépôt d'images : coller (Ctrl+V), glisser-déposer,
+   ou importer depuis la machine.
+
+   Réutilisable : lier ce fichier + components/image-drop.js,
+   puis placer <isoc-image-drop></isoc-image-drop> où voulu.
+
+   Les couleurs suivent les variables du thème de la page
+   (styles.css) et retombent sur des valeurs neutres ailleurs.
+   ══════════════════════════════════════════════════════════════ */
+
+isoc-image-drop {
+  display: block;
+  width: 20%;          /* étroit : ~1/5 de la largeur disponible */
+  min-width: 235px;
+  margin-bottom: 14px;
+}
+
+/* sur petit écran, la contrainte de largeur n'a plus de sens */
+@media (max-width: 860px) {
+  isoc-image-drop { width: 100%; min-width: 0; }
+}
+
+/* la boîte entière est la zone de dépôt */
+.imgdrop-box {
+  background: var(--inner, #f7fafd);
+  border: 2px dashed #8d99a6;      /* gris franc, visible sur fond clair comme sombre */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.imgdrop-box:hover { border-color: var(--blue, #2563eb); }
+.imgdrop-box:focus-visible {
+  outline: none;
+  border-color: var(--blue, #2563eb);
+  box-shadow: 0 0 0 3px var(--focus-ring, rgba(37,99,235,.12));
+}
+.imgdrop-box.is-over {
+  border-style: solid;
+  border-color: var(--blue, #2563eb);
+  background: var(--blue-dim, rgba(37,99,235,.09));
+}
+
+/* ── ligne unique ── */
+.imgdrop-row {
+  display: flex; align-items: center; gap: 9px;
+  padding: 0 20px; height: 110px;
+}
+.imgdrop-text {
+  display: flex; flex-direction: column; gap: 3px;
+  min-width: 0; flex: 1;
+}
+
+/* ── dès qu'une image est présente : le texte d'invite s'efface ── */
+.imgdrop-box.has-images .imgdrop-icon,
+.imgdrop-box.has-images .imgdrop-text { display: none; }
+.imgdrop-box.has-images .imgdrop-row {
+  height: auto; padding: 8px 12px 0;
+}
+.imgdrop-icon {
+  display: flex; flex-shrink: 0;
+  color: var(--muted, #7d92a6);
+  transition: transform .15s ease-out;
+}
+.imgdrop-box.is-over .imgdrop-icon { transform: scale(1.12); }
+.imgdrop-icon svg {
+  width: 15px; height: 15px;
+  stroke: currentColor; fill: none; stroke-width: 1.8;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.imgdrop-title {
+  font-size: 12.5px; font-weight: 600;
+  color: var(--text2, #51677d);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.imgdrop-main {
+  font-size: 11.5px; color: var(--muted, #7d92a6);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.imgdrop-kbd {
+  font-family: "JetBrains Mono", monospace; font-size: 10.5px;
+  padding: 1px 4px; border-radius: 3px;
+  border: 1px solid var(--border, #d8e2ec);
+  background: var(--ov-04, rgba(0,0,0,.04));
+  color: var(--text2, #51677d);
+}
+.imgdrop-link { color: var(--blue, #2563eb); font-weight: 600; }
+.imgdrop-count {
+  margin-left: auto; flex-shrink: 0;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px; color: var(--muted, #7d92a6);
+}
+.imgdrop-clear {
+  flex-shrink: 0;
+  background: none; border: none; padding: 2px 4px;
+  font-family: inherit; font-size: 11px; font-weight: 600;
+  color: var(--text2, #51677d); cursor: pointer; border-radius: 4px;
+}
+.imgdrop-clear:hover { color: var(--red, #dc2626); }
+.imgdrop-clear[hidden] { display: none; }
+.imgdrop-input { display: none; }
+
+/* ── vignettes ── */
+.imgdrop-grid {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 0 12px 10px;
+}
+.imgdrop-grid:empty { display: none; }
+
+.imgdrop-item {
+  position: relative; margin: 0;
+  width: 110px; height: 78px;
+  border: 1px solid var(--border, #d8e2ec);
+  border-radius: 5px; overflow: hidden;
+  background: var(--surface, #fff);
+  animation: imgdropIn .18s ease-out both;
+}
+/* une seule image : aperçu pleine largeur */
+.imgdrop-grid.is-single .imgdrop-item {
+  width: 100%; height: 150px;
+}
+@keyframes imgdropIn {
+  from { opacity: 0; transform: scale(.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.imgdrop-thumb {
+  display: block; width: 100%; height: 100%;
+  padding: 0; border: none; background: none; cursor: zoom-in;
+}
+/* contain : l'aperçu montre l'image entière, sans rognage */
+.imgdrop-thumb img {
+  width: 100%; height: 100%; display: block;
+  object-fit: contain;
+  background: var(--inner, #f7fafd);
+}
+
+/* pastille « agrandir », visible au survol de l'aperçu */
+.imgdrop-zoom {
+  position: absolute; left: 4px; bottom: 4px;
+  display: flex; align-items: center; gap: 3px;
+  padding: 2px 5px; border-radius: 4px;
+  background: rgba(0,0,0,.55); color: #fff;
+  font-size: 9.5px; font-weight: 600;
+  opacity: 0; pointer-events: none;
+  transition: opacity .15s;
+}
+.imgdrop-item:hover .imgdrop-zoom { opacity: 1; }
+.imgdrop-zoom svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; }
+
+.imgdrop-del {
+  position: absolute; top: 2px; right: 2px;
+  width: 16px; height: 16px; border-radius: 4px;
+  border: none;
+  background: rgba(0,0,0,.55); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; opacity: 0;
+  transition: opacity .15s, background .15s;
+}
+.imgdrop-item:hover .imgdrop-del,
+.imgdrop-del:focus-visible { opacity: 1; }
+.imgdrop-del:hover { background: var(--red, #dc2626); }
+.imgdrop-del svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.6; stroke-linecap: round; }
+
+/* ── message d'erreur ── */
+.imgdrop-error {
+  margin: 0 12px 8px;
+  padding: 5px 8px;
+  border: 1px solid var(--red, #dc2626);
+  border-radius: 5px;
+  background: var(--red-dim, rgba(220,38,38,.07));
+  color: var(--red, #dc2626);
+  font-size: 11.5px;
+}
+.imgdrop-error[hidden] { display: none; }
+
+/* ── agrandissement ── */
+.imgdrop-lightbox {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--backdrop, rgba(28,42,58,.72));
+  backdrop-filter: blur(2px);
+  display: none; align-items: center; justify-content: center;
+  padding: 32px; cursor: zoom-out;
+}
+.imgdrop-lightbox.show { display: flex; }
+.imgdrop-lightbox img {
+  max-width: 100%; max-height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 24px 60px -12px rgba(0,0,0,.6);
+}
+.imgdrop-lb-close {
+  position: absolute; top: 20px; right: 24px;
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(0,0,0,.35); color: #fff;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.imgdrop-lb-close svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+@media (max-width: 640px) {
+  .imgdrop-main { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .imgdrop-item, .imgdrop-icon { animation: none !important; transition: none !important; }
+}

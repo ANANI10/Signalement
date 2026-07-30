@@ -1,0 +1,171 @@
+/* ══════════════════════════════════════════════════════════════
+   Composant <isoc-search-select>
+   Sélecteur avec recherche + conteneur d'affichage de la
+   sélection placé devant le champ.
+
+   Réutilisable : lier ce fichier + components/search-select.js,
+   puis placer <isoc-search-select></isoc-search-select> où voulu,
+   et l'alimenter avec el.setOptions([...]).
+
+   Les couleurs suivent les variables du thème de la page
+   (styles.css) et retombent sur des valeurs neutres ailleurs.
+   ══════════════════════════════════════════════════════════════ */
+
+isoc-search-select { display: block; }
+
+/* sur une ligne : le champ de choix, puis le conteneur de la sélection */
+.ss-row {
+  display: flex; align-items: stretch; gap: 8px;
+  flex-wrap: wrap; justify-content: flex-start;
+}
+
+/* ══════════════ CONTENEUR DE LA SÉLECTION (après le champ) ══════════════ */
+/* s'étend jusqu'au bout de la ligne */
+.ss-selected {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+  min-height: 38px; min-width: 150px;
+  flex: 1 1 150px;
+  padding: 5px 8px;
+  background: var(--inner, #f7fafd);
+  border: 1px solid var(--border, #d8e2ec);
+  border-radius: 7px;
+}
+.ss-placeholder {
+  font-size: 12.5px; font-style: italic;
+  color: var(--muted, #7d92a6); padding: 0 4px;
+}
+
+/* pastille orange — un élément sélectionné */
+.ss-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  max-width: 100%;
+  padding: 3px 4px 3px 10px;
+  border-radius: 999px;                    /* bords arrondis */
+  background: #f59e0b;                     /* orange */
+  border: 1px solid #d98707;
+  color: #241700;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11.5px; font-weight: 600;
+  animation: ssChipIn .16s ease-out both;
+}
+@keyframes ssChipIn {
+  from { opacity: 0; transform: scale(.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.ss-chip-label {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  cursor: pointer;
+}
+.ss-chip-del {
+  width: 16px; height: 16px; flex-shrink: 0;
+  border: none; border-radius: 50%;
+  background: rgba(0,0,0,.16); color: inherit;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 0;
+  transition: background .15s;
+}
+.ss-chip-del:hover { background: rgba(0,0,0,.34); }
+.ss-chip-del svg { width: 9px; height: 9px; stroke: currentColor; fill: none; stroke-width: 3; stroke-linecap: round; }
+
+/* ══════════════ CHAMP DE SÉLECTION ══════════════ */
+.ss-wrap { position: relative; flex: 0 0 auto; }
+
+.ss-field {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 38px; padding: 0 12px;
+  min-width: 210px;
+  background: var(--inner, #f7fafd);
+  border: 1px solid var(--border, #d8e2ec);
+  border-radius: 7px;
+  color: var(--text, #14212e);
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  cursor: pointer; text-align: left;
+  transition: border-color .15s, box-shadow .15s;
+}
+.ss-field:hover { border-color: var(--text2, #51677d); }
+.ss-field:focus-visible,
+.ss-field.is-open {
+  outline: none;
+  border-color: var(--blue, #2563eb);
+  box-shadow: 0 0 0 3px var(--focus-ring, rgba(37,99,235,.12));
+}
+.ss-field svg {
+  width: 14px; height: 14px; flex-shrink: 0;
+  stroke: currentColor; fill: none; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+  color: var(--muted, #7d92a6);
+}
+.ss-field-text {
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--muted, #7d92a6);
+}
+
+/* ══════════════ PANNEAU ══════════════ */
+.ss-pop {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 60;
+  width: 300px; padding: 6px;
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #d8e2ec);
+  border-radius: 9px;
+  box-shadow: var(--sh-pop, 0 16px 36px -12px rgba(20,40,60,.28));
+  display: none;
+}
+.ss-pop.show { display: block; }
+.ss-pop.to-right { left: auto; right: 0; }
+
+.ss-search-wrap { position: relative; margin-bottom: 6px; }
+.ss-search {
+  width: 100%; height: 34px; padding: 0 10px 0 30px;
+  background: var(--inner, #f7fafd);
+  border: 1px solid var(--border, #d8e2ec); border-radius: 7px;
+  color: var(--text, #14212e);
+  font-family: inherit; font-size: 12.5px;
+}
+.ss-search::placeholder { color: var(--muted, #7d92a6); }
+.ss-search:focus {
+  outline: none; border-color: var(--blue, #2563eb);
+  box-shadow: 0 0 0 3px var(--focus-ring, rgba(37,99,235,.12));
+}
+.ss-search-icon {
+  position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+  display: flex; pointer-events: none; color: var(--muted, #7d92a6);
+}
+.ss-search-icon svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+.ss-list { max-height: 260px; overflow-y: auto; }
+.ss-list::-webkit-scrollbar { width: 4px; }
+.ss-list::-webkit-scrollbar-thumb { background: var(--border, #d8e2ec); border-radius: 2px; }
+
+.ss-opt {
+  display: flex; flex-direction: column; gap: 1px;
+  padding: 7px 9px; border-radius: 6px; cursor: pointer;
+}
+.ss-opt:hover, .ss-opt.is-active { background: var(--blue-dim, rgba(37,99,235,.09)); }
+.ss-opt.is-selected .ss-opt-label { color: var(--blue, #2563eb); font-weight: 700; }
+.ss-opt-label {
+  font-family: "JetBrains Mono", monospace; font-size: 12px;
+  color: var(--text, #14212e);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ss-opt-meta { font-size: 11px; color: var(--muted, #7d92a6); }
+.ss-opt-meta:empty { display: none; }
+.ss-opt.clear {
+  color: var(--text2, #51677d); font-style: italic; font-size: 12px;
+  border-bottom: 1px solid var(--borderlo, #e7edf4);
+  border-radius: 0; margin-bottom: 4px; padding-bottom: 8px;
+}
+
+.ss-empty {
+  padding: 14px 10px; text-align: center;
+  font-size: 12px; color: var(--muted, #7d92a6);
+}
+.ss-empty[hidden] { display: none; }
+
+@media (max-width: 860px) {
+  .ss-wrap, .ss-field { width: 100%; min-width: 0; }
+  .ss-pop { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ss-field, .ss-opt { transition: none !important; }
+}

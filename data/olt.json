@@ -1,0 +1,933 @@
+[
+  {
+    "name": "ABLO",
+    "region": "LOME",
+    "router": "lom-169_ablo-sra4-01",
+    "port": "1/3/14",
+    "clients": 495
+  },
+  {
+    "name": "ADAKPAME-FX4",
+    "region": "LOME",
+    "router": "lom-194_port-ixr-r6-03",
+    "port": "1/2/3",
+    "clients": 696
+  },
+  {
+    "name": "ADAMAVO-FX4_1",
+    "region": "LOME",
+    "router": "lom-176_adam1-ixrec-01",
+    "port": "1/1/30",
+    "clients": 760
+  },
+  {
+    "name": "ADAMAVO-FX4_2",
+    "region": "LOME",
+    "router": "lom-176_adam1-ixrec-02",
+    "port": "",
+    "clients": 619
+  },
+  {
+    "name": "ADETA-FX4",
+    "region": "PLATEAUX",
+    "router": "pla-061_adeta-ixre-01",
+    "port": "1/1/12",
+    "clients": 310
+  },
+  {
+    "name": "ADETICOPE-FX8",
+    "region": "LOME",
+    "router": "ADETI1-IXR-R6-01",
+    "port": "",
+    "clients": 2040
+  },
+  {
+    "name": "ADETICOPE-FX8_2",
+    "region": "LOME",
+    "router": "ADETI1-IXR-R6-01",
+    "port": "",
+    "clients": 539
+  },
+  {
+    "name": "ADETIKOPE_CEG-FX8",
+    "region": "LOME",
+    "router": "ADETCEG-IXRec-01",
+    "port": "",
+    "clients": 1173
+  },
+  {
+    "name": "ADIDO-7360-FX8",
+    "region": "LOME",
+    "router": "lom-076_adg1-ixre-01",
+    "port": "1/1/12",
+    "clients": 1228
+  },
+  {
+    "name": "ADIDO1",
+    "region": "LOME",
+    "router": "lom-076_adg1-ixre-01",
+    "port": "1/1/14",
+    "clients": 724
+  },
+  {
+    "name": "ADIDO1-FX16",
+    "region": "LOME",
+    "router": "lom-076_adg1-ixre-01",
+    "port": "1/1/13",
+    "clients": 541
+  },
+  {
+    "name": "ADIDO2-FX16",
+    "region": "LOME",
+    "router": "lom-070_adg2-ixre-01",
+    "port": "1/1/5",
+    "clients": 667
+  },
+  {
+    "name": "ADJOUGBA-FX8",
+    "region": "LOME",
+    "router": "lom-005_adgba-sra4-01",
+    "port": "1/3/2",
+    "clients": 1519
+  },
+  {
+    "name": "AEROPORT-FX8",
+    "region": "LOME",
+    "router": "lom-194_port-ixr-r6-03",
+    "port": "1/5/2",
+    "clients": 1086
+  },
+  {
+    "name": "AFIDEGNIGBAN-FX8",
+    "region": "LOME",
+    "router": "lom-197_afid-ixr-r6-01",
+    "port": "1/2/6",
+    "clients": 2733
+  },
+  {
+    "name": "AGBALEPEDO-FX16",
+    "region": "LOME",
+    "router": "AGBL1-IXRec-R6-01",
+    "port": "1/1/30",
+    "clients": 979
+  },
+  {
+    "name": "AGBODRAFO-FX4",
+    "region": "MARITIME",
+    "router": "mar-011_agbod-ixre-01",
+    "port": "1/1/10",
+    "clients": 1455
+  },
+  {
+    "name": "AGODEKE-FX8",
+    "region": "LOME",
+    "router": "lom-197_afid-ixr-r6-01",
+    "port": "1/2/5",
+    "clients": 1399
+  },
+  {
+    "name": "AMADAHOME2-FX8",
+    "region": "LOME",
+    "router": "lom-058_amad2-ixre-01",
+    "port": "1/1/10",
+    "clients": 219
+  },
+  {
+    "name": "APEDOKOE-FX8",
+    "region": "LOME",
+    "router": "lom-073_aved1-ixr-r6-02",
+    "port": "1/2/3",
+    "clients": 1550
+  },
+  {
+    "name": "APESSITO-FX8",
+    "region": "LOME",
+    "router": "APES-IXRe-01",
+    "port": "",
+    "clients": 1485
+  },
+  {
+    "name": "ASSIGOME-FX4",
+    "region": "LOME",
+    "router": "lom-232_assg-sar08-01",
+    "port": "1/3/6",
+    "clients": 503
+  },
+  {
+    "name": "AVEDJI1",
+    "region": "LOME",
+    "router": "lom-073_aved1-ixr-r6-02",
+    "port": "1/3/7",
+    "clients": 0
+  },
+  {
+    "name": "AVEDJI1-FX4",
+    "region": "LOME",
+    "router": "lom-073_aved1-ixr-r6-02",
+    "port": "1/5/5",
+    "clients": 125
+  },
+  {
+    "name": "AVEDJI1-FX8",
+    "region": "LOME",
+    "router": "lom-073_aved1-ixr-r6-02",
+    "port": "1/1/1",
+    "clients": 1016
+  },
+  {
+    "name": "AVEDJI_2",
+    "region": "LOME",
+    "router": "lom-073_aved1-ixr-r6-02",
+    "port": "1/4/1",
+    "clients": 0
+  },
+  {
+    "name": "AVEDJI2-FX16",
+    "region": "LOME",
+    "router": "lom-073_aved2-ixre-01",
+    "port": "1/1/6",
+    "clients": 419
+  },
+  {
+    "name": "AWANDJELO",
+    "region": "KARA",
+    "router": "AWAND-IXRec-01",
+    "port": "",
+    "clients": 35
+  },
+  {
+    "name": "BAGUIDA-FX8",
+    "region": "LOME",
+    "router": "lom-180_bag3-ixre-01",
+    "port": "1/1/10",
+    "clients": 1304
+  },
+  {
+    "name": "BE-CHATEAU-FX8",
+    "region": "LOME",
+    "router": "lom-165_bech-ixr-r6-02",
+    "port": "1/1/1",
+    "clients": 1092
+  },
+  {
+    "name": "CACN-FX4",
+    "region": "LOME",
+    "router": "lom-011_cacn-sra8-01",
+    "port": "2/1/3",
+    "clients": 2155
+  },
+  {
+    "name": "CACAVELI-FX8",
+    "region": "LOME",
+    "router": "CACN-SRa8-01",
+    "port": "",
+    "clients": 401
+  },
+  {
+    "name": "CAMPUS-MOOV",
+    "region": "LOME",
+    "router": "lom-105_camp-ixr-r6-02",
+    "port": "1/1/2",
+    "clients": 8
+  },
+  {
+    "name": "DGTG",
+    "region": "LOME",
+    "router": "lom-143_tgtnkp-sra4-01",
+    "port": "1/1/1",
+    "clients": 648
+  },
+  {
+    "name": "DGTG-FX16",
+    "region": "LOME",
+    "router": "lom-143_tgtnkp-sra4-01",
+    "port": "1/1/3",
+    "clients": 1497
+  },
+  {
+    "name": "DGTG_2",
+    "region": "LOME",
+    "router": "lom-143_tgtnkp-sra4-01",
+    "port": "1/1/2",
+    "clients": 291
+  },
+  {
+    "name": "DICAME-FX8",
+    "region": "LOME",
+    "router": "lom-020_moto-sra4-01",
+    "port": "1/3/2",
+    "clients": 2666
+  },
+  {
+    "name": "DJAGBLE-FX16",
+    "region": "LOME",
+    "router": "DJAG-IXR-R6-01",
+    "port": "",
+    "clients": 3201
+  },
+  {
+    "name": "DJIFAKPOTA-FX8",
+    "region": "LOME",
+    "router": "lom-207_djif-ixre-01",
+    "port": "1/1/18",
+    "clients": 1478
+  },
+  {
+    "name": "GBADAGO-FX4",
+    "region": "LOME",
+    "router": "lom-121_gbad-ixre-01",
+    "port": "1/1/10",
+    "clients": 687
+  },
+  {
+    "name": "GBENYEDJI-FX4",
+    "region": "LOME",
+    "router": "lom-174_gben2-sra4-01",
+    "port": "1/4/14",
+    "clients": 1021
+  },
+  {
+    "name": "GTA-FX8",
+    "region": "LOME",
+    "router": "lom-107_gta-ixr-r6-06",
+    "port": "1/1/1",
+    "clients": 1590
+  },
+  {
+    "name": "HEDZRANAWE1",
+    "region": "LOME",
+    "router": "lom-097_hed1-ixr-r6-03",
+    "port": "1/2/2",
+    "clients": 790
+  },
+  {
+    "name": "HIHEATRO-FX4",
+    "region": "PLATEAUX",
+    "router": "HIHE-IXRe-01",
+    "port": "",
+    "clients": 354
+  },
+  {
+    "name": "HOUNTIGOME",
+    "region": "LOME",
+    "router": "lom-101_hgom-sar8-01",
+    "port": "1/4/5",
+    "clients": 790
+  },
+  {
+    "name": "HOUNTIGOME -7330",
+    "region": "LOME",
+    "router": "lom-101_hgom-sar8-01",
+    "port": "1/4/6",
+    "clients": 641
+  },
+  {
+    "name": "KEGUE",
+    "region": "LOME",
+    "router": "lom-091_keg1-ixr-r6-02",
+    "port": "1/1/1",
+    "clients": 0
+  },
+  {
+    "name": "KEGUE-2",
+    "region": "LOME",
+    "router": "lom-091_keg1-ixr-r6-02",
+    "port": "1/4/9",
+    "clients": 0
+  },
+  {
+    "name": "KEGUE-FX8",
+    "region": "LOME",
+    "router": "lom-091_keg1-ixr-r6-02",
+    "port": "1/2/2",
+    "clients": 1551
+  },
+  {
+    "name": "KODJOVIAKOPE-FX8",
+    "region": "LOME",
+    "router": "KODJ-IXRec-01",
+    "port": "",
+    "clients": 272
+  },
+  {
+    "name": "KELEGOUGAN-FX4",
+    "region": "LOME",
+    "router": "lom-007_kele1-ixr-r6-01",
+    "port": "1/2/6",
+    "clients": 1783
+  },
+  {
+    "name": "KLEME-FX8",
+    "region": "LOME",
+    "router": "lom-059-klem-ixre-01",
+    "port": "1/1/9",
+    "clients": 825
+  },
+  {
+    "name": "KLIKAME-FX16",
+    "region": "LOME",
+    "router": "lom-113_klik-ixre-01",
+    "port": "1/1/6",
+    "clients": 498
+  },
+  {
+    "name": "KOVE1-FX8",
+    "region": "LOME",
+    "router": "KOVE1-IXRe-01",
+    "port": "",
+    "clients": 1842
+  },
+  {
+    "name": "LEGBA7362",
+    "region": "LOME",
+    "router": "lom-024_legb-ixr-r6-01",
+    "port": "1/1/6",
+    "clients": 416
+  },
+  {
+    "name": "LEGBASSITO-FX4",
+    "region": "LOME",
+    "router": "LEGB-IXRe-01",
+    "port": "",
+    "clients": 1517
+  },
+  {
+    "name": "LOGOPE-FX4",
+    "region": "LOME",
+    "router": "LOGO1-IXRe-01",
+    "port": "",
+    "clients": 1146
+  },
+  {
+    "name": "LOME_RP-FX8",
+    "region": "LOME",
+    "router": "lom-155_lome-ixrec-01",
+    "port": "1/1/29",
+    "clients": 1128
+  },
+  {
+    "name": "LOME_RP-FX16",
+    "region": "LOME",
+    "router": "LOME-sra8-10",
+    "port": "",
+    "clients": 1648
+  },
+  {
+    "name": "MADJIKPETO-FX8",
+    "region": "LOME",
+    "router": "lom-283_madj-ixre-01",
+    "port": "1/1/10",
+    "clients": 918
+  },
+  {
+    "name": "MINAMADOU-FX8",
+    "region": "LOME",
+    "router": "lom-041_mina-sra4-01",
+    "port": "1/4/13",
+    "clients": 1969
+  },
+  {
+    "name": "MINAMADOU1-FX16",
+    "region": "LOME",
+    "router": "lom-041_mina-sra4-01",
+    "port": "1/3/13",
+    "clients": 706
+  },
+  {
+    "name": "NUKAFU",
+    "region": "LOME",
+    "router": "lom-134_nuk1-sra4-01",
+    "port": "1/3/14",
+    "clients": 0
+  },
+  {
+    "name": "NUKAFU-FX4",
+    "region": "LOME",
+    "router": "lom-134_nuk1-sra4-01",
+    "port": "1/4/14",
+    "clients": 987
+  },
+  {
+    "name": "PORT-FTTN-I",
+    "region": "LOME",
+    "router": "PORT-IXR-R6-03",
+    "port": "",
+    "clients": 1355
+  },
+  {
+    "name": "PORT-FX8",
+    "region": "LOME",
+    "router": "lom-194_port-ixr-r6-03",
+    "port": "1/5/1",
+    "clients": 622
+  },
+  {
+    "name": "SAGBADO1-FX8",
+    "region": "LOME",
+    "router": "SAGB1-IXRe-01",
+    "port": "",
+    "clients": 1797
+  },
+  {
+    "name": "SEGBE-FX4",
+    "region": "LOME",
+    "router": "segb-ixre-01",
+    "port": "1/1/15",
+    "clients": 2532
+  },
+  {
+    "name": "SEMINAIRE-FX8",
+    "region": "LOME",
+    "router": "lom-126_semi-ixre-01",
+    "port": "1/1/10",
+    "clients": 1791
+  },
+  {
+    "name": "SOS-FX8",
+    "region": "LOME",
+    "router": "lom-116_sos-sra4-01",
+    "port": "1/3/14",
+    "clients": 946
+  },
+  {
+    "name": "SOVIEPE-FX8",
+    "region": "LOME",
+    "router": "lom-087_sovi-ixre-01",
+    "port": "1/1/10",
+    "clients": 339
+  },
+  {
+    "name": "TELESSOU-FX8",
+    "region": "LOME",
+    "router": "lom-042_tele1-ixre-01",
+    "port": "1/1/10",
+    "clients": 271
+  },
+  {
+    "name": "TOGO2000",
+    "region": "LOME",
+    "router": "HED1-IXR-R6-03",
+    "port": "",
+    "clients": 0
+  },
+  {
+    "name": "TOGO2000-2",
+    "region": "LOME",
+    "router": "T2000-IXRe-01",
+    "port": "",
+    "clients": 0
+  },
+  {
+    "name": "TOGO2000-FX8",
+    "region": "LOME",
+    "router": "T2000-IXRe-01",
+    "port": "",
+    "clients": 1181
+  },
+  {
+    "name": "TOTSI1-FX16",
+    "region": "LOME",
+    "router": "lom-074_tots1-ixre-01",
+    "port": "1/1/9",
+    "clients": 894
+  },
+  {
+    "name": "TOTSI2-FX8",
+    "region": "LOME",
+    "router": "lom-080_tots2-ixre-01",
+    "port": "1/1/9",
+    "clients": 501
+  },
+  {
+    "name": "YOKOE-FX8",
+    "region": "LOME",
+    "router": "lom-081_yoko-ixre-01",
+    "port": "1/1/10",
+    "clients": 1676
+  },
+  {
+    "name": "ZANG_PEAGE-FX4",
+    "region": "LOME",
+    "router": "lom-055_zangp-ixre-01",
+    "port": "1/1/12",
+    "clients": 1328
+  },
+  {
+    "name": "ZANGUERA2-FX8",
+    "region": "LOME",
+    "router": "VAKPO-IXR-R6-02",
+    "port": "",
+    "clients": 1810
+  },
+  {
+    "name": "ZONGO",
+    "region": "LOME",
+    "router": "ZON2-IXRe-01",
+    "port": "",
+    "clients": 7
+  },
+  {
+    "name": "ZONGO-FX4",
+    "region": "LOME",
+    "router": "ZON2-IXRe-01",
+    "port": "",
+    "clients": 2162
+  },
+  {
+    "name": "ZOSSIME-FX8",
+    "region": "LOME",
+    "router": "lom-056_zoss-ixr-r6-01",
+    "port": "1/5/1",
+    "clients": 2792
+  },
+  {
+    "name": "AGBONOU1_FX4",
+    "region": "PLATEAUX",
+    "router": "AGB2-IXR-R6-01",
+    "port": "",
+    "clients": 2169
+  },
+  {
+    "name": "AGBONOU1_FX4_2",
+    "region": "PLATEAUX",
+    "router": "AGBO1-IXRe-01",
+    "port": "",
+    "clients": 300
+  },
+  {
+    "name": "AGBELOUVE-FX4",
+    "region": "MARITIME",
+    "router": "AGBEL-IXRec-01",
+    "port": "",
+    "clients": 163
+  },
+  {
+    "name": "AGOU_GARE-FX4",
+    "region": "MARITIME",
+    "router": "AGOG-IXRe-01",
+    "port": "",
+    "clients": 157
+  },
+  {
+    "name": "ANEHO-PEAGE-1",
+    "region": "MARITIME",
+    "router": "ANEHP-SAR08-01",
+    "port": "",
+    "clients": 139
+  },
+  {
+    "name": "ANEHO-PEAGE-2",
+    "region": "MARITIME",
+    "router": "ANEHP-SAR08-01",
+    "port": "",
+    "clients": 174
+  },
+  {
+    "name": "ANEHO1_RE-FX4",
+    "region": "MARITIME",
+    "router": "ANEH1-IXR-R6-01",
+    "port": "",
+    "clients": 814
+  },
+  {
+    "name": "ANEHO2-7362",
+    "region": "MARITIME",
+    "router": "ANEH2-SAR08-01",
+    "port": "",
+    "clients": 266
+  },
+  {
+    "name": "ANEHO3-7362-1",
+    "region": "MARITIME",
+    "router": "ANEH3-SAR08-01",
+    "port": "",
+    "clients": 332
+  },
+  {
+    "name": "ANEHO3-7362-2",
+    "region": "MARITIME",
+    "router": "ANEH3-SAR08-01",
+    "port": "",
+    "clients": 490
+  },
+  {
+    "name": "ANIE-FX4",
+    "region": "PLATEAUX",
+    "router": "pla-083_anie1-sra4-01",
+    "port": "1/2/2",
+    "clients": 779
+  },
+  {
+    "name": "ATAKPAME_RE-FX4",
+    "region": "PLATEAUX",
+    "router": "pla-259_atkcom-ixr-r6-01",
+    "port": "1/5/10",
+    "clients": 1433
+  },
+  {
+    "name": "ATCHANGBADE",
+    "region": "KARA",
+    "router": "",
+    "port": "",
+    "clients": 30
+  },
+  {
+    "name": "BASSAR-FX4",
+    "region": "KARA",
+    "router": "kar-071_bass1-sra4-02",
+    "port": "1/1/3",
+    "clients": 676
+  },
+  {
+    "name": "BAFILO-FX4",
+    "region": "KARA",
+    "router": "",
+    "port": "",
+    "clients": 298
+  },
+  {
+    "name": "BLITTA-FX4",
+    "region": "CENTRALE",
+    "router": "cen-065_blit-ixr-r6-01",
+    "port": "1/2/6",
+    "clients": 333
+  },
+  {
+    "name": "CINKASSE-FX4",
+    "region": "SAVANES",
+    "router": "sav-010_cink-sra4-01",
+    "port": "1/1/7",
+    "clients": 1127
+  },
+  {
+    "name": "CINKASSE-FX4_2",
+    "region": "SAVANES",
+    "router": "",
+    "port": "1/3/14",
+    "clients": 305
+  },
+  {
+    "name": "DAPAONG1-FX4",
+    "region": "SAVANES",
+    "router": "DAPA-SRa4-02",
+    "port": "1/1/8",
+    "clients": 1613
+  },
+  {
+    "name": "DAPAONG1-FX8",
+    "region": "SAVANES",
+    "router": "DAPA-SRa4-02",
+    "port": "1/1/7",
+    "clients": 430
+  },
+  {
+    "name": "DAPAONG_LAMIREL-FX4",
+    "region": "SAVANES",
+    "router": "DAPA-SRa4-02",
+    "port": "1/1/10",
+    "clients": 1337
+  },
+  {
+    "name": "DAPAONG_LAMIREL-FX4_2",
+    "region": "SAVANES",
+    "router": "DAPA-SRa4-02",
+    "port": "",
+    "clients": 140
+  },
+  {
+    "name": "DAPAONG_NASSABLE-FX8",
+    "region": "SAVANES",
+    "router": "sav-007_nasb-ixr-r6-01",
+    "port": "1/5/1",
+    "clients": 389
+  },
+  {
+    "name": "KANTE-FX4",
+    "region": "KARA",
+    "router": "KANT-SRa4-02",
+    "port": "",
+    "clients": 310
+  },
+  {
+    "name": "KARA_RE-FX4",
+    "region": "KARA",
+    "router": "kar-com_kcom-ixr-r6-01",
+    "port": "1/5/10",
+    "clients": 2128
+  },
+  {
+    "name": "KARA_RE-FX8",
+    "region": "KARA",
+    "router": "kar-com_kcom-ixr-r6-01",
+    "port": "1/2/6",
+    "clients": 1125
+  },
+  {
+    "name": "KARA_SUD-FX4",
+    "region": "KARA",
+    "router": "kar-007_ksud-ixre-01",
+    "port": "1/1/7",
+    "clients": 586
+  },
+  {
+    "name": "KARA_SUD-FX8",
+    "region": "KARA",
+    "router": "kar-007_ksud-ixre-01",
+    "port": "1/1/9",
+    "clients": 1053
+  },
+  {
+    "name": "KARA_TOMDE-FX4",
+    "region": "KARA",
+    "router": "KCOM-IXR-R6-01",
+    "port": "",
+    "clients": 2453
+  },
+  {
+    "name": "KARA_TOMDE-FX4_2",
+    "region": "KARA",
+    "router": "kar-com_kcom-ixr-r6-01",
+    "port": "1/2/5",
+    "clients": 725
+  },
+  {
+    "name": "KPALIME2-FX4",
+    "region": "MARITIME",
+    "router": "KPAL2-IXRe-01",
+    "port": "",
+    "clients": 1301
+  },
+  {
+    "name": "KPALIME_KPODJI-FX4",
+    "region": "MARITIME",
+    "router": "pla-019_kpal_kp-ixr-r6-01",
+    "port": "1/5/1",
+    "clients": 549
+  },
+  {
+    "name": "KPALIME_RE-FX4",
+    "region": "MARITIME",
+    "router": "",
+    "port": "",
+    "clients": 147
+  },
+  {
+    "name": "KPALIME_RE-FX8",
+    "region": "MARITIME",
+    "router": "KPAL-IXR-R6-01",
+    "port": "",
+    "clients": 2278
+  },
+  {
+    "name": "MANGO-FX4",
+    "region": "SAVANES",
+    "router": "sav-045_mang-ixr-r6-01",
+    "port": "1/5/1",
+    "clients": 788
+  },
+  {
+    "name": "NIAMTOUGOU-FX4",
+    "region": "PLATEAUX",
+    "router": "kar-030_niam-sra4-02",
+    "port": "1/1/13",
+    "clients": 334
+  },
+  {
+    "name": "NOTSE_GAPEDJI-FX8",
+    "region": "PLATEAUX",
+    "router": "pla-053_nots-sra4-01",
+    "port": "1/1/6",
+    "clients": 1418
+  },
+  {
+    "name": "PYA-FX4",
+    "region": "KARA",
+    "router": "kar-021_pyab-sra4-01",
+    "port": "1/1/4",
+    "clients": 470
+  },
+  {
+    "name": "SOKODE_KOMA-FX4",
+    "region": "CENTRALE",
+    "router": "cen-001_akam-ixr-r6-01",
+    "port": "1/2/3",
+    "clients": 951
+  },
+  {
+    "name": "SOKODE_KOMA-FX4_2",
+    "region": "CENTRALE",
+    "router": "cen-001_akam-ixr-r6-01",
+    "port": "1/1/4",
+    "clients": 207
+  },
+  {
+    "name": "SOKODE_POSTE-FX4",
+    "region": "CENTRALE",
+    "router": "cen-012_sok5-ixr-r6-01",
+    "port": "1/1/6",
+    "clients": 465
+  },
+  {
+    "name": "SOKODE_POSTE-FX8",
+    "region": "CENTRALE",
+    "router": "cen-012_sok5-ixr-r6-01",
+    "port": "1/2/4",
+    "clients": 3567
+  },
+  {
+    "name": "SOTOUBOUA-FX4",
+    "region": "CENTRALE",
+    "router": "cen-030_soto-sra4-02",
+    "port": "1/1/3",
+    "clients": 490
+  },
+  {
+    "name": "TEMEDJA-FX4",
+    "region": "PLATEAUX",
+    "router": "TEME-IXRe-01",
+    "port": "",
+    "clients": 119
+  },
+  {
+    "name": "TABLIGBO1-FX4",
+    "region": "MARITIME",
+    "router": "mar-041_tabl1-ixr-r6-01",
+    "port": "1/2/2",
+    "clients": 462
+  },
+  {
+    "name": "TCHAMBA-FX4",
+    "region": "CENTRALE",
+    "router": "TCHBS-IXRe-01",
+    "port": "",
+    "clients": 638
+  },
+  {
+    "name": "TSEVIE1-FX8",
+    "region": "MARITIME",
+    "router": "mar-008_tsev-ixr-r6-01",
+    "port": "1/5/1",
+    "clients": 445
+  },
+  {
+    "name": "TSEVIE_RE-FX4",
+    "region": "MARITIME",
+    "router": "mar-008_tsev-ixr-r6-01",
+    "port": "1/2/6",
+    "clients": 1525
+  },
+  {
+    "name": "TSEVIE_WUGBA-FX4",
+    "region": "MARITIME",
+    "router": "TSEV-IXR-R6-01",
+    "port": "",
+    "clients": 1514
+  },
+  {
+    "name": "VOGAN-FX4",
+    "region": "MARITIME",
+    "router": "VOGA-IXRec-01",
+    "port": "",
+    "clients": 651
+  }
+]

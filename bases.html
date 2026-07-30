@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iSOC — Bases de données</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCc+PHJlY3Qgd2lkdGg9JzI0JyBoZWlnaHQ9JzI0JyByeD0nNicgZmlsbD0nIzRmOGRmYicvPjxwYXRoIGQ9J00xOSAxMkgxNi4yTDE0LjEgMTguM0w5LjkgNS43TDcuOCAxMkg1JyBzdHJva2U9J3doaXRlJyBzdHJva2Utd2lkdGg9JzInIGZpbGw9J25vbmUnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjwvc3ZnPgo=">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="bases.css">
+<script>
+// ── Éclairage : applique le thème enregistré avant le rendu (évite le flash) ──
+(function () {
+  try {
+    var saved = localStorage.getItem("isoc_theme");
+    var theme = (saved === "light" || saved === "dark")
+      ? saved
+      : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", theme);
+  } catch (e) {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }
+})();
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Aller au contenu principal</a>
+
+<!-- TOP BAR -->
+<nav class="topbar" aria-label="Navigation principale">
+  <a class="topbar-brand" href="accueil.html" title="Retour à l'accueil">
+    <div class="brand-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    </div>
+    <span class="brand-name">iSOC</span>
+    <span class="brand-sep" aria-hidden="true">/</span>
+    <span class="brand-sub">Bases de données</span>
+  </a>
+  <div class="topbar-right">
+    <div class="clock-chip" aria-label="Heure">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span id="clockEl">--:--:--</span>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button"
+            title="Éclairage : basculer clair / sombre"
+            aria-label="Éclairage de la plateforme" aria-pressed="false">
+      <svg class="ic-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+      <svg class="ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="1.5" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="4.6" x2="6.4" y2="6.4"/><line x1="17.6" y1="17.6" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6.4" y2="17.6"/><line x1="17.6" y1="6.4" x2="19.4" y2="4.6"/></svg>
+    </button>
+  </div>
+</nav>
+
+<main id="main">
+
+  <header class="page-hd">
+    <div class="page-hd-left">
+      <h1>Bases de données</h1>
+      <p class="page-desc">Les listes qui alimentent les générateurs de signalement. Toute modification est enregistrée immédiatement dans ce navigateur.</p>
+    </div>
+    <div class="status-chip" id="cloudChip" role="status">
+      <span class="status-chip-dot" aria-hidden="true"></span>
+      <span id="cloudChipText">Connexion…</span>
+    </div>
+  </header>
+
+  <div class="db-layout">
+
+    <!-- liste des bases -->
+    <nav class="db-nav" id="dbNav" aria-label="Choix de la base"></nav>
+
+    <!-- base courante -->
+    <section class="db-panel" aria-live="polite">
+      <div class="db-panel-hd">
+        <span class="db-panel-title" id="dbTitle">—</span>
+        <span class="db-panel-count" id="dbCount"></span>
+        <span class="db-saved" id="dbSaved">Enregistré</span>
+        <div class="db-panel-actions">
+          <button class="btn-ghost modal-ft-btn is-hidden" id="dbPublishBtn" type="button">Publier vers le cloud</button>
+          <button class="btn-ghost modal-ft-btn" id="dbExportBtn" type="button">Exporter JSON</button>
+          <button class="btn-ghost modal-ft-btn" id="dbSheetBtn" type="button">Importer CSV / Excel</button>
+          <input type="file" id="dbSheetFile" class="is-hidden" accept=".csv,.txt,.xlsx">
+          <button class="btn-ghost modal-ft-btn" id="dbImportBtn" type="button">Importer JSON</button>
+          <input type="file" id="dbImportFile" class="is-hidden" accept="application/json">
+          <button class="btn-ghost modal-ft-btn" id="dbResetBtn" type="button">Réinitialiser</button>
+        </div>
+      </div>
+
+      <div class="db-panel-body">
+        <p class="db-hint" id="dbHint"></p>
+        <input class="db-search" id="dbSearch" type="text" placeholder="Rechercher…" autocomplete="off">
+        <div id="dbHead" class="db-head"></div>
+        <div id="dbRows" class="db-rows"></div>
+        <div id="dbAdd" class="db-add"></div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Import CSV / Excel : choix de la feuille et correspondance des colonnes -->
+<div class="modal-overlay" id="sheetModal" role="dialog" aria-modal="true" aria-labelledby="sheetModalTitle">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <span class="modal-title" id="sheetModalTitle">Importer un fichier</span>
+      <button class="modal-close" id="sheetClose" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p class="mod-hint" id="sheetFileInfo"></p>
+
+      <div class="upd-field" id="sheetSheetWrap">
+        <label for="sheetSelect">Feuille</label>
+        <select class="tb-select" id="sheetSelect"></select>
+      </div>
+
+      <div class="upd-field">
+        <label>Correspondance des colonnes</label>
+        <div class="sheet-map" id="sheetMap"></div>
+      </div>
+
+      <div class="upd-field">
+        <label>Aperçu — 3 premières lignes retenues</label>
+        <div class="sheet-preview" id="sheetPreview"></div>
+      </div>
+
+      <label class="upd-check" for="sheetReplace">
+        <input type="checkbox" id="sheetReplace">
+        Remplacer le contenu actuel de la base (sinon les lignes s'ajoutent)
+      </label>
+    </div>
+    <div class="modal-ft">
+      <span class="mod-hint" id="sheetCount"></span>
+      <div class="modal-ft-actions">
+        <button class="btn-ghost modal-ft-btn" id="sheetCancel" type="button">Annuler</button>
+        <button class="btn-primary modal-ft-btn" id="sheetGo" type="button">Importer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="components/sheet-reader.js"></script>
+<script src="data/sites.js"></script>
+<script src="data/db.js"></script>
+<script type="module" src="data/db-cloud.js"></script>
+<script>
+// ══════════════ ÉCLAIRAGE ══════════════
+const THEME_KEY = "isoc_theme";
+const themeBtn = document.getElementById("themeBtn");
+function currentTheme() {
+  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+}
+function applyTheme(theme, persist) {
+  const t = theme === "light" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", t);
+  themeBtn.setAttribute("aria-pressed", t === "light" ? "true" : "false");
+  themeBtn.title = t === "light" ? "Éclairage : passer en mode sombre" : "Éclairage : passer en mode clair";
+  if (persist) { try { localStorage.setItem(THEME_KEY, t); } catch (e) {} }
+}
+themeBtn.addEventListener("click", function () {
+  applyTheme(currentTheme() === "light" ? "dark" : "light", true);
+});
+document.addEventListener("keydown", function (e) {
+  if (e.ctrlKey && e.altKey && (e.key === "l" || e.key === "L")) { e.preventDefault(); themeBtn.click(); }
+});
+applyTheme(currentTheme(), false);
+
+// ── horloge ──
+(function tick() {
+  const n = new Date(), p = v => String(v).padStart(2, "0");
+  document.getElementById("clockEl").textContent =
+    p(n.getHours()) + ":" + p(n.getMinutes()) + ":" + p(n.getSeconds());
+  setTimeout(tick, 1000);
+})();
+
+// ══════════════ BASES DE DONNÉES ══════════════
+// Source de vérité : Firestore (data/db-cloud.js) quand la connexion
+// est établie ; le stockage local sert alors de cache. Sans connexion,
+// tout continue de fonctionner en local.
+const TRASH = '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
+
+let current = ISOC_DB.names()[0];
+let view = [];          // [{ id, v }] — id vaut null hors connexion
+
+const el = {
+  nav:     document.getElementById("dbNav"),
+  title:   document.getElementById("dbTitle"),
+  count:   document.getElementById("dbCount"),
+  hint:    document.getElementById("dbHint"),
+  search:  document.getElementById("dbSearch"),
+  head:    document.getElementById("dbHead"),
+  rows:    document.getElementById("dbRows"),
+  add:     document.getElementById("dbAdd"),
+  saved:   document.getElementById("dbSaved"),
+  chip:    document.getElementById("cloudChip"),
+  chipTxt: document.getElementById("cloudChipText"),
+  publish: document.getElementById("dbPublishBtn")
+};
+
+function cloud() { return window.ISOC_CLOUD && window.ISOC_CLOUD.ready ? window.ISOC_CLOUD : null; }
+function schema() { return ISOC_DB.schema(current); }
+function isSimple() { return schema().simple; }
+
+function flashSaved(text) {
+  el.saved.textContent = text || "Enregistré";
+  el.saved.classList.add("show");
+  clearTimeout(flashSaved.t);
+  flashSaved.t = setTimeout(function () { el.saved.classList.remove("show"); }, 1400);
+}
+
+function fail(action, err) {
+  console.error(action, err);
+  flashSaved("Échec — voir la console");
+}
+
+// ── chargement des lignes ──
+function loadView() {
+  const c = cloud();
+  if (c) {
+    view = c.rows(current).map(function (r) {
+      return isSimple() ? { id: r.id, v: r.value } : { id: r.id, v: r };
+    }).sort(function (a, b) {
+      const x = isSimple() ? a.v : a.v.name, y = isSimple() ? b.v : b.v.name;
+      return String(x || "").localeCompare(String(y || ""), "fr", { sensitivity: "base" });
+    });
+  } else {
+    view = ISOC_DB.get(current).map(function (r) { return { id: null, v: r }; });
+  }
+  el.count.textContent = view.length + " entrée(s)";
+}
+
+// ── écriture ──
+function saveLocal() {
+  ISOC_DB.set(current, view.map(function (o) { return o.v; }));
+}
+
+function writeRow(o, newValue) {
+  const c = cloud();
+  o.v = newValue;
+  if (c && o.id) {
+    c.update(current, o.id, newValue)
+      .then(function () { flashSaved(); })
+      .catch(function (e) { fail("update", e); });
+  } else {
+    saveLocal();
+    flashSaved();
+    renderNav();
+  }
+}
+
+function addRow(value) {
+  const c = cloud();
+  if (c) {
+    c.add(current, value)
+      .then(function () { flashSaved("Ajouté"); })
+      .catch(function (e) { fail("add", e); });
+  } else {
+    view.push({ id: null, v: value });
+    saveLocal();
+    flashSaved("Ajouté");
+    renderAll();
+  }
+}
+
+function deleteRow(o) {
+  const c = cloud();
+  if (c && o.id) {
+    c.remove(current, o.id)
+      .then(function () { flashSaved("Supprimé"); })
+      .catch(function (e) { fail("remove", e); });
+  } else {
+    view = view.filter(function (x) { return x !== o; });
+    saveLocal();
+    flashSaved("Supprimé");
+    renderAll();
+  }
+}
+
+// ── colonne des bases ──
+function renderNav() {
+  el.nav.textContent = "";
+  ISOC_DB.names().forEach(function (name) {
+    const s = ISOC_DB.schema(name);
+    const c = cloud();
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "db-nav-btn" + (name === current ? " active" : "");
+    const label = document.createElement("span");
+    label.textContent = s.label;
+    const count = document.createElement("span");
+    count.className = "db-nav-count";
+    count.textContent = c ? c.count(name) : ISOC_DB.get(name).length;
+    btn.appendChild(label);
+    btn.appendChild(count);
+    btn.addEventListener("click", function () { select(name); });
+    el.nav.appendChild(btn);
+  });
+}
+
+// ── en-tête du tableau ──
+function renderHead() {
+  el.head.textContent = "";
+  if (isSimple()) {
+    const s = document.createElement("span");
+    s.className = "db-grow";
+    s.textContent = "Valeur";
+    el.head.appendChild(s);
+  } else {
+    schema().cols.forEach(function (c) {
+      const s = document.createElement("span");
+      if (c.grow) s.className = "db-grow"; else s.style.width = c.w;
+      s.textContent = c.ph;
+      el.head.appendChild(s);
+    });
+  }
+  const spacer = document.createElement("span");
+  spacer.style.width = "28px";
+  el.head.appendChild(spacer);
+}
+
+function matches(o, q) {
+  if (!q) return true;
+  const hay = isSimple() ? String(o.v) : Object.keys(o.v).map(function (k) { return o.v[k]; }).join(" ");
+  return hay.toLowerCase().indexOf(q) !== -1;
+}
+
+// ── lignes ──
+function renderRows() {
+  const q = el.search.value.trim().toLowerCase();
+  el.rows.textContent = "";
+
+  const visible = view.filter(function (o) { return matches(o, q); });
+  if (!visible.length) {
+    el.rows.innerHTML = '<div class="db-empty">' +
+      (view.length ? "Aucun résultat pour cette recherche" : "Base vide — ajoutez une entrée ci-dessous") +
+      "</div>";
+    return;
+  }
+
+  visible.forEach(function (o) {
+    const row = document.createElement("div");
+    row.className = "db-row";
+
+    if (isSimple()) {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "db-grow";
+      input.value = o.v;
+      input.addEventListener("change", function () {
+        const v = input.value.trim();
+        if (!v) { input.value = o.v; return; }
+        writeRow(o, v);
+      });
+      row.appendChild(input);
+    } else {
+      schema().cols.forEach(function (c) {
+        const input = document.createElement("input");
+        input.type = c.t;
+        input.placeholder = c.ph;
+        if (c.grow) input.className = "db-grow"; else input.style.width = c.w;
+        if (c.t === "number") input.min = "0";
+        input.value = o.v[c.k] != null ? o.v[c.k] : "";
+        input.addEventListener("change", function () {
+          const v = c.t === "number"
+            ? Math.max(0, parseInt(input.value, 10) || 0)
+            : input.value.trim();
+          if (c.k === "name" && !v) { input.value = o.v.name; return; }
+          const next = Object.assign({}, o.v);
+          next[c.k] = v;
+          writeRow(o, next);
+        });
+        row.appendChild(input);
+      });
+    }
+
+    const del = document.createElement("button");
+    del.className = "db-del";
+    del.type = "button";
+    del.title = "Supprimer";
+    del.innerHTML = TRASH;
+    del.addEventListener("click", function () { deleteRow(o); });
+    row.appendChild(del);
+
+    el.rows.appendChild(row);
+  });
+}
+
+// ── ligne d'ajout ──
+function renderAdd() {
+  el.add.textContent = "";
+  const inputs = [];
+
+  if (isSimple()) {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "db-grow";
+    input.placeholder = "Nouvelle valeur";
+    inputs.push({ col: null, input: input });
+    el.add.appendChild(input);
+  } else {
+    schema().cols.forEach(function (c) {
+      const input = document.createElement("input");
+      input.type = c.t;
+      input.placeholder = c.ph;
+      if (c.grow) input.className = "db-grow"; else input.style.width = c.w;
+      if (c.t === "number") input.min = "0";
+      inputs.push({ col: c, input: input });
+      el.add.appendChild(input);
+    });
+  }
+
+  const btn = document.createElement("button");
+  btn.className = "mod-add-btn";
+  btn.type = "button";
+  btn.textContent = "Ajouter";
+  btn.addEventListener("click", function () {
+    if (isSimple()) {
+      const v = inputs[0].input.value.trim();
+      if (!v) { inputs[0].input.focus(); return; }
+      addRow(v);
+    } else {
+      const obj = {};
+      let ok = false;
+      inputs.forEach(function (p) {
+        const v = p.col.t === "number"
+          ? Math.max(0, parseInt(p.input.value, 10) || 0)
+          : p.input.value.trim();
+        obj[p.col.k] = v;
+        if (p.col.k === "name" && v) ok = true;
+      });
+      if (!ok) { inputs[0].input.focus(); return; }
+      addRow(obj);
+    }
+    inputs.forEach(function (p) { p.input.value = ""; });
+  });
+  el.add.appendChild(btn);
+
+  el.add.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); btn.click(); }
+  });
+}
+
+// ── état de la connexion ──
+function renderCloudState() {
+  const c = cloud();
+  el.chip.classList.toggle("chip-local", !c);
+  el.chipTxt.textContent = c ? "Cloud connecté — bases partagées" : "Local — non partagé";
+  // proposer la migration quand la base distante est vide alors que
+  // des données existent en local
+  const localCount = ISOC_DB.get(current).length;
+  const remoteCount = c ? c.count(current) : 0;
+  el.publish.classList.toggle("is-hidden", !c || remoteCount > 0 || localCount === 0);
+}
+
+function renderAll() {
+  loadView();
+  renderNav();
+  renderHead();
+  renderRows();
+  renderCloudState();
+}
+
+// ── sélection d'une base ──
+function select(name) {
+  current = name;
+  const s = schema();
+  el.title.textContent = s.label;
+  el.hint.textContent = s.hint;
+  el.search.value = "";
+  loadView();
+  renderNav();
+  renderHead();
+  renderRows();
+  renderAdd();
+  renderCloudState();
+}
+
+el.search.addEventListener("input", renderRows);
+
+// ── synchronisation distante ──
+window.addEventListener("isoc-cloud:ready", function () {
+  renderAll();
+});
+window.addEventListener("isoc-cloud:error", function () {
+  renderCloudState();
+});
+window.addEventListener("isoc-db:updated", function (e) {
+  renderNav();
+  renderCloudState();
+  if (!e.detail || e.detail.base === current) {
+    loadView();
+    renderRows();
+  }
+});
+
+// ── migration locale → cloud ──
+el.publish.addEventListener("click", function () {
+  const c = cloud();
+  if (!c) return;
+  const rows = ISOC_DB.get(current);
+  if (!rows.length) return;
+  if (!confirm("Envoyer les " + rows.length + " entrée(s) locales de « " + schema().label +
+               " » vers Firestore ? Elles deviendront visibles par tous les postes.")) return;
+  el.publish.disabled = true;
+  flashSaved("Envoi en cours…");
+  c.publish(current, rows)
+    .then(function (n) { flashSaved(n + " entrée(s) publiée(s)"); })
+    .catch(function (e) { fail("publish", e); })
+    .then(function () { el.publish.disabled = false; });
+});
+
+// ── import / export / réinitialisation ──
+document.getElementById("dbExportBtn").addEventListener("click", function () {
+  const data = view.map(function (o) { return o.v; });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "base_" + current + ".json";
+  a.click();
+});
+
+document.getElementById("dbImportBtn").addEventListener("click", function () {
+  document.getElementById("dbImportFile").click();
+});
+
+document.getElementById("dbImportFile").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function () {
+    try {
+      const parsed = JSON.parse(reader.result);
+      if (!Array.isArray(parsed)) throw new Error("format invalide");
+      const c = cloud();
+      if (c) {
+        if (!confirm("Importer " + parsed.length + " entrée(s) dans Firestore ? Elles s'ajouteront aux entrées existantes.")) return;
+        c.publish(current, parsed)
+          .then(function (n) { flashSaved(n + " entrée(s) importée(s)"); })
+          .catch(function (err2) { fail("import", err2); });
+      } else {
+        ISOC_DB.set(current, parsed);
+        renderAll();
+        flashSaved("Importé");
+      }
+    } catch (err) {
+      alert("Fichier JSON invalide.");
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+document.getElementById("dbResetBtn").addEventListener("click", function () {
+  const c = cloud();
+  const label = schema().label;
+  if (c) {
+    if (!confirm("Vider la base « " + label + " » dans Firestore ? Elle sera effacée pour tous les postes.")) return;
+    c.clear(current)
+      .then(function () { flashSaved("Base vidée"); })
+      .catch(function (e) { fail("clear", e); });
+    return;
+  }
+  if (!confirm("Réinitialiser la base « " + label + " » ? Les modifications locales seront perdues.")) return;
+  ISOC_DB.reset(current);
+  renderAll();
+});
+
+// ══════════════ IMPORT CSV / EXCEL ══════════════
+// Le fichier est lu dans le navigateur (components/sheet-reader.js),
+// on choisit la feuille puis la colonne qui alimente chaque champ,
+// et les lignes partent dans la base sélectionnée.
+const sheet = {
+  modal:   document.getElementById("sheetModal"),
+  info:    document.getElementById("sheetFileInfo"),
+  wrap:    document.getElementById("sheetSheetWrap"),
+  select:  document.getElementById("sheetSelect"),
+  map:     document.getElementById("sheetMap"),
+  preview: document.getElementById("sheetPreview"),
+  replace: document.getElementById("sheetReplace"),
+  count:   document.getElementById("sheetCount"),
+  go:      document.getElementById("sheetGo")
+};
+let book = null;     // { type, sheets }
+let mapping = {};    // champ de la base → index de colonne
+
+function fields() {
+  return isSimple()
+    ? [{ k: "value", ph: "Valeur", required: true }]
+    : schema().cols.map(function (c) {
+        return { k: c.k, ph: c.ph, required: c.k === "name" };
+      });
+}
+
+function currentRows() {
+  const s = book && book.sheets[sheet.select.value | 0];
+  return s ? s.rows : [];
+}
+
+// devine la colonne d'un champ à partir de l'en-tête
+function guess(header, field) {
+  const norm = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const want = norm(field.ph).split(/\s+/)[0];
+  const alias = { value: ["valeur", "nom", "name"], name: ["nom", "name", "site", "olt", "routeur"],
+                  region: ["region"], router: ["routeur", "router"], port: ["port"],
+                  clients: ["client"], num: ["numero", "num", "tel", "contact"], id: ["id"] };
+  const keys = [want].concat(alias[field.k] || []);
+  for (let i = 0; i < header.length; i++) {
+    const h = norm(header[i]);
+    if (!h) continue;
+    for (const k of keys) if (k && h.indexOf(k) !== -1) return i;
+  }
+  return -1;
+}
+
+function renderMapping() {
+  const rows = currentRows();
+  const header = rows[0] || [];
+  sheet.map.textContent = "";
+  mapping = {};
+
+  fields().forEach(function (f) {
+    const row = document.createElement("div");
+    row.className = "sheet-map-row";
+
+    const label = document.createElement("span");
+    label.className = "sheet-map-label";
+    label.textContent = f.ph;
+    if (f.required) {
+      const req = document.createElement("span");
+      req.className = "req";
+      req.textContent = "*";
+      label.appendChild(req);
+    }
+
+    const sel = document.createElement("select");
+    sel.className = "tb-select";
+    const none = document.createElement("option");
+    none.value = "-1";
+    none.textContent = "— ignorer —";
+    sel.appendChild(none);
+    header.forEach(function (h, i) {
+      const o = document.createElement("option");
+      o.value = String(i);
+      o.textContent = (h || "colonne " + (i + 1)) + "  (" + String.fromCharCode(65 + (i % 26)) + ")";
+      sel.appendChild(o);
+    });
+
+    const g = guess(header, f);
+    sel.value = String(g);
+    mapping[f.k] = g;
+
+    sel.addEventListener("change", function () {
+      mapping[f.k] = parseInt(sel.value, 10);
+      renderPreview();
+    });
+
+    row.appendChild(label);
+    row.appendChild(sel);
+    sheet.map.appendChild(row);
+  });
+
+  renderPreview();
+}
+
+function buildRows() {
+  const rows = currentRows().slice(1);       // on saute l'en-tête
+  const fs = fields();
+  const main = isSimple() ? "value" : "name";
+  const out = [];
+  const seen = {};
+
+  rows.forEach(function (r) {
+    const mainIdx = mapping[main];
+    if (mainIdx == null || mainIdx < 0) return;
+    const key = String(r[mainIdx] || "").replace(/\s+/g, " ").trim();
+    if (!key) return;
+    const dedupe = key.toUpperCase();
+    if (seen[dedupe]) return;
+    seen[dedupe] = true;
+
+    if (isSimple()) { out.push(key); return; }
+
+    const obj = {};
+    fs.forEach(function (f) {
+      const i = mapping[f.k];
+      let v = i != null && i >= 0 ? String(r[i] == null ? "" : r[i]).trim() : "";
+      if (f.k === "clients") v = Math.max(0, parseInt(v, 10) || 0);
+      obj[f.k] = v;
+    });
+    obj[main] = key;
+    out.push(obj);
+  });
+  return out;
+}
+
+function renderPreview() {
+  const rows = buildRows();
+  sheet.count.textContent = rows.length + " ligne(s) prête(s) pour « " + schema().label + " »";
+  sheet.go.disabled = rows.length === 0;
+  sheet.preview.textContent = rows.slice(0, 3)
+    .map(function (r) { return isSimple() ? r : JSON.stringify(r); })
+    .join("\n");
+}
+
+document.getElementById("dbSheetBtn").addEventListener("click", function () {
+  if (!window.SheetReader) { alert("Lecteur de fichiers indisponible."); return; }
+  document.getElementById("dbSheetFile").click();
+});
+
+document.getElementById("dbSheetFile").addEventListener("change", async function (e) {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  try {
+    book = await SheetReader.read(file);
+  } catch (err) {
+    alert(err.message);
+    return;
+  }
+
+  sheet.info.textContent = file.name + " — " + book.sheets.length + " feuille(s)";
+  sheet.select.textContent = "";
+  book.sheets.forEach(function (s, i) {
+    const o = document.createElement("option");
+    o.value = String(i);
+    o.textContent = s.name + "  (" + Math.max(0, s.rows.length - 1) + " lignes)";
+    sheet.select.appendChild(o);
+  });
+  sheet.wrap.classList.toggle("is-hidden", book.sheets.length < 2);
+  sheet.select.value = "0";
+  sheet.replace.checked = false;
+  renderMapping();
+  sheet.modal.classList.add("show");
+});
+
+sheet.select.addEventListener("change", renderMapping);
+
+function closeSheet() { sheet.modal.classList.remove("show"); book = null; }
+document.getElementById("sheetClose").addEventListener("click", closeSheet);
+document.getElementById("sheetCancel").addEventListener("click", closeSheet);
+sheet.modal.addEventListener("click", function (e) { if (e.target === sheet.modal) closeSheet(); });
+
+sheet.go.addEventListener("click", async function () {
+  const rows = buildRows();
+  if (!rows.length) return;
+  const c = cloud();
+  const label = schema().label;
+
+  if (!confirm("Importer " + rows.length + " ligne(s) dans « " + label + " »" +
+               (sheet.replace.checked ? ", en remplaçant le contenu actuel" : "") + " ?")) return;
+
+  sheet.go.disabled = true;
+  flashSaved("Import en cours…");
+  try {
+    if (c) {
+      if (sheet.replace.checked) await c.clear(current);
+      await c.publish(current, rows);
+    } else {
+      const base = sheet.replace.checked ? [] : ISOC_DB.get(current);
+      ISOC_DB.set(current, base.concat(rows));
+      renderAll();
+    }
+    flashSaved(rows.length + " ligne(s) importée(s)");
+    closeSheet();
+  } catch (err) {
+    fail("import fichier", err);
+  }
+  sheet.go.disabled = false;
+});
+
+// ── ouverture directe sur une base : bases.html#sites ──
+function fromHash() {
+  const h = (location.hash || "").replace("#", "").toLowerCase();
+  if (h && ISOC_DB.names().indexOf(h) !== -1) select(h);
+}
+window.addEventListener("hashchange", fromHash);
+
+// Initialisation
+select(current);
+fromHash();
+</script>
+</body>
+</html>

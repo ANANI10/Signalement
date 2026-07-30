@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>iSOC — Accueil | Plateforme de signalement</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCc+PHJlY3Qgd2lkdGg9JzI0JyBoZWlnaHQ9JzI0JyByeD0nNicgZmlsbD0nIzRmOGRmYicvPjxwYXRoIGQ9J00xOSAxMkgxNi4yTDE0LjEgMTguM0w5LjkgNS43TDcuOCAxMkg1JyBzdHJva2U9J3doaXRlJyBzdHJva2Utd2lkdGg9JzInIGZpbGw9J25vbmUnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjwvc3ZnPgo=">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#eff1f3",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "outline": "#777587",
+                    "inverse-surface": "#2d3133",
+                    "on-primary-container": "#dad7ff",
+                    "error": "#ba1a1a",
+                    "primary-container": "#4f46e5",
+                    "surface-container-highest": "#e0e3e5",
+                    "surface-dim": "#d8dadc",
+                    "outline-variant": "#c7c4d8",
+                    "primary-fixed": "#e2dfff",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "surface-container-low": "#f2f4f6",
+                    "on-secondary-fixed": "#131b2e",
+                    "surface-bright": "#f7f9fb",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "surface": "#f7f9fb",
+                    "on-tertiary-fixed": "#0b1c30",
+                    "on-background": "#191c1e",
+                    "on-error-container": "#93000a",
+                    "on-secondary-container": "#5c647a",
+                    "on-tertiary-container": "#ccdcf7",
+                    "tertiary-container": "#516177",
+                    "secondary": "#565e74",
+                    "secondary-fixed": "#dae2fd",
+                    "on-surface-variant": "#464555",
+                    "background": "#f7f9fb",
+                    "on-secondary": "#ffffff",
+                    "surface-tint": "#4d44e3",
+                    "secondary-container": "#dae2fd",
+                    "on-surface": "#191c1e",
+                    "inverse-primary": "#c3c0ff",
+                    "on-primary-fixed": "#0f0069",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed-variant": "#38485d",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "surface-container": "#eceef0",
+                    "primary": "#3525cd",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed-dim": "#b7c8e1",
+                    "tertiary": "#3a495f",
+                    "surface-container-high": "#e6e8ea",
+                    "surface-variant": "#e0e3e5",
+                    "tertiary-fixed": "#d3e4fe"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-lg": "32px",
+                    "stack-sm": "8px",
+                    "section-gap": "120px",
+                    "margin-desktop": "80px",
+                    "margin-mobile": "20px",
+                    "gutter": "24px",
+                    "stack-md": "16px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "label-md": ["JetBrains Mono"],
+                    "body-md": ["Inter"],
+                    "display-xl": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "display-xl-mobile": ["Hanken Grotesk"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-xl": ["64px", {"lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-xl-mobile": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<link rel="stylesheet" href="accueil.css"/>
+<script>
+// ── Éclairage : applique le thème enregistré avant le rendu (évite le flash) ──
+(function () {
+  try {
+    var saved = localStorage.getItem("isoc_theme");
+    var theme = (saved === "light" || saved === "dark")
+      ? saved
+      : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
+    document.documentElement.setAttribute("data-theme", theme);
+  } catch (e) {
+    document.documentElement.classList.add("dark");
+    document.documentElement.setAttribute("data-theme", "dark");
+  }
+})();
+</script>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased">
+<div class="bg-mesh"></div>
+
+<!-- Éclairage : commande flottante (la barre de navigation a été retirée) -->
+<button id="themeBtn" type="button" aria-pressed="false"
+        title="Éclairage : basculer clair / sombre"
+        aria-label="Éclairage de la plateforme"
+        class="theme-toggle fixed top-6 right-6 z-50 w-10 h-10 rounded-full bg-surface-container border border-outline-variant/50 shadow-sm flex items-center justify-center text-on-surface-variant hover:text-primary transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined ic-moon" aria-hidden="true">dark_mode</span>
+<span class="material-symbols-outlined ic-sun" aria-hidden="true">light_mode</span>
+</button>
+
+<!-- Contenu principal -->
+<main class="min-h-screen flex flex-col justify-center items-center px-margin-mobile md:px-margin-desktop">
+<div class="max-w-container-max w-full mx-auto py-section-gap">
+
+<!-- En-tête -->
+<header class="text-center mb-16 space-y-4">
+<div class="inline-flex items-center px-4 py-1 rounded-full bg-primary/10 text-primary font-label-md text-label-md mb-4">
+<span class="mr-2" aria-hidden="true">●</span> Réseaux Fixe — Centre d'opérations
+</div>
+<h1 class="font-display-xl-mobile md:font-display-xl text-display-xl-mobile md:text-display-xl text-on-background tracking-tight">
+Signalez un <span class="text-primary">incident</span>
+</h1>
+<p class="text-on-surface-variant font-body-lg text-body-lg max-w-2xl mx-auto">
+Choisissez un outil pour démarrer. Le générateur transforme vos exports d'alarmes — ports PON, cartes LT et OLT — en bloc de signalement formaté, prêt à être diffusé.
+</p>
+</header>
+
+<!-- Grille des outils -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+
+<!-- Générateur -->
+<a href="Generateur_signalement_incident_reseaux_fixe.html"
+   class="platform-card group relative bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/50 flex flex-col items-center text-center duration-300 active:scale-95">
+<div class="card-icon w-16 h-16 rounded-2xl bg-primary/5 text-primary flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300">
+<span class="material-symbols-outlined text-4xl" aria-hidden="true">bolt</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">Réseau Fixe</h2>
+<p class="text-on-surface-variant font-body-md text-body-md mb-6">Alarmes PON, cartes LT et OLT</p>
+<span class="mt-auto flex items-center text-primary font-semibold font-label-md text-label-md group-hover:gap-2 transition-all">
+Ouvrir <span class="material-symbols-outlined ml-1 text-sm" aria-hidden="true">arrow_forward</span>
+</span>
+</a>
+
+<!-- Base OLT -->
+<a href="Generateur_signalement_incident_transport.html"
+   class="platform-card group relative bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/50 flex flex-col items-center text-center duration-300 active:scale-95">
+<div class="card-icon w-16 h-16 rounded-2xl bg-primary/5 text-primary flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300">
+<span class="material-symbols-outlined text-4xl" aria-hidden="true">database</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">Transmission</h2>
+<p class="text-on-surface-variant font-body-md text-body-md mb-6">Routeur, Lien IP/MPLS</p>
+<span class="mt-auto flex items-center text-primary font-semibold font-label-md text-label-md group-hover:gap-2 transition-all">
+Ouvrir <span class="material-symbols-outlined ml-1 text-sm" aria-hidden="true">arrow_forward</span>
+</span>
+</a>
+
+<!-- Techniciens -->
+<a href="Generateur_signalement_incident_core.html"
+   class="platform-card group relative bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/50 flex flex-col items-center text-center duration-300 active:scale-95">
+<div class="card-icon w-16 h-16 rounded-2xl bg-primary/5 text-primary flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300">
+<span class="material-symbols-outlined text-4xl" aria-hidden="true">engineering</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">Core IGW </h2>
+<p class="text-on-surface-variant font-body-md text-body-md mb-6"></p>
+<span class="mt-auto flex items-center text-primary font-semibold font-label-md text-label-md group-hover:gap-2 transition-all">
+Ouvrir <span class="material-symbols-outlined ml-1 text-sm" aria-hidden="true">arrow_forward</span>
+</span>
+</a>
+
+
+<!-- Techniciens -->
+<a href="Generateur_signalement_incident_reseaux_mobile.html"
+   class="platform-card group relative bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/50 flex flex-col items-center text-center duration-300 active:scale-95">
+<div class="card-icon w-16 h-16 rounded-2xl bg-primary/5 text-primary flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300">
+<span class="material-symbols-outlined text-4xl" aria-hidden="true">engineering</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">Réseaux Mobile </h2>
+<p class="text-on-surface-variant font-body-md text-body-md mb-6">Outage NETACT & NetEco</p>
+<span class="mt-auto flex items-center text-primary font-semibold font-label-md text-label-md group-hover:gap-2 transition-all">
+Ouvrir <span class="material-symbols-outlined ml-1 text-sm" aria-hidden="true">arrow_forward</span>
+</span>
+</a>
+
+<!-- À venir -->
+<div class="platform-card is-soon group relative bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/50 flex flex-col items-center text-center duration-300">
+<div class="card-icon w-16 h-16 rounded-2xl bg-primary/5 text-primary flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-4xl" aria-hidden="true">schedule</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">Gestion des Incidents</h2>
+<p class="text-on-surface-variant font-body-md text-body-md mb-6">Mise à jour et fin d'incident</p>
+<span class="mt-auto flex items-center text-on-surface-variant font-semibold font-label-md text-label-md">
+Ouvrir <span class="material-symbols-outlined ml-1 text-sm" aria-hidden="true">arrow_forward</span>
+</span>
+</div>
+
+</div>
+
+<!-- Note
+<div class="mt-16 text-center">
+<p class="text-on-surface-variant font-body-md text-body-md flex items-center justify-center gap-2">
+<span class="material-symbols-outlined icon-filled text-primary" aria-hidden="true">info</span>
+Base OLT, techniciens et éclairage sont enregistrés localement dans ce navigateur.
+</p>
+</div> -->
+
+</div>
+</main>
+
+<!-- Pied de page -->
+<footer class="w-full bg-surface border-t border-outline-variant/30">
+<div class="flex flex-col md:flex-row justify-between items-center py-stack-lg px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto gap-stack-lg">
+<div class="flex flex-col items-center md:items-start gap-2">
+<span class="text-headline-md font-headline-md font-bold text-primary">iSOC</span>
+<p class="text-on-surface-variant font-body-md text-body-md">© 2026 — Signalement Réseaux Fixe</p>
+</div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="Generateur_signalement_incidentV7.html">Générateur</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="Generateur_signalement_incidentV7.html#olt">Base OLT</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="Generateur_signalement_incidentV7.html#tech">Techniciens</a>
+</div>
+</div>
+</footer>
+
+<script>
+// ══════════════ ÉCLAIRAGE DE LA PLATEFORME (thème clair / sombre) ══════════════
+// Le thème initial est déjà posé sur <html> par le script du <head> (anti-flash).
+const THEME_KEY = "isoc_theme";
+const themeBtn = document.getElementById("themeBtn");
+
+function currentTheme() {
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
+}
+
+function applyTheme(theme, persist) {
+  const t = theme === "dark" ? "dark" : "light";
+  const root = document.documentElement;
+  root.classList.remove("light", "dark");
+  root.classList.add(t);
+  root.setAttribute("data-theme", t);
+  themeBtn.setAttribute("aria-pressed", t === "light" ? "true" : "false");
+  themeBtn.title = t === "light"
+    ? "Éclairage : passer en mode sombre"
+    : "Éclairage : passer en mode clair";
+  if (persist) { try { localStorage.setItem(THEME_KEY, t); } catch (e) {} }
+}
+
+function toggleTheme() {
+  applyTheme(currentTheme() === "light" ? "dark" : "light", true);
+}
+
+themeBtn.addEventListener("click", toggleTheme);
+
+// Raccourci clavier : Ctrl + Alt + L
+document.addEventListener("keydown", (e) => {
+  if (e.ctrlKey && e.altKey && (e.key === "l" || e.key === "L")) {
+    e.preventDefault();
+    toggleTheme();
+  }
+});
+
+// Suit l'éclairage du système tant que l'utilisateur n'a pas choisi manuellement
+if (window.matchMedia) {
+  const mq = window.matchMedia("(prefers-color-scheme: light)");
+  const onSystemChange = (e) => {
+    let saved = null;
+    try { saved = localStorage.getItem(THEME_KEY); } catch (err) {}
+    if (saved !== "light" && saved !== "dark") applyTheme(e.matches ? "light" : "dark", false);
+  };
+  if (mq.addEventListener) mq.addEventListener("change", onSystemChange);
+  else if (mq.addListener) mq.addListener(onSystemChange);
+}
+
+// Synchronise le libellé/état du bouton avec le thème déjà appliqué
+applyTheme(currentTheme(), false);
+</script>
+</body>
+</html>

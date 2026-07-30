@@ -1,0 +1,101 @@
+/* ══════════════════════════════════════════════════════════════
+   iSOC — Page d'accueil
+   Feuille de style externe (séparée du HTML)
+   Complète Tailwind : micro-interactions, fond, thème sombre
+   ══════════════════════════════════════════════════════════════ */
+
+/* ══════════════ BASE ══════════════ */
+body { overflow-x: hidden; }
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+}
+.icon-filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+/* fond maillé */
+.bg-mesh {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: -1;
+  background-color: #f7f9fb;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(53,37,205,.03) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(53,37,205,.03) 0px, transparent 50%);
+  transition: background-color .25s ease;
+}
+
+/* ══════════════ CARTES OUTILS ══════════════ */
+.platform-card { transition: transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s cubic-bezier(.4,0,.2,1), border-color .3s; }
+.platform-card:not(.is-soon):hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px -10px rgba(53,37,205,.12);
+}
+.platform-card .material-symbols-outlined {
+  transition: transform .5s cubic-bezier(.175,.885,.32,1.275);
+}
+.platform-card:not(.is-soon):hover .card-icon .material-symbols-outlined {
+  transform: scale(1.15) rotate(5deg);
+}
+.platform-card.is-soon { opacity: .55; cursor: default; }
+
+/* ══════════════ BOUTON ÉCLAIRAGE ══════════════ */
+.theme-toggle .ic-sun  { display: none; }
+.theme-toggle .ic-moon { display: inline-block; }
+html.dark .theme-toggle .ic-sun  { display: inline-block; }
+html.dark .theme-toggle .ic-moon { display: none; }
+
+/* ══════════════ THÈME SOMBRE ══════════════
+   Tailwind CDN génère des utilitaires figés : on les surcharge ici
+   sous html.dark (spécificité supérieure).                        */
+html.dark { color-scheme: dark; }
+
+html.dark .bg-mesh {
+  background-color: #0c1219;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(99,102,241,.10) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(34,197,94,.06) 0px, transparent 50%);
+}
+
+/* surfaces */
+html.dark .bg-surface                  { background-color: #0c1219; }
+html.dark .bg-surface\/80              { background-color: rgba(12,18,25,.8); }
+html.dark .bg-surface-container-lowest { background-color: #121b28; }
+html.dark .bg-surface-container        { background-color: #182438; }
+
+/* textes */
+html.dark .text-on-surface,
+html.dark .text-on-background { color: #ddeaf6; }
+html.dark .text-on-surface-variant { color: #8aa4bc; }
+html.dark .text-primary { color: #8b9cff; }
+html.dark .text-on-primary { color: #ffffff; }
+
+/* accents */
+html.dark .bg-primary      { background-color: #4f46e5; }
+html.dark .bg-primary\/10  { background-color: rgba(139,156,255,.14); }
+html.dark .bg-primary\/5   { background-color: rgba(139,156,255,.09); }
+html.dark .border-primary  { border-color: #8b9cff; }
+
+/* bordures */
+html.dark .border-outline-variant\/30 { border-color: rgba(122,146,172,.22); }
+html.dark .border-outline-variant\/50 { border-color: rgba(122,146,172,.28); }
+
+/* états de survol des cartes */
+html.dark .group:hover .group-hover\:bg-primary     { background-color: #4f46e5; }
+html.dark .group:hover .group-hover\:text-on-primary { color: #ffffff; }
+html.dark .platform-card:not(.is-soon):hover {
+  box-shadow: 0 20px 40px -12px rgba(0,0,0,.55);
+  border-color: rgba(139,156,255,.35);
+}
+html.dark .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,.4); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
