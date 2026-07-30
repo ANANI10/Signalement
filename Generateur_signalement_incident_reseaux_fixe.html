@@ -38,6 +38,10 @@
     <span class="brand-sep" aria-hidden="true">/</span>
     <span class="brand-sub">Signalement d'incident</span>
   </a>
+
+
+  
+
   <div class="topbar-right">
     <div class="clock-chip" aria-label="Heure UTC">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -56,14 +60,30 @@
 <main id="main">
 
   <header class="page-hd">
+
     <div class="page-hd-left">
       <h1>Générateur de signalement</h1>
-      <p class="page-desc">Collez vos lignes d'alarme brutes (alarmes PON, cartes ou OLT), puis cliquez sur <strong>Générer</strong> pour obtenir le bloc de signalement formaté.</p>
+      <p class="page-desc">
+        Collez vos lignes d'alarme brutes (alarmes PON, cartes ou OLT), puis cliquez sur <strong>Générer</strong> pour obtenir le bloc de signalement formaté.
+      </p>
     </div>
-    <div class="status-chip" role="status">
-      <span class="status-chip-dot" aria-hidden="true"></span>
-      Signalement Réseaux Fixe
+  
+  
+    <div class="page-hd-right">
+  
+      <button class="btn-ghost" id="pppoeBtn" type="button">
+        📉 Chute PPPOE
+      </button>
+  
+  
+      <div class="status-chip" role="status">
+        <span class="status-chip-dot" aria-hidden="true"></span>
+        Signalement Réseaux Fixe
+      </div>
+  
     </div>
+  
+  
   </header>
 
   <div class="toolbar" role="toolbar" aria-label="Actions">
@@ -92,6 +112,14 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/><line x1="19" y1="5" x2="19" y2="11"/><line x1="16" y1="8" x2="22" y2="8"/></svg>
       </button>
     </div>
+    <div class="tb-client-wrap">
+      <input
+          type="number"
+          id="clientCount"
+          class="tb-combo-input"
+          placeholder="Nb clients"
+          min="0">
+  </div>
     <button class="btn-ghost" id="manageOltBtn" type="button">
       <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
       Base OLT
@@ -101,6 +129,11 @@
       <span class="dot" aria-hidden="true"></span>Prêt
     </div>
   </div>
+
+
+
+  
+
 
   <div class="resolve-banner" id="resolveBanner">
     <div class="resolve-hd">
@@ -240,11 +273,116 @@ Major,6 juillet 2026 00:46:55 GMT,,PON Port:YOKOE-FX8:R1.S1.LT5.PON16,LOS,..."
   </div>
 </div>
 
+
+
+
+<!-- Modal Chute PPPOE -->
+<div class="modal-overlay" id="pppoeModal" role="dialog" aria-modal="true" aria-labelledby="pppoeModalTitle">
+  <div class="modal-box modal-sm">
+
+    <div class="modal-hd">
+      <span class="modal-title" id="pppoeModalTitle">
+        <span>📉</span> Analyse chute PPPOE
+      </span>
+      <button class="modal-close" id="pppoeClose" type="button" aria-label="Fermer">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="input-row">
+        <div class="field-group">
+          <label for="pppoeBefore">Total abonné</label>
+          <input type="number" id="pppoeBefore" placeholder="ex: 49000" class="mod-search">
+        </div>
+        <div class="field-group">
+          <label for="pppoeAfter">Abonné connecté</label>
+          <input type="number" id="pppoeAfter" placeholder="ex: 42000" class="mod-search">
+        </div>
+      </div>
+
+      <p class="mod-hint">Sélectionner les zones concernées</p>
+
+      <div class="pppoe-zones">
+        <label><input type="checkbox" value="MARITIME"><span>MARITIME</span></label>
+        <label><input type="checkbox" value="LOME"><span>LOME</span></label>
+        <label><input type="checkbox" value="PLATEAUX"><span>PLATEAUX</span></label>
+        <label><input type="checkbox" value="CENTRALE"><span>CENTRALE</span></label>
+        <label><input type="checkbox" value="KARA"><span>KARA</span></label>
+        <label><input type="checkbox" value="SAVANES"><span>SAVANES</span></label>
+      </div>
+
+      <div class="pppoe-actions">
+        <button class="mod-add-btn" id="generatePppoeBtn" type="button">Générer</button>
+        <button class="btn-ghost" id="pppoeCopyBtn" type="button" aria-label="Copier le résultat">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copier le résultat
+        </button>
+      </div>
+
+      <textarea id="pppoeResult" readonly class="mod-search pppoe-result" placeholder="Le signalement généré apparaîtra ici…"></textarea>
+
+    </div>
+  </div>
+</div>
+
+
+
 <script>
+  // =============================
+  // MODAL CHUTE PPPOE
+  // =============================
+  const pppoeModal = document.getElementById("pppoeModal");
+  
+  document.getElementById("pppoeBtn").addEventListener("click", () => {
+    pppoeModal.classList.add("show");
+  });
+  
+  document.getElementById("pppoeClose").addEventListener("click", () => {
+    pppoeModal.classList.remove("show");
+  });
+  pppoeModal.addEventListener("click", (e) => {
+    if (e.target === pppoeModal) pppoeModal.classList.remove("show");
+  });
+  
+  document.getElementById("generatePppoeBtn").addEventListener("click", () => {
+    const before = Number(document.getElementById("pppoeBefore").value);
+    const after  = Number(document.getElementById("pppoeAfter").value);
+  
+    if (!before || !after) {
+      alert("Veuillez renseigner les deux nombres");
+      return;
+    }
+  
+    const zones = [...document.querySelectorAll(".pppoe-zones input:checked")].map(e => e.value);
+    if (zones.length === 0) {
+      alert("Sélectionnez au moins une zone");
+      return;
+    }
+  
+    const chute = before - after;
+    const fmt = n => n.toLocaleString("fr-FR");
+  
+    const texte = `Nous observons \u{1F446} une chute brusque de ${fmt(chute)} clients PPPOE due aux coupures d'électricité. ZONE : ${zones.join(", ")}.`;
+  
+    document.getElementById("pppoeResult").value = texte;
+  });
+  
+  document.getElementById("pppoeCopyBtn").addEventListener("click", () => {
+    const val = document.getElementById("pppoeResult").value;
+    if (!val) return;
+    navigator.clipboard.writeText(val).then(() => setMsg("Copié dans le presse-papiers", "ok"));
+  });
+
+
+
+
 // ══════════════ ÉCLAIRAGE DE LA PLATEFORME (thème clair / sombre) ══════════════
 // Le thème initial est déjà posé sur <html> par le script du <head> (anti-flash).
 const THEME_KEY = "isoc_theme";
 const themeBtn = document.getElementById("themeBtn");
+const clientCountInput = document.getElementById("clientCount");
 
 function currentTheme() {
   return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
@@ -315,7 +453,8 @@ const EMOJI = {
   family:  "\u{1F9D1}\u200D\u{1F9D2}\u200D\u{1F9D2}",
   mensRoom:"\u{1F6B9}",
   warning: "\u26A0\uFE0F",
-  zero:    "0\uFE0F\u20E3"
+  zero:    "0\uFE0F\u20E3",
+  up:      "\u{1F446}" // 👆
 };
 
 // ══════════════ BASE OLT ══════════════
@@ -797,7 +936,14 @@ function buildBlockForOlt(oltName, events, tech) {
     "",
     "Début :", EMOJI.clock+" "+(fmt||"À renseigner"),
     "",
-    EMOJI.chart+" IMPACTS RX FIXE : À renseigner",
+
+    EMOJI.chart + " IMPACTS RX FIXE : " +
+(
+    clientCountInput.value
+        ? clientCountInput.value.padStart(2, "0") + " CLIENTS FTTH"
+        : "À renseigner"
+),
+
     "",
     EMOJI.family+" Escalade : "+esc.join(" / "),
     "",
@@ -1243,6 +1389,11 @@ function openFromHash() {
   if (h === "#olt") openOltModal();
   else if (h === "#tech") openTechModal();
 }
+
+clientCountInput.addEventListener("input", () => {
+    if (lastReport) generate();
+});
+
 window.addEventListener("hashchange", openFromHash);
 
 // Initialisation
