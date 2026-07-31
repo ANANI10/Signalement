@@ -1,0 +1,156 @@
+/* ══════════════════════════════════════════════════════════════
+   Point horaire NOC TRANS — mise en page propre à cette page.
+   Les couleurs et les composants viennent de styles.css.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── étapes de saisie ── */
+.ph-steps {
+  display: flex; gap: 6px; margin-bottom: 4px;
+}
+.ph-step {
+  flex: 1; display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px;
+  background: var(--ov-02);
+  border: 1px solid var(--borderlo); border-radius: 8px;
+  color: var(--text2); cursor: pointer; text-align: left;
+  font-family: inherit; font-size: 12.5px; font-weight: 700;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.ph-step:hover { background: var(--ov-04); color: var(--text); }
+.ph-step.active {
+  background: var(--blue-dim); border-color: var(--blue); color: var(--blue);
+}
+.ph-step-num {
+  width: 20px; height: 20px; flex-shrink: 0; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--border); color: var(--text2);
+  font-family: "JetBrains Mono", monospace; font-size: 11px;
+}
+.ph-step.active .ph-step-num { background: var(--blue); color: #fff; }
+
+.ph-nav {
+  display: flex; justify-content: space-between; gap: 8px;
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid var(--borderlo);
+}
+.ph-nav button:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── section ── */
+.ph-section { border: 1px solid var(--borderlo); border-radius: 8px; overflow: hidden; }
+.ph-section + .ph-section { margin-top: 10px; }
+
+.ph-section-hd {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px;
+  background: var(--hd-bg);
+  border-bottom: 1px solid var(--borderlo);
+  font-size: 13.5px; font-weight: 700; letter-spacing: .04em;
+  color: var(--text);
+}
+.ph-section-hd .ph-badge {
+  margin-left: auto;
+  font-family: "JetBrains Mono", monospace; font-size: 11.5px;
+  color: var(--muted); font-weight: 500;
+}
+.ph-section-body { padding: 8px 12px; display: flex; flex-direction: column; gap: 5px; }
+
+/* ── sous-groupe (IPMPLS, DWDM, OSN) ── */
+.ph-group { border-top: 1px dashed var(--border); padding-top: 8px; margin-top: 4px; }
+.ph-group:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+.ph-group-title {
+  font-size: 12.5px; font-weight: 700; letter-spacing: .05em;
+  color: var(--text2); margin-bottom: 6px;
+}
+
+/* ── ligne de saisie ── */
+.ph-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 3px 0;
+}
+.ph-label {
+  flex: 1; min-width: 0;
+  font-family: "JetBrains Mono", monospace; font-size: 13px;
+  color: var(--text2);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ph-cap {
+  flex-shrink: 0;
+  font-family: "JetBrains Mono", monospace; font-size: 12px;
+  color: var(--text);
+}
+.ph-input {
+  width: 88px; flex-shrink: 0; height: 30px; padding: 0 8px;
+  background: var(--inner); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); text-align: right;
+  font-family: "JetBrains Mono", monospace; font-size: 13.5px;
+}
+.ph-input:focus { outline: none; border-color: var(--focus-brd); box-shadow: 0 0 0 3px var(--focus-ring); }
+.ph-input::-webkit-outer-spin-button,
+.ph-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.ph-unit {
+  width: 42px; flex-shrink: 0;
+  font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--text);
+}
+
+/* résultat calculé */
+.ph-result {
+  width: 74px; flex-shrink: 0; text-align: right;
+  font-family: "JetBrains Mono", monospace; font-size: 13.5px; font-weight: 700;
+  color: var(--green);
+}
+.ph-result.warn { color: var(--amber); }
+.ph-result.high { color: var(--red); }
+.ph-result.empty { color: var(--muted); font-weight: 500; }
+
+/* compteur d'anomalies */
+.ph-count { width: 64px; }
+.ph-count.has-issue { border-color: var(--red); color: var(--red); font-weight: 700; }
+
+/* description affichée quand le compteur dépasse 0 */
+.ph-desc {
+  width: 100%;
+  min-height: 46px; padding: 6px 9px; margin: 2px 0 6px;
+  background: var(--inner); border: 1px solid rgba(239,68,68,.35); border-radius: 6px;
+  color: var(--text);
+  font-family: "JetBrains Mono", monospace; font-size: 12.5px; line-height: 1.6;
+  resize: vertical;
+}
+.ph-desc:focus { outline: none; border-color: var(--red); }
+.ph-desc[hidden] { display: none; }
+
+/* ── liens partenaires ── */
+.ph-check {
+  display: inline-flex; align-items: center; gap: 7px;
+  flex-shrink: 0; cursor: pointer;
+  font-family: "JetBrains Mono", monospace; font-size: 13px;
+  color: var(--green);
+}
+.ph-check input { width: 15px; height: 15px; accent-color: var(--green); cursor: pointer; }
+.ph-check .ph-check-txt { width: 22px; text-align: center; font-size: 15px; }
+.ph-check.is-ko { color: var(--red); }
+
+/* champs un peu plus hauts, pour accompagner la police agrandie */
+.ph-input { height: 32px; }
+.ph-count { width: 68px; }
+
+/* ── tout le texte de la page en gras ── */
+.ph-label,
+.ph-input,
+.ph-check { font-weight: 700; }
+.ph-cap,
+.ph-unit,
+.ph-badge,
+.ph-desc { font-weight: 600; }
+
+/* aperçu du point généré */
+#preview { font-size: 13.5px; line-height: 1.95; font-weight: 600; }
+#preview .l-title { font-size: 14.5px; font-weight: 800; }
+#preview .l-section,
+#preview .l-update,
+#preview .l-clients,
+#preview .l-cause { font-weight: 800; }
+
+@media (max-width: 640px) {
+  .ph-row { flex-wrap: wrap; }
+  .ph-label { flex-basis: 100%; }
+}

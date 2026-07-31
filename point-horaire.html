@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iSOC — Point horaire NOC TRANS</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCc+PHJlY3Qgd2lkdGg9JzI0JyBoZWlnaHQ9JzI0JyByeD0nNicgZmlsbD0nIzRmOGRmYicvPjxwYXRoIGQ9J00xOSAxMkgxNi4yTDE0LjEgMTguM0w5LjkgNS43TDcuOCAxMkg1JyBzdHJva2U9J3doaXRlJyBzdHJva2Utd2lkdGg9JzInIGZpbGw9J25vbmUnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcvPjwvc3ZnPgo=">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="components/date-picker.css">
+<link rel="stylesheet" href="point-horaire.css">
+<script>
+// ── Éclairage : applique le thème enregistré avant le rendu (évite le flash) ──
+(function () {
+  try {
+    var saved = localStorage.getItem("isoc_theme");
+    var theme = (saved === "light" || saved === "dark")
+      ? saved
+      : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", theme);
+  } catch (e) {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }
+})();
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Aller au contenu principal</a>
+
+<!-- TOP BAR -->
+<nav class="topbar" aria-label="Navigation principale">
+  <a class="topbar-brand" href="accueil.html" title="Retour à l'accueil">
+    <div class="brand-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    </div>
+    <span class="brand-name">iSOC</span>
+    <span class="brand-sep" aria-hidden="true">/</span>
+    <span class="brand-sub">Point horaire</span>
+  </a>
+  <div class="topbar-right">
+    <div class="clock-chip" aria-label="Heure">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span id="clockEl">--:--:--</span>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button"
+            title="Éclairage : basculer clair / sombre"
+            aria-label="Éclairage de la plateforme" aria-pressed="false">
+      <svg class="ic-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+      <svg class="ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="1.5" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="4.6" x2="6.4" y2="6.4"/><line x1="17.6" y1="17.6" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6.4" y2="17.6"/><line x1="17.6" y1="6.4" x2="19.4" y2="4.6"/></svg>
+    </button>
+  </div>
+</nav>
+
+<main id="main">
+
+  <header class="page-hd">
+    <div class="page-hd-left">
+      <h1>Point horaire NOC TRANS</h1>
+      <p class="page-desc">Saisissez les trafics et les anomalies : les pourcentages sont calculés à partir de la capacité de chaque lien, et le point est mis en forme automatiquement.</p>
+    </div>
+    <div class="page-hd-right">
+      <div class="status-chip" role="status">
+        <span class="status-chip-dot" aria-hidden="true"></span>
+        Point NOC TRANS
+      </div>
+      <a class="btn-ghost" href="Generateur_signalement_incident_transport.html">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Signalement
+      </a>
+    </div>
+  </header>
+
+  <div class="toolbar" role="toolbar" aria-label="Actions">
+    <button class="btn-primary" id="genBtn" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Générer le point
+    </button>
+    <button class="btn-ghost" id="copyBtn" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copier le résultat
+    </button>
+    <button class="btn-ghost" id="resetBtn" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+      Tout remettre à zéro
+    </button>
+    <div class="tb-sep" aria-hidden="true"></div>
+    <isoc-date-picker id="pointDate" placeholder="Date &amp; heure du point"></isoc-date-picker>
+    <div class="tb-sep" aria-hidden="true"></div>
+    <div class="status-msg" id="msg" role="status" aria-live="polite">
+      <span class="dot" aria-hidden="true"></span>Prêt
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- Saisie -->
+    <section class="card" aria-labelledby="lbl-input">
+      <div class="card-hd">
+        <div class="card-label" id="lbl-input">
+          <span class="clabel-dot dot-blue" aria-hidden="true"></span>
+          Relevé — Saisie
+        </div>
+        <span class="card-tag" aria-hidden="true">INPUT</span>
+      </div>
+      <div class="card-body">
+        <div class="ph-steps" id="phSteps" role="tablist" aria-label="Étapes du relevé"></div>
+        <div id="phForm"></div>
+        <div class="ph-nav">
+          <button class="btn-ghost modal-ft-btn" id="phPrev" type="button">← Étape précédente</button>
+          <button class="btn-primary modal-ft-btn" id="phNext" type="button">Étape suivante →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sortie -->
+    <section class="card" aria-labelledby="lbl-output">
+      <div class="card-hd">
+        <div class="card-label" id="lbl-output">
+          <span class="clabel-dot dot-green" aria-hidden="true"></span>
+          Sortie — Point horaire
+        </div>
+        <span class="card-tag" aria-hidden="true">OUTPUT</span>
+      </div>
+      <div class="card-body">
+        <div class="outbox" id="preview" role="region" aria-label="Point horaire généré" aria-live="polite">
+          <div class="empty-st">
+            <div class="empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+            </div>
+            <p class="empty-text">Aucun point généré</p>
+          </div>
+        </div>
+        <textarea id="output" class="is-hidden" readonly aria-hidden="true" tabindex="-1"></textarea>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script src="components/date-picker.js"></script>
+<script>
+// ══════════════ ÉCLAIRAGE + HORLOGE ══════════════
+const THEME_KEY = "isoc_theme";
+const themeBtn = document.getElementById("themeBtn");
+function currentTheme() {
+  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+}
+function applyTheme(theme, persist) {
+  const t = theme === "light" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", t);
+  themeBtn.setAttribute("aria-pressed", t === "light" ? "true" : "false");
+  themeBtn.title = t === "light" ? "Éclairage : passer en mode sombre" : "Éclairage : passer en mode clair";
+  if (persist) { try { localStorage.setItem(THEME_KEY, t); } catch (e) {} }
+}
+themeBtn.addEventListener("click", function () {
+  applyTheme(currentTheme() === "light" ? "dark" : "light", true);
+});
+document.addEventListener("keydown", function (e) {
+  if (e.ctrlKey && e.altKey && (e.key === "l" || e.key === "L")) { e.preventDefault(); themeBtn.click(); }
+});
+applyTheme(currentTheme(), false);
+
+(function tick() {
+  const n = new Date(), p = v => String(v).padStart(2, "0");
+  document.getElementById("clockEl").textContent =
+    p(n.getHours()) + ":" + p(n.getMinutes()) + ":" + p(n.getSeconds());
+  setTimeout(tick, 1000);
+})();
+
+// ══════════════════════════════════════════════════════════════
+//  POINT HORAIRE NOC TRANS
+//  Structure du relevé : modifiez ce tableau pour ajouter ou
+//  retirer un lien, un compteur ou un partenaire.
+// ══════════════════════════════════════════════════════════════
+const STRUCTURE = [
+  {
+    id: "core_igw",
+    step: 1,
+    title: "*🚨CORE IP 🔄 IGW*",
+    type: "ratio",
+    rows: [
+      { id: "igw1",  label: "LOME-CORE   🔄 IGW-1",     cap: 200, capText: "(200G)" },
+      { id: "igw2",  label: "CACN-CORE 🔄 IGW-2",       cap: 200, capText: "(200G)" },
+      { id: "igw3",  label: "LOME-CORE 🔄 CACN-CORE",   cap: 200, capText: "(200G)" },
+      { id: "igw4",  label: "IGW-1  🔄 IGW--2",         cap: 200, capText: "(200G)" }
+    ]
+  },
+  {
+    id: "core_bng",
+    step: 1,
+    title: "*🚨CORE IP 🔄 BNG*",
+    type: "ratio",
+    rows: [
+      { id: "bng1", label: "CACN-BNG-SR12-01 🔄 HEDJ-PE-SR2s-01 ",  cap: 100, capText: "(100G)" },
+      { id: "bng2", label: "LOME-BNG-SR12-01 🔄 PORT-CORE-SR2s-01 ", cap: 100, capText: "(100G)" },
+      { id: "bng3", label: "CACN-BNG-SR12-01🔄 CACN-PE-SR2s-02 ",    cap: 100, capText: "(100G)" },
+      { id: "bng4", label: "LOME-BNG-SR12-01 🔄 LOME-PE-SR2s-02 ",   cap: 100, capText: "(100G)" },
+      { id: "bng5", label: "CACN-BNG-SR12-01 🔄  LOME-BNG-SR12-01 ", cap: 50,  capText: "(50G)" }
+    ]
+  },
+  {
+    id: "backbone",
+    step: 1,
+    title: "*🚨BACKBONE*",
+    type: "counters",
+    groups: [
+      { id: "ipmpls", title: "*1️⃣IPMPLS*", rows: [
+        { id: "alarm", label: "ALARM :" },
+        { id: "node",  label: "NODE DOWN:" },
+        { id: "link",  label: "LINK  DOWN:" },
+        { id: "port",  label: "PORT  DOWN :" }
+      ]},
+      { id: "dwdm", title: "*2️⃣DWDM*", rows: [
+        { id: "alarm", label: "ALARM :" },
+        { id: "node",  label: "NODE DOWN:" },
+        { id: "link",  label: "LINK  DOWN:" },
+        { id: "port",  label: "PORT DOWN  :" },
+        { id: "serv",  label: "SERVICES :" }
+      ]},
+      { id: "osn", title: "*3️⃣OSN*", rows: [
+        { id: "alarm", label: "ALARM :" },
+        { id: "node",  label: "NODE DOWN:" },
+        { id: "link",  label: "LINK  DOWN:" },
+        { id: "port",  label: "PORT DOWN:" },
+        { id: "serv",  label: "SERVICES :" }
+      ]}
+    ]
+  },
+  {
+    id: "backhaul",
+    step: 2,
+    title: "*🚨BACKHAUL  IP*",
+    type: "counters",
+    groups: [
+      { id: "bh", title: "", rows: [
+        { id: "alarm", label: "*ALARM* :" },
+        { id: "node",  label: "*NODE DOWN*:" },
+        { id: "link",  label: "LINK  DOWN:" },
+        { id: "port",  label: "PORT DOWN  :" }
+      ]}
+    ]
+  },
+  {
+    id: "partner",
+    step: 2,
+    title: "🚨  *PARTNER LINK*",
+    type: "partner",
+    rows: [
+      { id: "p1",  label: "SBIN IPT CSquared (40G):", kind: "value", unit: "Gb/s" },
+      { id: "p2",  label: "SBIN IPT WACS     (20G): ", kind: "value", unit: "Gb/s" },
+      { id: "p3",  label: "NSIA BENIN (1G) :",         kind: "value", unit: "Mb/s" },
+      { id: "p4",  label: "SIP YAS (1G) 🔄 MOOV:",     kind: "value", unit: "Mb/s" },
+      { id: "p5",  label: "EGOOV-1 :",                 kind: "check" },
+      { id: "p6",  label: "EGOUV-2 :",                 kind: "check" },
+      { id: "p7",  label: "ECOB ASSIG (1G) :",         kind: "check" },
+      { id: "p8",  label: "ECOB ETI (1G) :",           kind: "check" },
+      { id: "p9",  label: "WACREN-IPT (1G) :",         kind: "check" },
+      { id: "p10", label: "WACREN-IPLC (1G) :",        kind: "check" },
+      { id: "p11", label: "SITA NVLE AÉROGARE (2Mo) :", kind: "check" }
+    ]
+  }
+];
+
+const STORE_KEY = "isoc_point_horaire";
+let data = {};   // { "section.row": { v, desc, ok } }
+
+function loadData() {
+  try { data = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+  catch (e) { data = {}; }
+}
+function saveData() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch (e) {}
+}
+function cell(key) {
+  if (!data[key]) data[key] = {};
+  return data[key];
+}
+
+// ── mise en forme ──
+function pad2(n) { return String(n).padStart(2, "0"); }
+
+// 28.3 sur 200G → « 14,15 »
+function percent(value, cap) {
+  if (value === "" || value == null || isNaN(value) || !cap) return null;
+  return (Number(value) / cap) * 100;
+}
+function fmtPercent(p) {
+  return p.toFixed(2).replace(".", ",");
+}
+
+function headerDate(d) {
+  if (!d) return "@" + "À renseigner";
+  return "@" + pad2(d.getDate()) + "/" + pad2(d.getMonth() + 1) + "/" + d.getFullYear() +
+         " @" + pad2(d.getHours()) + "H" + pad2(d.getMinutes());
+}
+
+// ══════════════ FORMULAIRE ══════════════
+// La saisie est découpée en deux étapes : le relevé complet tient
+// difficilement sur un écran.
+const STEPS = [
+  { n: 1, label: "Core & Backbone" },
+  { n: 2, label: "Backhaul & Partenaires" }
+];
+let step = 1;
+
+function renderSteps() {
+  const bar = document.getElementById("phSteps");
+  bar.textContent = "";
+  STEPS.forEach(function (s) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "ph-step" + (s.n === step ? " active" : "");
+    btn.setAttribute("role", "tab");
+    btn.setAttribute("aria-selected", s.n === step ? "true" : "false");
+    const num = document.createElement("span");
+    num.className = "ph-step-num";
+    num.textContent = s.n;
+    const lab = document.createElement("span");
+    lab.textContent = s.label;
+    btn.appendChild(num);
+    btn.appendChild(lab);
+    btn.addEventListener("click", function () { goStep(s.n); });
+    bar.appendChild(btn);
+  });
+
+  document.getElementById("phPrev").disabled = step === 1;
+  document.getElementById("phNext").disabled = step === STEPS.length;
+}
+
+function goStep(n) {
+  step = Math.min(STEPS.length, Math.max(1, n));
+  renderSteps();
+  buildForm();
+  document.getElementById("phForm").scrollIntoView({ block: "nearest" });
+}
+
+function buildForm() {
+  const form = document.getElementById("phForm");
+  form.textContent = "";
+
+  STRUCTURE.filter(function (s) { return (s.step || 1) === step; }).forEach(function (section) {
+    const box = document.createElement("div");
+    box.className = "ph-section";
+
+    const hd = document.createElement("div");
+    hd.className = "ph-section-hd";
+    hd.textContent = section.title.replace(/\*/g, "");
+    const badge = document.createElement("span");
+    badge.className = "ph-badge";
+    badge.textContent = section.type === "ratio" ? "trafic → %"
+                      : section.type === "counters" ? "anomalies" : "partenaires";
+    hd.appendChild(badge);
+    box.appendChild(hd);
+
+    const body = document.createElement("div");
+    body.className = "ph-section-body";
+
+    if (section.type === "ratio") {
+      section.rows.forEach(function (row) { body.appendChild(ratioRow(section, row)); });
+    } else if (section.type === "counters") {
+      section.groups.forEach(function (group) {
+        const g = document.createElement("div");
+        g.className = "ph-group";
+        if (group.title) {
+          const t = document.createElement("div");
+          t.className = "ph-group-title";
+          t.textContent = group.title.replace(/\*/g, "");
+          g.appendChild(t);
+        }
+        group.rows.forEach(function (row) { counterRow(section, group, row, g); });
+        body.appendChild(g);
+      });
+    } else {
+      section.rows.forEach(function (row) { body.appendChild(partnerRow(section, row)); });
+    }
+
+    box.appendChild(body);
+    form.appendChild(box);
+  });
+}
+
+// ── ligne « trafic → pourcentage » ──
+function ratioRow(section, row) {
+  const key = section.id + "." + row.id;
+  const c = cell(key);
+
+  const el = document.createElement("div");
+  el.className = "ph-row";
+
+  const label = document.createElement("span");
+  label.className = "ph-label";
+  label.textContent = row.label;
+  label.title = row.label;
+
+  const cap = document.createElement("span");
+  cap.className = "ph-cap";
+  cap.textContent = row.capText;
+
+  const input = document.createElement("input");
+  input.className = "ph-input";
+  input.type = "number";
+  input.step = "0.01";
+  input.min = "0";
+  input.placeholder = "0";
+  input.value = c.v != null ? c.v : "";
+  input.setAttribute("aria-label", "Trafic sur " + row.label);
+
+  const unit = document.createElement("span");
+  unit.className = "ph-unit";
+  unit.textContent = "G";
+
+  const res = document.createElement("span");
+  res.className = "ph-result";
+
+  function paint() {
+    const p = percent(input.value, row.cap);
+    if (p == null) { res.textContent = "—"; res.className = "ph-result empty"; return; }
+    res.textContent = fmtPercent(p) + "%";
+    res.className = "ph-result" + (p >= 80 ? " high" : p >= 60 ? " warn" : "");
+  }
+  input.addEventListener("input", function () {
+    c.v = input.value === "" ? null : Number(input.value);
+    paint();
+    saveData();
+  });
+  paint();
+
+  el.appendChild(label);
+  el.appendChild(cap);
+  el.appendChild(input);
+  el.appendChild(unit);
+  el.appendChild(res);
+  return el;
+}
+
+// ── ligne « compteur d'anomalies » + description ──
+function counterRow(section, group, row, parent) {
+  const key = section.id + "." + group.id + "." + row.id;
+  const c = cell(key);
+
+  const el = document.createElement("div");
+  el.className = "ph-row";
+
+  const label = document.createElement("span");
+  label.className = "ph-label";
+  label.textContent = row.label.replace(/\*/g, "");
+
+  const input = document.createElement("input");
+  input.className = "ph-input ph-count";
+  input.type = "number";
+  input.min = "0";
+  input.step = "1";
+  input.value = c.v != null ? c.v : 0;
+  input.setAttribute("aria-label", row.label.replace(/\*/g, "") + " " + (group.title || section.title).replace(/\*/g, ""));
+
+  const desc = document.createElement("textarea");
+  desc.className = "ph-desc";
+  desc.placeholder = "Description — une ligne par élément concerné";
+  desc.value = c.desc || "";
+  desc.setAttribute("aria-label", "Détail de " + row.label.replace(/\*/g, ""));
+
+  function paint() {
+    const n = parseInt(input.value, 10) || 0;
+    input.classList.toggle("has-issue", n > 0);
+    desc.hidden = n === 0;
+  }
+  input.addEventListener("input", function () {
+    c.v = Math.max(0, parseInt(input.value, 10) || 0);
+    paint();
+    saveData();
+  });
+  desc.addEventListener("input", function () {
+    c.desc = desc.value;
+    saveData();
+  });
+  paint();
+
+  el.appendChild(label);
+  el.appendChild(input);
+  parent.appendChild(el);
+  parent.appendChild(desc);
+}
+
+// ── ligne partenaire : valeur libre ou coche ──
+function partnerRow(section, row) {
+  const key = section.id + "." + row.id;
+  const c = cell(key);
+
+  const el = document.createElement("div");
+  el.className = "ph-row";
+
+  const label = document.createElement("span");
+  label.className = "ph-label";
+  label.textContent = row.label.replace(/\s*:\s*$/, "");
+  label.title = row.label;
+  el.appendChild(label);
+
+  if (row.kind === "value") {
+    const input = document.createElement("input");
+    input.className = "ph-input";
+    input.type = "text";
+    input.placeholder = "0";
+    input.value = c.v != null ? c.v : "";
+    input.setAttribute("aria-label", row.label);
+    input.addEventListener("input", function () { c.v = input.value; saveData(); });
+
+    const unit = document.createElement("span");
+    unit.className = "ph-unit";
+    unit.textContent = row.unit;
+
+    el.appendChild(input);
+    el.appendChild(unit);
+  } else {
+    const wrap = document.createElement("label");
+    wrap.className = "ph-check";
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.checked = c.ok !== false;          // ✅ par défaut
+    const txt = document.createElement("span");
+    txt.className = "ph-check-txt";
+
+    function paint() {
+      txt.textContent = box.checked ? "✅" : "❌";
+      wrap.classList.toggle("is-ko", !box.checked);
+    }
+    box.addEventListener("change", function () { c.ok = box.checked; paint(); saveData(); });
+    paint();
+
+    wrap.appendChild(box);
+    wrap.appendChild(txt);
+    el.appendChild(wrap);
+  }
+  return el;
+}
+
+// ══════════════ GÉNÉRATION ══════════════
+function buildPoint() {
+  const dp = window.DatePicker && DatePicker.get("pointDate");
+  const d = dp ? dp.value : null;
+  const RULE = "---------------------------------------";
+  const out = [
+    RULE,
+    "*POINT NOC TRANS du " + headerDate(d) + "*",
+    RULE,
+    " "
+  ];
+
+  STRUCTURE.forEach(function (section) {
+    out.push(section.title);
+    out.push("");
+
+    if (section.type === "ratio") {
+      section.rows.forEach(function (row) {
+        const c = cell(section.id + "." + row.id);
+        const p = percent(c.v, row.cap);
+        out.push(row.label + row.capText + "    *" + (p == null ? "—" : fmtPercent(p) + "%") + "*");
+      });
+      out.push("");
+    }
+
+    if (section.type === "counters") {
+      section.groups.forEach(function (group) {
+        if (group.title) { out.push(group.title); out.push(""); }
+        group.rows.forEach(function (row) {
+          const c = cell(section.id + "." + group.id + "." + row.id);
+          const n = Number(c.v) || 0;
+          out.push(row.label + " *" + n + (n > 0 ? "❌" : "") + "*");
+          if (n > 0 && c.desc) {
+            out.push("");
+            String(c.desc).split(/\r?\n/).forEach(function (l) {
+              if (l.trim()) out.push(l.trimEnd());
+            });
+          }
+          out.push("");
+        });
+      });
+    }
+
+    if (section.type === "partner") {
+      section.rows.forEach(function (row) {
+        const c = cell(section.id + "." + row.id);
+        if (row.kind === "value") {
+          const v = (c.v == null || c.v === "") ? "—" : c.v;
+          out.push(row.label + " *" + v + " " + row.unit + "*");
+        } else {
+          out.push(row.label + " " + (c.ok === false ? "❌" : "✅"));
+        }
+      });
+      out.push("");
+    }
+  });
+
+  out.push("____________________ ");
+  return out;
+}
+
+// ── aperçu ──
+function renderPreview(lines) {
+  const parts = lines.map(function (line) {
+    if (line.trim() === "") return "<div class='l-gap'></div>";
+    if (/^-{5,}$/.test(line.trim()) || /^_{5,}$/.test(line.trim())) return "<div class='l-div'></div>";
+    let cls = "l-sentence";
+    if (line.indexOf("POINT NOC TRANS") !== -1) cls = "l-title";
+    else if (line.indexOf("🚨") !== -1) cls = "l-section";
+    else if (/^\*[1-3]️⃣/.test(line)) cls = "l-update";
+    else if (line.indexOf("❌") !== -1) cls = "l-cause";
+    else if (line.indexOf("✅") !== -1) cls = "l-date";
+    else if (/%\*$/.test(line)) cls = "l-clients";
+    const esc = line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return "<div class='" + cls + "'>" + esc + "</div>";
+  });
+  document.getElementById("preview").innerHTML = parts.join("");
+}
+
+function setMsg(text, state) {
+  const el = document.getElementById("msg");
+  el.innerHTML = '<span class="dot" aria-hidden="true"></span>' + text;
+  el.className = "status-msg" + (state ? " " + state : "");
+}
+
+let lastReport = "";
+
+document.getElementById("genBtn").addEventListener("click", function () {
+  const lines = buildPoint();
+  lastReport = lines.join("\n");
+  document.getElementById("output").value = lastReport;
+  renderPreview(lines);
+  setMsg("Point horaire généré", "ok");
+});
+
+document.getElementById("copyBtn").addEventListener("click", function () {
+  if (!lastReport) { setMsg("Générez d'abord le point", "err"); return; }
+  navigator.clipboard.writeText(lastReport)
+    .then(function () { setMsg("Copié dans le presse-papiers", "ok"); })
+    .catch(function () { setMsg("Copie impossible", "err"); });
+});
+
+document.getElementById("resetBtn").addEventListener("click", function () {
+  if (!confirm("Remettre à zéro toutes les valeurs saisies ?")) return;
+  data = {};
+  saveData();
+  buildForm();
+  setMsg("Relevé remis à zéro", "");
+});
+
+document.getElementById("phPrev").addEventListener("click", function () { goStep(step - 1); });
+document.getElementById("phNext").addEventListener("click", function () { goStep(step + 1); });
+
+// Initialisation
+loadData();
+renderSteps();
+buildForm();
+(function () {
+  const dp = window.DatePicker && DatePicker.get("pointDate");
+  if (dp) dp.setNow();
+})();
+</script>
+</body>
+</html>
