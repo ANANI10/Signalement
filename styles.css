@@ -817,3 +817,67 @@ textarea:focus {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+#clientCount{
+    width: 140px;
+}
+
+
+.page-hd-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
+
+
+
+/* ══════════════ MODAL PPPOE ══════════════ */
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-group label {
+  font-size: 11px; font-weight: 700; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--muted);
+}
+
+.pppoe-zones {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.pppoe-zones label {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--inner);
+  font-size: 12.5px; font-weight: 600; color: var(--text2);
+  cursor: pointer; user-select: none;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.pppoe-zones label:hover { border-color: var(--text2); color: var(--text); }
+.pppoe-zones input[type="checkbox"] {
+  width: 14px; height: 14px; accent-color: var(--blue); cursor: pointer;
+}
+.pppoe-zones label:has(input:checked) {
+  background: var(--blue-dim); border-color: var(--blue); color: var(--blue);
+}
+
+.pppoe-actions {
+  display: flex; gap: 8px; margin-top: 4px;
+}
+.pppoe-actions .mod-add-btn { flex: 1; height: 38px; font-size: 13px; }
+.pppoe-actions .btn-ghost { flex-shrink: 0; }
+
+.pppoe-result {
+  min-height: 110px;
+  font-family: "JetBrains Mono", monospace;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+@media (max-width: 480px) {
+  .input-row { grid-template-columns: 1fr; }
+  .pppoe-actions { flex-direction: column; }
+}
