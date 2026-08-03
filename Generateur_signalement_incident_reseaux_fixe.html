@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="components/date-picker.css">
+<link rel="stylesheet" href="components/dropdown.css">
 <script>
 // ── Éclairage : applique le thème enregistré avant le rendu (évite le flash) ──
 (function () {
@@ -40,8 +42,6 @@
   </a>
 
 
-  
-
   <div class="topbar-right">
     <div class="clock-chip" aria-label="Heure UTC">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -70,6 +70,11 @@
   
   
     <div class="page-hd-right">
+
+
+      <button class="pointhor" id="pointHoraireBtn" type="button">
+        🕐Point Horaire
+      </button>
   
       <button class="btn-ghost" id="pppoeBtn" type="button">
         📉 Chute PPPOE
@@ -124,16 +129,24 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
       Base OLT
     </button>
+
+    <button class="btn-ghost" id="historyBtn" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 9 8 9"/><polyline points="12 7 12 12 15 14"/></svg>
+      Historique
+    </button>
+
+    <div class="tb-sep" aria-hidden="true"></div>
+
+    <label class="upd-check" for="includeDiagChk" style="margin:0;">
+      <input type="checkbox" id="includeDiagChk" checked>
+      Inclure diagnostic OLT
+    </label>
+
     <div class="tb-sep" aria-hidden="true"></div>
     <div class="status-msg" id="msg" role="status" aria-live="polite">
       <span class="dot" aria-hidden="true"></span>Prêt
     </div>
   </div>
-
-
-
-  
-
 
   <div class="resolve-banner" id="resolveBanner">
     <div class="resolve-hd">
@@ -273,9 +286,6 @@ Major,6 juillet 2026 00:46:55 GMT,,PON Port:YOKOE-FX8:R1.S1.LT5.PON16,LOS,..."
   </div>
 </div>
 
-
-
-
 <!-- Modal Chute PPPOE -->
 <div class="modal-overlay" id="pppoeModal" role="dialog" aria-modal="true" aria-labelledby="pppoeModalTitle">
   <div class="modal-box modal-sm">
@@ -328,8 +338,170 @@ Major,6 juillet 2026 00:46:55 GMT,,PON Port:YOKOE-FX8:R1.S1.LT5.PON16,LOS,..."
 </div>
 
 
+<!-- Modal Historique des incidents & mises à jour -->
+<div class="modal-overlay" id="histModal" role="dialog" aria-modal="true" aria-labelledby="histModalTitle">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <span class="modal-title" id="histModalTitle">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 9 8 9"/><polyline points="12 7 12 12 15 14"/></svg>
+        Historique des incidents
+      </span>
+      <button class="modal-close" id="histModalClose" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
 
+    <div class="modal-body">
+      <!-- vue liste -->
+      <div id="histListView">
+        <p class="mod-hint">Chaque signalement généré est enregistré ici. Cliquez sur un incident pour lui ajouter une mise à jour ou le clôturer.</p>
+        <div class="mod-table" id="histTable"></div>
+      </div>
+
+      <!-- vue détail d'un incident -->
+      <div id="histDetailView" class="is-hidden">
+        <div class="upd-back">
+          <button class="btn-ghost modal-ft-btn" id="histBackBtn" type="button">← Tous les incidents</button>
+          <span class="mod-hint" id="histSummary"></span>
+        </div>
+
+        <div class="upd-timeline" id="updTimeline"></div>
+
+        <div class="upd-form">
+          <div class="upd-field upd-wide">
+            <label>État des éléments — cliquez pour basculer</label>
+            <div class="upd-states" id="updStates"></div>
+          </div>
+          <div class="upd-field upd-wide">
+            <label for="updTitle">Titre de la mise à jour</label>
+            <input type="text" id="updTitle" autocomplete="off" placeholder="ex : 02 sites BTS UP">
+          </div>
+          <div class="upd-field">
+            <label for="updDate">Date &amp; heure</label>
+            <isoc-date-picker id="updDate" placeholder="Date et heure"></isoc-date-picker>
+          </div>
+          <div class="upd-field upd-wide">
+            <label for="updImpacts">Impacts RX</label>
+            <input type="text" id="updImpacts" autocomplete="off" placeholder="ex : 03 SITES BTS DOWN ( 05 SBTS DOWN )">
+          </div>
+          <div class="upd-field">
+            <label for="updEscaladePick">Escalade</label>
+            <isoc-dropdown
+              id="updEscaladePick"
+              placeholder="À renseigner"
+              options="EMEF|TRANS FO/FTTH|TRANS_FO|PROJET|EMEF / TRANS FO/FTTH"></isoc-dropdown>
+          </div>
+          <div class="upd-field upd-wide">
+            <label for="updCause">Cause</label>
+            <input type="text" id="updCause" autocomplete="off" placeholder="ex : WO-DT-20260623_03 : Travaux…">
+          </div>
+          <div class="upd-field upd-wide">
+            <label for="updAction">Action</label>
+            <input type="text" id="updAction" autocomplete="off" placeholder="ex : WORK EN COURS">
+          </div>
+          <label class="upd-check" for="updFinal">
+            <input type="checkbox" id="updFinal">
+            Signalement de fin — clôture de l'incident
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-ft">
+      <span class="mod-hint" id="histCount"></span>
+      <div class="modal-ft-actions">
+        <button class="btn-ghost modal-ft-btn" id="histClearBtn" type="button">Vider l'historique</button>
+        <button class="btn-primary modal-ft-btn is-hidden" id="updGenBtn" type="button">Générer la mise à jour</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Point Horaire NOC Fixe -->
+<div class="modal-overlay" id="phModal" role="dialog" aria-modal="true" aria-labelledby="phModalTitle">
+  <div class="modal-box ph-modal-box">
+    <div class="modal-hd">
+      <span class="modal-title" id="phModalTitle">🕐 Point Horaire — Réseau Fixe</span>
+      <button class="modal-close" id="phModalClose" type="button" aria-label="Fermer">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body ph-body">
+      <div class="ph-col-left">
+        <div class="ph-hour-chip" id="phHourChip">🕐 --</div>
+
+        <div class="ph-site">
+          <div class="ph-site-title">📍 CACAVELLI</div>
+          <div class="ph-srv-row" data-site="CACAVELLI">
+            <button type="button" class="ph-srv-btn is-ok" data-server="BNG">BNG : OK</button>
+            <button type="button" class="ph-srv-btn is-ok" data-server="DHCP">DHCP : OK</button>
+            <button type="button" class="ph-srv-btn is-ok" data-server="DNS">DNS : OK</button>
+            <button type="button" class="ph-srv-btn is-ok" data-server="AAA">AAA : OK</button>
+          </div>
+        </div>
+        <div class="ph-site">
+          <div class="ph-site-title">📍 LOME</div>
+          <div class="ph-srv-row" data-site="LOME">
+            <button type="button" class="ph-srv-btn is-ok" data-server="BNG">BNG : OK</button>
+            <button type="button" class="ph-srv-btn is-ok" data-server="DHCP">DHCP : OK</button>
+            <button type="button" class="ph-srv-btn is-ok" data-server="DNS">DNS : OK</button>
+            <button type="button" class="ph-srv-btn is-ok" data-server="AAA">AAA : OK</button>
+          </div>
+        </div>
+
+        <div class="upd-form">
+          <div class="upd-field">
+            <label for="phPppoe">Authentifications PPPoE sur BNG</label>
+            <input type="text" id="phPppoe" placeholder="ex: 49.3">
+          </div>
+          <div class="upd-field">
+            <label for="phTraficFtth">Trafic FTTH&amp;ADSL (Gbits/s)</label>
+            <input type="text" id="phTraficFtth" placeholder="ex: 37.59">
+          </div>
+          <div class="upd-field">
+            <label for="phTraficLsi">Trafic LSI&amp;LS (Gbits/s)</label>
+            <input type="text" id="phTraficLsi" placeholder="ex: 19.41">
+          </div>
+          <div class="upd-field">
+            <label for="phBngLome">BNG LOME (Gbits/s / 200G)</label>
+            <input type="number" id="phBngLome" placeholder="ex: 6100">
+          </div>
+          <div class="upd-field">
+            <label for="phBngCaca">BNG CACA (Gbits/s / 200G)</label>
+            <input type="number" id="phBngCaca" placeholder="ex: 4400">
+          </div>
+          <div class="upd-field">
+            <label for="phFh">Clients FH Zabbix</label>
+            <input type="number" id="phFh" value="0" min="0">
+          </div>
+          <div class="upd-field">
+            <label for="phOnt">ONT BTS FTTM</label>
+            <input type="number" id="phOnt" value="0" min="0">
+          </div>
+          <div class="upd-field">
+            <label for="phLsi">LSI &amp; LS sur PRTG</label>
+            <input type="number" id="phLsi" value="0" min="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="ph-col-right">
+        <div class="ph-col-right-hd">Aperçu</div>
+        <textarea id="phResult" class="mod-search pppoe-result ph-result" readonly placeholder="Le point horaire généré apparaîtra ici…"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-ft">
+      <span class="mod-hint" id="phIncCount"></span>
+      <div class="modal-ft-actions">
+        <button class="btn-ghost modal-ft-btn" id="phCopyBtn" type="button">Copier le résultat</button>
+        <button class="btn-primary modal-ft-btn" id="phGenBtn" type="button">Générer le point horaire</button>
+      </div>
+    </div>
+  </div>
+</div>
+ 
 <script>
+
   // =============================
   // MODAL CHUTE PPPOE
   // =============================
@@ -364,7 +536,7 @@ Major,6 juillet 2026 00:46:55 GMT,,PON Port:YOKOE-FX8:R1.S1.LT5.PON16,LOS,..."
     const chute = before - after;
     const fmt = n => n.toLocaleString("fr-FR");
   
-    const texte = `Nous observons \u{1F446} une chute brusque de ${fmt(chute)} clients PPPOE due aux coupures d'électricité. ZONE : ${zones.join(", ")}.`;
+    const texte = `Nous observons \u{1F449} une chute brusque de ${fmt(chute)} clients PPPOE due aux coupures d'électricité. ZONE : ${zones.join(", ")}.`;
   
     document.getElementById("pppoeResult").value = texte;
   });
@@ -375,11 +547,7 @@ Major,6 juillet 2026 00:46:55 GMT,,PON Port:YOKOE-FX8:R1.S1.LT5.PON16,LOS,..."
     navigator.clipboard.writeText(val).then(() => setMsg("Copié dans le presse-papiers", "ok"));
   });
 
-
-
-
-// ══════════════ ÉCLAIRAGE DE LA PLATEFORME (thème clair / sombre) ══════════════
-// Le thème initial est déjà posé sur <html> par le script du <head> (anti-flash).
+  // ══════════════ ÉCLAIRAGE DE LA PLATEFORME (thème clair / sombre) ══════════════
 const THEME_KEY = "isoc_theme";
 const themeBtn = document.getElementById("themeBtn");
 const clientCountInput = document.getElementById("clientCount");
@@ -454,7 +622,11 @@ const EMOJI = {
   mensRoom:"\u{1F6B9}",
   warning: "\u26A0\uFE0F",
   zero:    "0\uFE0F\u20E3",
-  up:      "\u{1F446}" // 👆
+  up:      "\u{1F449}", // 👆
+  forbidden: "\u26D4",              // ⛔
+  pin:       "\u{1F4CD}",           // 📍
+  pointDark: "\u{1F449}\u{1F3FF}",  // 👉🏿
+  arrowR:    "\u27A1\uFE0F"         // ➡️
 };
 
 // ══════════════ BASE OLT ══════════════
@@ -821,7 +993,7 @@ function buildPonSentence(oltName, ltGroups) {
 }
 
 function buildCardSentence(oltName, lts) {
-  return "Indisponibilité " + (lts.length>1?"des cartes ":"de la carte ") +
+  return "Indisponibilité " + (lts.length>1?"des Cartes ":"de la Carte ") +
     frenchJoin(lts.map(n => "LT"+n)) + " de l'OLT " + oltName + ".";
 }
 
@@ -867,7 +1039,7 @@ function buildOltDiagnosticBlock(oltName, diagDate, tech) {
   ];
 }
 
-function buildClusterBlock(oltNames, events, tech) {
+function buildClusterBlock(oltNames, events, tech, includeDiag) {
   let ts=null, fmt=null, fmtDiag=null;
   for (const e of events)
     if (e.dateInfo && (ts===null || e.dateInfo.timestamp<ts)) { ts=e.dateInfo.timestamp; fmt=e.dateInfo.formatted; fmtDiag=e.dateInfo.formattedDiag; }
@@ -875,10 +1047,11 @@ function buildClusterBlock(oltNames, events, tech) {
   const impactsValue = clientsInfo.matchedCount > 0
     ? (clientsInfo.total + " CLIENTS FTTH")
     : "À renseigner";
-  const dash = "------------------------------------------------------------------------";
+  const dash = "------------------------------------------------------";
   const lines = [
     dash, EMOJI.siren+" SIGNALEMENT D'INCIDENT "+EMOJI.siren, dash,
     "*➡️STATUT INCIDENT : DEBUT* ", dash,
+    
     "Details :",
     "Nature de l'incident :",
     "Indisponibilité de l'OLT "+oltNames.join("/")+".",
@@ -893,9 +1066,11 @@ function buildClusterBlock(oltNames, events, tech) {
     "",
     EMOJI.warning+" CAUSE : INVESTIGATION EN COURS."
   ];
-  oltNames.forEach(name => {
-    lines.push(...buildOltDiagnosticBlock(name, fmtDiag, tech));
-  });
+  if (includeDiag) {
+    oltNames.forEach(name => {
+      lines.push(...buildOltDiagnosticBlock(name, fmtDiag, tech));
+    });
+  }
   return lines;
 }
 
@@ -927,7 +1102,7 @@ function buildBlockForOlt(oltName, events, tech) {
     const l = groups[k].type==="pon" ? "TRANS FO/FTTH" : "EMEF";
     if (!esc.includes(l)) esc.push(l);
   });
-  const dash = "------------------------------------------------------------------------";
+  const dash = "------------------------------------------------------";
   return [
     dash, EMOJI.siren+" SIGNALEMENT D'INCIDENT "+EMOJI.siren, dash,
     "*➡️STATUT INCIDENT : DEBUT* ", dash,
@@ -1077,6 +1252,9 @@ document.getElementById("copyBtn").addEventListener("click", () => {
 });
 document.getElementById("deleteBtn").addEventListener("click", clearAll);
 
+
+const includeDiagChk = document.getElementById("includeDiagChk");
+
 function generate() {
   const raw = document.getElementById("input").value;
   const events = parseLines(raw);
@@ -1114,7 +1292,7 @@ function generate() {
     if (u.kind === "device") {
       allLines.push(...buildBlockForOlt(u.oltName, u.events, tech));
     } else {
-      allLines.push(...buildClusterBlock(u.oltNames, u.events, tech));
+      allLines.push(...buildClusterBlock(u.oltNames, u.events, tech, includeDiagChk.checked));
       const info = computeClientsForNames(u.oltNames);
       info.missing.forEach(n => { if (!missingAll.includes(n)) missingAll.push(n); });
     }
@@ -1390,16 +1568,557 @@ function openFromHash() {
   else if (h === "#tech") openTechModal();
 }
 
-clientCountInput.addEventListener("input", () => {
+includeDiagChk.addEventListener("input", () => {
     if (lastReport) generate();
 });
 
 window.addEventListener("hashchange", openFromHash);
 
+(function () {
+  var HIST_KEY_FIXE = "isoc_incidents_fixe";
+  var INCIDENTS_FIXE = loadJSON(HIST_KEY_FIXE, []) || [];
+  window.getIncidentsFixe = function () { return INCIDENTS_FIXE; };
+  var WRENCH = "\u{1F527}"; // 🔧
+  var DASH = "------------------------------------------------------------------------";
+
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function fmtDateISO(iso){
+    if (!iso) return "À renseigner";
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "À renseigner";
+    return pad2(d.getDate())+"/"+pad2(d.getMonth()+1)+"/"+d.getFullYear()+"@"+pad2(d.getHours())+"h"+pad2(d.getMinutes());
+  }
+
+  // extrait une valeur du texte déjà généré, ex: "🧑‍🧒‍🧒 Escalade : TRANS FO/FTTH" -> "TRANS FO/FTTH"
+  function extractField(lines, prefix){
+    for (var i = 0; i < lines.length; i++){
+      if (lines[i].indexOf(prefix) === 0) return lines[i].slice(prefix.length).trim();
+    }
+    return "";
+  }
+
+  // ne garde que "Details :" jusqu'à la fin — évite de dupliquer l'en-tête déjà présent dans lastReport
+  function extractBaseLines(fullLines){
+    var idx = fullLines.indexOf("Details :");
+    var lines = idx === -1 ? fullLines : fullLines.slice(idx);
+    var causeIdx = lines.findIndex(function(l){ return l.indexOf(EMOJI.warning) === 0; });
+    return causeIdx === -1 ? lines : lines.slice(0, causeIdx + 1);
+}
+
+  function elementsFromEvents(events){
+    var out = [], seen = {};
+    events.forEach(function(e){
+      var label, key;
+      if (e.type === "pon") { label = "PON " + e.pon + " (LT" + e.lt + ")"; key = "pon-"+e.lt+"-"+e.pon; }
+      else if (e.type === "card") { label = "LT" + e.lt; key = "card-"+e.lt; }
+      else { label = e.oltName; key = "olt-"+e.oltName; }
+      if (!seen[key]) { seen[key] = true; out.push({ key: key, name: label }); }
+    });
+    return out;
+  }
+
+  function snapshotFixe(oltNames, fullLines, events){
+    var baseLines = extractBaseLines(fullLines);
+    return {
+      id: newId(),
+      createdAt: new Date().toISOString(),
+      oltNames: oltNames,
+      baseLines: baseLines,      // "Details :" ... "CAUSE : ..." — sans l'en-tête
+      escalade: extractField(baseLines, EMOJI.family + " Escalade : "),
+      tech: extractField(baseLines, EMOJI.mensRoom + " TECH INF : "),
+      impacts: extractField(baseLines, EMOJI.chart + " IMPACTS RX FIXE : "),
+      elements: elementsFromEvents(events),
+      states: {},
+      cause: "INVESTIGATION EN COURS.",
+      updates: [],
+      closed: false
+    };
+  }
+
+  function rememberFixe(snap){
+    var key = snap.oltNames.join("|");
+    var existingIdx = -1;
+    for (var i = INCIDENTS_FIXE.length - 1; i >= 0; i--) {
+      if (!INCIDENTS_FIXE[i].closed && INCIDENTS_FIXE[i].oltNames.join("|") === key) {
+        existingIdx = i;
+        break;
+      }
+    }
+    if (existingIdx !== -1) {
+      snap.id = INCIDENTS_FIXE[existingIdx].id;
+      // on garde les updates déjà enregistrées, on ne les écrase pas
+      snap.updates = INCIDENTS_FIXE[existingIdx].updates;
+      snap.closed = INCIDENTS_FIXE[existingIdx].closed;
+      INCIDENTS_FIXE[existingIdx] = snap;
+    } else {
+      INCIDENTS_FIXE.push(snap);
+    }
+    saveJSON(HIST_KEY_FIXE, INCIDENTS_FIXE);
+}
+
+
+  function captureSnapshotFixe(){
+    if (!lastReport) return;
+    var raw = document.getElementById("input").value;
+    var events = parseLines(raw);
+    if (!events.length) return;
+    var oltNames = [];
+    events.forEach(function(e){ if (oltNames.indexOf(e.oltName) === -1) oltNames.push(e.oltName); });
+    rememberFixe(snapshotFixe(oltNames, lastReport.split("\n"), events));
+  }
+
+  // capture au premier clic sur "Générer"...
+  document.getElementById("genBtn").addEventListener("click", captureSnapshotFixe);
+  // ...et re-capture (mise à jour) au clic sur "Copier", une fois technicien/clients renseignés
+  document.getElementById("copyBtn").addEventListener("click", captureSnapshotFixe);
+
+  function blockUpdateFixe(u){
+    var title = u.final ? "FIN INCIDENT" : (u.title || "");
+    var out = ["Update" + u.n + " :  " + title];
+    out = out.concat([
+      "",
+      "Date et heure :",
+      EMOJI.clock + " " + fmtDateISO(u.dateISO),
+      "",
+      EMOJI.chart + " IMPACTS RX FIXE : " + (u.impacts || "À renseigner"),
+      "",
+      EMOJI.family + " Escalade : " + (u.escalade || "À renseigner"),
+      "",
+      EMOJI.mensRoom + " TECH INF : " + (u.tech || "À renseigner"),
+      "",
+      EMOJI.warning + " CAUSE : " + (u.cause || "INVESTIGATION EN COURS.")
+    ]);
+    if (u.action) out.push("", WRENCH + " ACTION : " + u.action);
+    return out;
+}
+
+  function statusLabel(inc, draft){
+    if (draft && draft.final) return "CLOTURE";
+    if (inc.updates.length || (draft && !draft.final)) return "EN COURS";
+    return "DEBUT";
+  }
+
+  function buildMessageFixe(inc, draft){
+    var cause = draft ? (draft.cause || inc.cause) : inc.cause;
+    var base = inc.baseLines.map(function(l){
+      return l.indexOf(EMOJI.warning) === 0 ? (EMOJI.warning + " CAUSE : " + cause) : l;
+    });
+    var out = [
+      DASH, EMOJI.siren + " SIGNALEMENT D'INCIDENT " + EMOJI.siren, DASH,
+      EMOJI.arrowR + "*STATUT INCIDENT : " + statusLabel(inc, draft) + " * ",
+      DASH
+    ].concat(base);
+
+    var all = draft ? inc.updates.concat([draft]) : inc.updates;
+    all.slice().reverse().forEach(function(u){
+      out.push(DASH);
+      out = out.concat(blockUpdateFixe(u));
+    });
+    return out;
+  }
+
+  var histModal  = document.getElementById("histModal");
+  var listView   = document.getElementById("histListView");
+  var detailView = document.getElementById("histDetailView");
+  var histTable  = document.getElementById("histTable");
+  var updGenBtn  = document.getElementById("updGenBtn");
+  var currentInc = null;
+
+  function updateHistCount(){
+    document.getElementById("histCount").textContent = INCIDENTS_FIXE.length + " incident(s) enregistré(s)";
+  }
+
+  function statusOf(inc){
+    if (inc.closed) return { cls:"clos", txt:"CLOS" };
+    if (inc.updates.length) return { cls:"encours", txt:"EN COURS" };
+    return { cls:"debut", txt:"DEBUT" };
+  }
+
+  function renderHistList(){
+    histTable.textContent = "";
+    if (!INCIDENTS_FIXE.length){
+      histTable.innerHTML = '<div class="mod-empty">Aucun incident enregistré</div>';
+    }
+    INCIDENTS_FIXE.slice().reverse().forEach(function(inc){
+      var st = statusOf(inc);
+      var row = document.createElement("div");
+      row.className = "hist-row"; row.setAttribute("role","button"); row.tabIndex = 0;
+
+      var main = document.createElement("div");
+      main.className = "hist-main";
+      var t = document.createElement("span"); t.className = "hist-title"; t.textContent = inc.oltNames.join(" / ");
+      var s = document.createElement("span"); s.className = "hist-sub";
+      s.textContent = inc.elements.length + " élément(s) · " + inc.updates.length + " mise(s) à jour";
+      main.appendChild(t); main.appendChild(s);
+
+      var badge = document.createElement("span"); badge.className = "hist-badge " + st.cls; badge.textContent = st.txt;
+
+      var del = document.createElement("button");
+      del.className = "hist-del"; del.type = "button"; del.title = "Supprimer";
+      del.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
+      del.addEventListener("click", function(e){
+        e.stopPropagation();
+        INCIDENTS_FIXE = INCIDENTS_FIXE.filter(function(x){ return x.id !== inc.id; });
+        saveJSON(HIST_KEY_FIXE, INCIDENTS_FIXE);
+        renderHistList();
+      });
+
+      row.addEventListener("click", function(){ openDetailFixe(inc); });
+      row.appendChild(main); row.appendChild(badge); row.appendChild(del);
+      histTable.appendChild(row);
+    });
+    updateHistCount();
+  }
+
+  function renderStatesFixe(inc){
+    var box = document.getElementById("updStates");
+    box.textContent = "";
+    inc.states = inc.states || {};
+    inc.elements.forEach(function(el){
+      var state = inc.states[el.key] === "UP" ? "UP" : "DOWN";
+      inc.states[el.key] = state;
+
+      var wrap = document.createElement("span"); wrap.className = "upd-state";
+      var name = document.createElement("span"); name.textContent = el.name;
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "upd-state-btn " + (state === "UP" ? "is-up" : "is-down");
+      btn.textContent = state;
+      btn.addEventListener("click", function(){
+        var next = inc.states[el.key] === "UP" ? "DOWN" : "UP";
+        inc.states[el.key] = next;
+        btn.textContent = next;
+        btn.className = "upd-state-btn " + (next === "UP" ? "is-up" : "is-down");
+        var up = [], down = [];
+        inc.elements.forEach(function(x){ (inc.states[x.key]==="UP"?up:down).push(x.name); });
+        document.getElementById("updTitle").value = up.length ? up.join(" / ") + " UP" : "";
+      });
+      wrap.appendChild(name); wrap.appendChild(btn);
+      box.appendChild(wrap);
+    });
+  }
+
+  function openDetailFixe(inc){
+    currentInc = inc;
+    listView.classList.add("is-hidden");
+    detailView.classList.remove("is-hidden");
+    updGenBtn.classList.remove("is-hidden");
+    document.getElementById("histSummary").textContent = inc.oltNames.join(" / ");
+
+    var tl = document.getElementById("updTimeline");
+    tl.textContent = "";
+    for (var i = inc.updates.length - 1; i >= 0; i--){
+      (function(index){
+        var u = inc.updates[index];
+        var item = document.createElement("div");
+        item.className = "upd-item " + (u.final ? "final" : (index === 0 ? "u-first" : "u-next"));
+        var num = document.createElement("span"); num.className = "upd-num";
+        num.textContent = u.final ? "FIN" : "Update" + u.n;
+        var txt = document.createElement("span"); txt.className = "upd-txt";
+        txt.textContent = (u.title ? u.title + " — " : "") + fmtDateISO(u.dateISO);
+        var copy = document.createElement("button"); copy.className = "upd-copy"; copy.type = "button";
+        copy.innerHTML = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+        copy.addEventListener("click", function(e){
+          e.stopPropagation();
+          var past = { oltNames: inc.oltNames, baseLines: inc.baseLines, cause: inc.cause, updates: inc.updates.slice(0, index) };
+          var lines = buildMessageFixe(past, inc.updates[index]);
+          lastReport = lines.join("\n");
+          document.getElementById("output").value = lastReport;
+          renderPreview(lines);
+          closeHistModalFixe();
+          navigator.clipboard.writeText(lastReport).catch(function(){});
+          setMsg("Mise à jour réaffichée et copiée", "ok");
+        });
+        item.appendChild(num); item.appendChild(txt); item.appendChild(copy);
+        tl.appendChild(item);
+      })(i);
+    }
+
+    renderStatesFixe(inc);
+    document.getElementById("updTitle").value = "";
+    document.getElementById("updImpacts").value = inc.impacts || "";
+    document.getElementById("updCause").value = inc.cause || "";
+    document.getElementById("updAction").value = "";
+    document.getElementById("updFinal").checked = false;
+
+    // reprend l'escalade et le technicien de l'incident d'origine, modifiables si besoin
+    var esc = window.Dropdown && Dropdown.get("updEscaladePick");
+    if (esc) { esc.clear(); if (inc.escalade) esc.select(inc.escalade); }
+
+    // date/heure proposée = maintenant, modifiable si besoin
+    var dp = window.DatePicker && DatePicker.get("updDate");
+    if (dp) dp.setNow();
+  }
+
+  function backToListFixe(){
+    currentInc = null;
+    detailView.classList.add("is-hidden");
+    listView.classList.remove("is-hidden");
+    updGenBtn.classList.add("is-hidden");
+    renderHistList();
+  }
+
+  function generateUpdateFixe(){
+    if (!currentInc) return;
+    var dp  = window.DatePicker && DatePicker.get("updDate");
+    var esc = window.Dropdown && Dropdown.get("updEscaladePick");
+    var final = document.getElementById("updFinal").checked;
+    var techNow = getSelectedTech();
+
+    var draft = {
+      n: currentInc.updates.length + 1,
+      title: document.getElementById("updTitle").value.trim(),
+      dateISO: dp && dp.value ? dp.value.toISOString() : "",
+      impacts: document.getElementById("updImpacts").value.trim() || currentInc.impacts || "À renseigner",
+      escalade: (esc && esc.value) || currentInc.escalade || "",
+      tech: techNow ? techLine(techNow) : (currentInc.tech || "À renseigner"),
+      cause: document.getElementById("updCause").value.trim() || currentInc.cause,
+      action: document.getElementById("updAction").value.trim(),
+      final: final
+    };
+
+    var lines = buildMessageFixe(currentInc, draft);
+    currentInc.updates.push(draft);
+    currentInc.cause = draft.cause;
+    if (final) currentInc.closed = true;
+    saveJSON(HIST_KEY_FIXE, INCIDENTS_FIXE);
+
+    lastReport = lines.join("\n");
+    document.getElementById("output").value = lastReport;
+    renderPreview(lines);
+    closeHistModalFixe();
+    setMsg(final ? "Signalement de clôture généré" : "Update " + draft.n + " généré", "ok");
+}
+
+  function openHistModalFixe(){ backToListFixe(); histModal.classList.add("show"); }
+  function closeHistModalFixe(){ histModal.classList.remove("show"); }
+
+  document.getElementById("historyBtn").addEventListener("click", openHistModalFixe);
+  document.getElementById("histModalClose").addEventListener("click", closeHistModalFixe);
+  document.getElementById("histBackBtn").addEventListener("click", backToListFixe);
+  updGenBtn.addEventListener("click", generateUpdateFixe);
+  histModal.addEventListener("click", function(e){ if (e.target === histModal) closeHistModalFixe(); });
+  document.getElementById("histClearBtn").addEventListener("click", function(){
+    if (!INCIDENTS_FIXE.length) return;
+    if (!confirm("Effacer tout l'historique des incidents fixes ?")) return;
+    INCIDENTS_FIXE = [];
+    saveJSON(HIST_KEY_FIXE, INCIDENTS_FIXE);
+    backToListFixe();
+  });
+})();
+
+(function () {
+  var phModal = document.getElementById("phModal");
+  var DASH2 = "-------------------------------------------------------------------------------------";
+
+  function pad2(n){ return String(n).padStart(2,"0"); }
+
+  function currentHourLabel(){
+    var now = new Date();
+    return pad2(now.getDate()) + "/" + pad2(now.getMonth()+1) + "/" + now.getFullYear() +
+           "@" + pad2(now.getHours()) + "H00";
+  }
+  function currentHourShort(){
+    var now = new Date();
+    return pad2(now.getHours()) + "H00";
+  }
+
+  // toggle OK / NOT OK pour BNG/DHCP/DNS/AAA
+  var srvState = { CACAVELLI: {}, LOME: {} };
+  document.querySelectorAll(".ph-srv-btn").forEach(function(btn){
+    var row = btn.closest(".ph-srv-row");
+    var site = row.getAttribute("data-site");
+    var server = btn.getAttribute("data-server");
+    srvState[site][server] = "ok";
+    btn.addEventListener("click", function(){
+      var next = srvState[site][server] === "ok" ? "notok" : "ok";
+      srvState[site][server] = next;
+      btn.className = "ph-srv-btn " + (next === "ok" ? "is-ok" : "is-notok");
+      btn.textContent = server + " : " + (next === "ok" ? "OK" : "NOT OK");
+    });
+  });
+
+  function valOrDots(raw, suffix){
+    var v = (raw || "").toString().trim();
+    return v ? (v + suffix) : ("...." + suffix);
+  }
+  function pctOrDots(raw) {
+    var v = parseFloat(raw);
+
+    if (isNaN(v)) {
+        return "....%";
+    }
+
+    return (v / 200).toFixed(2) + "%";
+}
+
+  function extractFieldGlobal(lines, prefix){
+    for (var i = 0; i < lines.length; i++){
+      if (lines[i].indexOf(prefix) === 0) return lines[i].slice(prefix.length).trim();
+    }
+    return "";
+  }
+  function extractSentences(baseLines){
+    var start = baseLines.indexOf("Nature de l'incident :");
+    if (start === -1) return [];
+    var out = [];
+    for (var i = start + 1; i < baseLines.length; i++){
+      if (baseLines[i] === "") break;
+      out.push(baseLines[i]);
+    }
+    return out;
+  }
+  function classify(sentence){
+  if (/^Indisponibilité de l'OLT/i.test(sentence)) return "olt";
+  if (/^Indisponibilité (de la carte|des cartes)/i.test(sentence)) return "card";
+  if (/^Indisponibilité (du PON|des PON)/i.test(sentence)) return "pon";
+  return null;
+}
+  function stripSentence(sentence){
+  return sentence
+    .replace(/^Indisponibilité de l'/i, "")
+    .replace(/^Indisponibilité du /i, "")
+    .replace(/^Indisponibilité des /i, "")
+    .replace(/^Indisponibilité de la /i, "")
+    .replace(/\.$/, "");
+}
+
+function sortByDateDesc(arr){
+  return arr.sort(function(a, b){
+    function parseDate(str){
+      if (!str) return 0;
+
+      var parts = str.split("@");
+      var d = parts[0].split("/");
+      var h = parts[1] ? parts[1].replace("h","") : "0";
+
+      return new Date(
+        Number(d[2]),
+        Number(d[1]) - 1,
+        Number(d[0]),
+        Number(h)
+      ).getTime();
+    }
+
+    return parseDate(b.date) - parseDate(a.date);
+  });
+}
+
+function block(label, items, count){
+  var out = ["*" + label + "* : " + count];
+  items.forEach(function(it, idx){
+    out.push("👉🏿*" + it.date + "*");
+    out.push("*" + it.text + "*(" + (it.impacts || "À renseigner") + ")");
+    if (idx < items.length - 1) out.push("");   // pas après le dernier élément
+  });
+  return out;
+}
+  // compteurs exacts (nombre réel de PON / cartes / OLT), pas le nombre de phrases
+  function buildFtthSection(){
+    var groups = { olt: [], card: [], pon: [] };
+    var counts = { olt: 0, card: 0, pon: 0 };
+
+    (window.getIncidentsFixe ? window.getIncidentsFixe() : []).forEach(function(inc){
+      if (inc.closed) return;
+      var date = extractFieldGlobal(inc.baseLines, EMOJI.clock + " ");
+      var impacts = extractFieldGlobal(inc.baseLines, EMOJI.chart + " IMPACTS RX FIXE : ");
+      extractSentences(inc.baseLines).forEach(function(s){
+        var cat = classify(s);
+        if (!cat) return;
+        groups[cat].push({ date: date, text: stripSentence(s), impacts: impacts });
+      });
+      (inc.elements || []).forEach(function(el){
+        if (el.key.indexOf("pon-") === 0) counts.pon++;
+        else if (el.key.indexOf("card-") === 0) counts.card++;
+        else if (el.key.indexOf("olt-") === 0) counts.olt++;
+      });
+    });
+
+    
+sortByDateDesc(groups.olt);
+sortByDateDesc(groups.card);
+sortByDateDesc(groups.pon);
+
+    
+
+    var out = ["*" + EMOJI.forbidden + "FTTH*", ""];
+  out = out.concat(block("OLT HS", groups.olt, counts.olt));
+  out.push("");
+  out = out.concat(block("CARTE HS", groups.card, counts.card));
+  out.push("");
+  out = out.concat(block("PON LOSS", groups.pon, counts.pon));
+  return out;
+  }
+
+
+
+  function buildPointHoraire(){
+    var dateLabel = currentHourLabel();
+
+    var out = [
+      DASH2,
+      "*POINT NOC RESEAU FIXE* *" + dateLabel + "* ",
+      DASH2,
+      "*" + EMOJI.forbidden + "Statuts Des Serveurs " + EMOJI.up + "sur LibreNMS*: **",
+      "*" + EMOJI.pin + " CACAVELLI*",
+      "*BNG* : " + srvState.CACAVELLI.BNG.toUpperCase(),
+      "*DHCP* : " + srvState.CACAVELLI.DHCP.toUpperCase(),
+      "*DNS*  : " + srvState.CACAVELLI.DNS.toUpperCase(),
+      "*AAA* :   " + srvState.CACAVELLI.AAA.toUpperCase(),
+      "",
+      "*" + EMOJI.pin + "LOME*",
+      "*BNG* : " + srvState.LOME.BNG.toUpperCase(),
+      "*DHCP* : " + srvState.LOME.DHCP.toUpperCase(),
+      "*DNS*  : " + srvState.LOME.DNS.toUpperCase(),
+      "*AAA* :   " + srvState.LOME.AAA.toUpperCase(),
+      "",
+      "*" + EMOJI.forbidden + "Statut Des Authentification  PPPoE sur BNG  " + EMOJI.up + " " + valOrDots(document.getElementById("phPppoe").value, "K"),
+      "",
+      "TRAFIC FTTH&ADSL : " + valOrDots(document.getElementById("phTraficFtth").value, " Gbits/s") + " " + EMOJI.up + "sur  Kentik",
+      "TRAFIC LSI&LS : " + valOrDots(document.getElementById("phTraficLsi").value, " Gbits/s") + " " + EMOJI.up + "sur  Kentik",
+      "",
+      "*TAUX DE SATURATION DES ROUTEURS VERS LES BNG  " + EMOJI.up + "sur LibreNMS*:OK",
+      "BNG LOME " + EMOJI.arrowR + " LOME-CORE-SR07-01 (200G): " + pctOrDots(document.getElementById("phBngLome").value) + " ",
+      "BNG CACA " + EMOJI.arrowR + " CACA-CORE-SR07-01 (200G): " + pctOrDots(document.getElementById("phBngCaca").value) + " ",
+      "",
+      "*" + EMOJI.forbidden + "B2B DOWN*",
+      "",
+      "*Clients FH Zabbix*: " + (document.getElementById("phFh").value || "0"),
+      "",
+      "*ONT BTS FTTM* : " + (document.getElementById("phOnt").value || "0"),
+      "",
+      "*LSI & LS sur PRTG*: " + (document.getElementById("phLsi").value || "0") + " ",
+      ""
+    ].concat(buildFtthSection());
+
+    return out.join("\n");
+}
+
+  document.getElementById("pointHoraireBtn").addEventListener("click", function(){
+    document.getElementById("phHourChip").textContent = "🕐 " + currentHourShort();
+    phModal.classList.add("show");
+  });
+  document.getElementById("phModalClose").addEventListener("click", function(){ phModal.classList.remove("show"); });
+  phModal.addEventListener("click", function(e){ if (e.target === phModal) phModal.classList.remove("show"); });
+
+  document.getElementById("phGenBtn").addEventListener("click", function(){
+    document.getElementById("phResult").value = buildPointHoraire();
+    var open = (window.getIncidentsFixe ? window.getIncidentsFixe() : []).filter(function(i){ return !i.closed; }).length;
+    document.getElementById("phIncCount").textContent = open + " incident(s) en cours inclus";
+  });
+  document.getElementById("phCopyBtn").addEventListener("click", function(){
+    var val = document.getElementById("phResult").value;
+    if (!val) return;
+    navigator.clipboard.writeText(val).then(function(){ setMsg("Point horaire copié", "ok"); });
+  });
+})();
+
+
 // Initialisation
 syncTechInput();
 openFromHash();
 </script>
-
+<script src="components/date-picker.js"></script>
+<script src="components/dropdown.js"></script>
 </body>
 </html>
