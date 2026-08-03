@@ -24,6 +24,8 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    # Outil interne : ne pas indexer dans les moteurs de recherche.
+    X-Robots-Tag = "noindex, nofollow"
 
 # Les données JSON changent souvent : pas de cache agressif.
 [[headers]]
