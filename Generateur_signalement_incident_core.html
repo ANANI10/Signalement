@@ -12,6 +12,148 @@
 <link rel="stylesheet" href="components/date-picker.css">
 <link rel="stylesheet" href="components/dropdown.css">
 
+<style>
+/* ══════════════════════════════════════════════════════════════
+   Point horaire iSOC — habillage du modal, propre à cette page.
+   Tout est préfixé « phc- » ou porté par #phModal pour ne rien
+   déborder sur le reste du générateur.
+   ══════════════════════════════════════════════════════════════ */
+#phModal .modal-box  { max-width: 1180px; max-height: 90vh; }
+#phModal .modal-body { padding: 0; gap: 0; overflow: hidden; flex-direction: row; }
+
+.phc-form {
+  flex: 1 1 auto; min-width: 0; overflow-y: auto;
+  padding: 14px 18px; display: flex; flex-direction: column; gap: 10px;
+}
+.phc-out {
+  flex: 0 0 430px; min-width: 0;
+  border-left: 1px solid var(--borderlo); background: var(--hd-bg);
+  padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; overflow: hidden;
+}
+.phc-out .outbox { min-height: 0; }
+.phc-out-hd {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 700; color: var(--text2); letter-spacing: .04em;
+}
+.phc-out-hd .card-tag { margin-left: auto; }
+
+/* ── choix du type de point ── */
+.phc-tabs { display: flex; gap: 6px; }
+.phc-tab {
+  flex: 1; display: flex; align-items: center; gap: 8px; padding: 9px 12px;
+  background: var(--ov-02); border: 1px solid var(--borderlo); border-radius: 8px;
+  color: var(--text2); cursor: pointer; text-align: left;
+  font-family: inherit; font-size: 12.5px; font-weight: 700;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.phc-tab:hover { background: var(--ov-04); color: var(--text); }
+.phc-tab.active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+
+/* ── sections du relevé ── */
+.phc-sec { border: 1px solid var(--borderlo); border-radius: 8px; overflow: hidden; }
+.phc-sec-hd {
+  display: flex; align-items: center; gap: 8px; padding: 9px 12px;
+  background: var(--hd-bg); border-bottom: 1px solid var(--borderlo);
+  font-size: 13px; font-weight: 700; letter-spacing: .03em; color: var(--text);
+}
+.phc-sec-hd .phc-badge {
+  margin-left: auto; font-family: "JetBrains Mono", monospace;
+  font-size: 11px; font-weight: 500; color: var(--muted);
+}
+.phc-sec-body { padding: 8px 12px; display: flex; flex-direction: column; gap: 3px; }
+
+.phc-zone {
+  margin-top: 8px; font-size: 12px; font-weight: 800;
+  letter-spacing: .06em; color: var(--blue);
+}
+.phc-zone:first-child { margin-top: 0; }
+.phc-cable { margin-top: 8px; font-size: 12.5px; font-weight: 700; color: var(--text); }
+.phc-grp {
+  margin-top: 8px; padding-top: 7px; border-top: 1px dashed var(--border);
+  font-family: "JetBrains Mono", monospace; font-size: 12px;
+  font-weight: 700; color: var(--text2);
+}
+
+/* ── ligne de saisie ── */
+.phc-row { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
+.phc-label {
+  flex: 1; min-width: 0;
+  font-family: "JetBrains Mono", monospace; font-size: 12.5px; font-weight: 600;
+  color: var(--text2);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.phc-field { position: relative; flex-shrink: 0; }
+.phc-input {
+  width: 98px; height: 30px; padding: 0 30px 0 9px;
+  background: var(--inner); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); text-align: right;
+  font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700;
+}
+.phc-input:focus { outline: none; border-color: var(--focus-brd); box-shadow: 0 0 0 3px var(--focus-ring); }
+.phc-input:disabled { opacity: .4; }
+.phc-input::-webkit-outer-spin-button,
+.phc-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.phc-suffix {
+  position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+  pointer-events: none;
+  font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 700;
+  color: var(--muted);
+}
+.phc-field.wide .phc-input  { width: 124px; padding-right: 48px; }
+.phc-field.bare .phc-input  { padding-right: 9px; }
+
+/* bouton « lien down » */
+.phc-down {
+  width: 52px; height: 30px; flex-shrink: 0;
+  background: transparent; border: 1px solid var(--border); border-radius: 6px;
+  color: var(--muted); cursor: pointer;
+  font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 700;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.phc-down:hover { color: var(--text); border-color: var(--text2); }
+.phc-down.is-on { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+
+/* coche ✅ / ❌ */
+.phc-check {
+  display: inline-flex; align-items: center; justify-content: flex-end; gap: 7px;
+  width: 98px; flex-shrink: 0; cursor: pointer;
+  font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700;
+  color: var(--green);
+}
+.phc-check input { width: 15px; height: 15px; accent-color: var(--green); cursor: pointer; }
+.phc-check .phc-check-txt { width: 22px; text-align: center; font-size: 15px; }
+.phc-check.is-ko { color: var(--red); }
+.phc-check.is-ko input { accent-color: var(--red); }
+
+/* total calculé automatiquement */
+.phc-calc {
+  width: 98px; flex-shrink: 0; text-align: right;
+  font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 800;
+  color: var(--green);
+}
+.phc-calc.empty { color: var(--muted); font-weight: 600; }
+.phc-hint { font-size: 11.5px; color: var(--muted); }
+.phc-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.phc-top .phc-hint { flex: 1; min-width: 180px; }
+
+/* ── aperçu ── */
+#phOut { line-height: 1.85; font-size: 12px; }
+#phOut .l-h1    { color: var(--l-title);   font-weight: 800; font-size: 12.5px; }
+#phOut .l-sec   { color: var(--l-section); font-weight: 800; }
+#phOut .l-zone  { color: var(--blue);      font-weight: 800; }
+#phOut .l-cable { color: var(--text);      font-weight: 800; }
+#phOut .l-grp   { color: var(--text2);     font-weight: 700; }
+#phOut .l-tot   { color: var(--amber);     font-weight: 800; }
+#phOut .l-down  { color: var(--red);       font-weight: 700; }
+#phOut .l-ok    { color: var(--green);     font-weight: 700; }
+#phOut .l-line  { color: var(--text); }
+
+@media (max-width: 1000px) {
+  #phModal .modal-body { flex-direction: column; }
+  .phc-out { flex: 1 1 auto; border-left: none; border-top: 1px solid var(--borderlo); }
+}
+</style>
+
 <script>
 // ── Éclairage : applique le thème enregistré avant le rendu (évite le flash) ──
 (function () {
@@ -95,6 +237,10 @@
     <button class="btn-ghost" id="historyBtn" type="button">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 9 8 9"/><polyline points="12 7 12 12 15 14"/></svg>
       Historique
+    </button>
+    <button class="btn-ghost" id="phBtn" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+      Point horaire
     </button>
     <div class="tb-sep" aria-hidden="true"></div>
     <div class="status-msg" id="msg" role="status" aria-live="polite">
@@ -325,6 +471,58 @@
       <div class="modal-ft-actions">
         <button class="btn-ghost modal-ft-btn" id="histClearBtn" type="button">Vider l'historique</button>
         <button class="btn-primary modal-ft-btn is-hidden" id="updGenBtn" type="button">Générer la mise à jour</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Point horaire -->
+<div class="modal-overlay" id="phModal" role="dialog" aria-modal="true" aria-labelledby="phModalTitle">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <span class="modal-title" id="phModalTitle">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+        Point horaire iSOC
+      </span>
+      <button class="modal-close" id="phClose" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+
+    <div class="modal-body">
+      <!-- colonne saisie -->
+      <div class="phc-form">
+        <div class="phc-tabs" id="phTabs" role="tablist" aria-label="Type de point horaire"></div>
+        <div class="phc-top">
+          <!-- Composant réutilisable : voir components/date-picker.js -->
+          <isoc-date-picker id="phDate" placeholder="Date &amp; heure du point"></isoc-date-picker>
+          <p class="phc-hint" id="phHint"></p>
+        </div>
+        <div id="phForm"></div>
+      </div>
+
+      <!-- colonne aperçu -->
+      <div class="phc-out">
+        <div class="phc-out-hd">
+          <span class="clabel-dot dot-green" aria-hidden="true"></span>
+          Aperçu du point
+          <span class="card-tag" aria-hidden="true">OUTPUT</span>
+        </div>
+        <div class="outbox" id="phOut" role="region" aria-label="Point horaire généré" aria-live="polite">
+          <div class="empty-st">
+            <div class="empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+            </div>
+            <p class="empty-text">Aucun point généré</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-ft">
+      <span class="mod-hint" id="phCount"></span>
+      <div class="modal-ft-actions">
+        <button class="btn-ghost modal-ft-btn" id="phResetBtn" type="button">Tout remettre à zéro</button>
+        <button class="btn-ghost modal-ft-btn" id="phCopyBtn" type="button">Copier le point</button>
+        <button class="btn-primary modal-ft-btn" id="phGenBtn" type="button">Générer le point</button>
       </div>
     </div>
   </div>
@@ -1829,6 +2027,696 @@ openFromHash();
     saveJSON(HIST_KEY, INCIDENTS);
     backToList();
   });
+})();
+</script>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  POINT HORAIRE iSOC
+//  Deux points sont diffusés depuis cette page :
+//    1. TRAFIC ISP            — liens internationaux
+//    2. FAULT-KPI & ROAMING   — KPI cœur, nœuds et roaming
+//
+//  Toute la mise en forme découle des structures ci-dessous :
+//  ajouter, renommer ou retirer une ligne se fait uniquement là.
+//  Les valeurs sont saisies telles quelles ; l'unité (« % »,
+//  « Gb/s »…) est ajoutée automatiquement à la génération.
+//  Une ligne vide sort en « -- », un lien marqué « down » sort
+//  en « down% ».
+// ══════════════════════════════════════════════════════════════
+(function () {
+  var RULE_LONG = "-----------------------------------------------------";
+  var RULE      = "------------------------------------";
+  var UNDER     = "______";
+
+  // ── Point 1 : TRAFIC ISP ───────────────────────────────────
+  // kind : sec | zone | cable | checks | grp | total | rule
+  // grp.fmt : pct (défaut) | gb | num | keycap
+  var ISP_STRUCT = [
+    { kind: "sec", title: "🚨TRAFIC INTERNATIONAL" },
+
+    { kind: "zone", title: "[➡️ NORD]" },
+
+    { kind: "cable", title: "1️⃣ *CABLE WACS*" },
+    { kind: "checks", rows: [
+      { id: "n_orange_wacs", label: "*ORANGE-IC VIA WACS :*" }
+    ]},
+    { kind: "grp", title: "💠TELMA-PARIS(BICS)", rows: [
+      { id: "n_wacs_tp1", label: "Transit Lome Telma Paris 10GE-1" },
+      { id: "n_wacs_tp2", label: "Transit Lome Telma Paris 10GE-2" }
+    ]},
+    { kind: "grp", title: "💠TELMA-LONDRES (BICS)", rows: [
+      { id: "n_wacs_tl1", label: "Transit Caca Telma Londres 10GE-1" },
+      { id: "n_wacs_tl2", label: "Transit Caca Telma Londres 10GE-2" }
+    ]},
+    { kind: "grp", title: "💠BICS - LONDRES (BICS)", rows: [
+      { id: "n_wacs_bl1", label: "Transit Lome BICS Londres 10GE-1" },
+      { id: "n_wacs_bl2", label: "Transit Lome BICS Londres 10GE-2" }
+    ]},
+    { kind: "grp", title: "💠GOOGLE -LISBON (TATA)", rows: [
+      { id: "n_wacs_gg1", label: "Transit Lome GOOGLE PNI 01 Lisbon 10GE" },
+      { id: "n_wacs_gg2", label: "Transit Lome GOOGLE PNI 02 Lisbon 10GE" }
+    ]},
+    { kind: "grp", title: "💠TATA - LISBON (TATA)", rows: [
+      { id: "n_wacs_tt1", label: "Transit Lome TATA Lisbon 10GE-1" },
+      { id: "n_wacs_tt2", label: "Transit Lome TATA Lisbon 10GE-2" }
+    ]},
+    { kind: "grp", title: "💠COGENT LONDRES (COGENT)", rows: [
+      { id: "n_wacs_cg1", label: "Transit Lome COGENT LONDRES 10GE-1" },
+      { id: "n_wacs_cg2", label: "Transit Lome COGENT LONDRES 10GE-2" }
+    ]},
+
+    { kind: "cable", title: "2️⃣ *CABLE ACE*" },
+    { kind: "grp", title: "💠Telma Paris (MTN Ghana)", rows: [
+      { id: "n_ace_tp1", label: "Transit Caca Telma Paris 10GE-1" },
+      { id: "n_ace_tp2", label: "Transit Caca Telma Paris 10GE-2" },
+      { id: "n_ace_tp3", label: "Transit Caca Telma Paris 10GE-3" }
+    ]},
+
+    { kind: "cable", title: "3️⃣ *CABLE EQUIANO*" },
+    { kind: "checks", rows: [
+      { id: "n_orange_equiano", label: "ORANGE-IC VIA EQUIANO :" }
+    ]},
+    { kind: "grp", title: "💠CSQUARED Lisbon (CSQUARED)", rows: [
+      { id: "n_eq_cs1", label: "Transit Caca-Equiano Lisbon 60GE-" }
+    ]},
+
+    { kind: "zone", title: "[➡️ SUD]" },
+
+    { kind: "cable", title: "1️⃣ *CABLE WACS*" },
+    { kind: "grp", title: "💠Telma Teraco (WIOCC)", rows: [
+      { id: "s_wacs_tr1", label: "Transit Lome Téraco 10GE-1" },
+      { id: "s_wacs_tr2", label: "Transit Lome Teraco 10GE-2" },
+      { id: "s_wacs_tr3", label: "Transit Lome Teraco 10GE-3" }
+    ]},
+
+    { kind: "rule" },
+    { kind: "total", id: "tot_igw", label: "TOTAL TRAFIC LIEN IGW",
+      fields: [
+        { key: "gb",  suffix: "Gbs", wide: true },
+        { key: "pct", suffix: "%" }
+      ],
+      format: function (v) {
+        return "❇️TOTAL TRAFIC LIEN IGW:  " + v.gb + " Gbs (" + v.pct + "%)";
+      }
+    },
+
+    { kind: "sec", title: "🚨TRAFIC SBIN" },
+    { kind: "grp", title: "💠COGENT Londres (COGENT)", rows: [
+      { id: "sb_cg1", label: "Transit SBIN Lome COGENT Londres 10GE-1" },
+      { id: "sb_cg2", label: "Transit SBIN Lome COGENT Londres 10GE-2" }
+    ]},
+    { kind: "grp", title: "💠CSQUARED LISBON (CSQUARED)", gap: false, rows: [
+      { id: "sb_cs1", label: "Transit SBIN CACA EQUIANO Lisbon 1" },
+      { id: "sb_cs2", label: "Transit SBIN CACA EQUIANO Lisbon 2" },
+      { id: "sb_cs3", label: "Transit SBIN CACA EQUIANO Lisbon 3" },
+      { id: "sb_cs4", label: "Transit SBIN CACA EQUIANO Lisbon 4" },
+      { id: "sb_cs5", label: "Transit SBIN CACA EQUIANO Lisbon 5" },
+      { id: "sb_cs6", label: "Transit SBIN CACA EQUIANO Lisbon 6" },
+      { id: "sb_cs7", label: "Transit SBIN CACA EQUIANO Lisbon 7" }
+    ]},
+    { kind: "rule" },
+
+    { kind: "sec", title: "🚨POINT D'ECHANGE" },
+    { kind: "checks", rows: [
+      { id: "px_tgix",     label: "POINT D'ECHANGE➡️TGIX :" },
+      { id: "px_franceix", label: "TGT-PARIS➡️FRANCEIX :" },
+      { id: "px_equinix",  label: "TGT-PARIS➡️EQUINIX :" },
+      { id: "px_linx",     label: "TGT-LONDON➡️LINX :" }
+    ]},
+
+    { kind: "sec", title: "🚨TRAFIC CACHE" },
+    { kind: "grp", title: "", gap: false, rows: [
+      { id: "ca_ggl", label: "💠GOOGLE CACHE LOME CENTRE(50G)" },
+      { id: "ca_ggc", label: "💠GOOGLE CACHE CACAVELLI(50G)" },
+      { id: "ca_fbk", label: "💠FACEBOOK_ AKAMAI_CACHE(70G)" },
+      { id: "ca_cdn", label: "💠CDN-LOME-FBK (40G) :" }
+    ]},
+    { kind: "rule", char: "_" },
+
+    { kind: "sec", title: "🚨DATA MOBILE" },
+    { kind: "grp", title: "", fmt: "gb", gap: false, rows: [
+      { id: "dm1", label: "Cacav-SASx-01➡️TRAFIC INTERNETD.TOGOCEL (40G)" },
+      { id: "dm2", label: "Cacav-SASx-02➡️TRAFIC INTERNETD.TOGOCEL (40G)" },
+      { id: "dm3", label: "Lome-SASx-01 ➡️TRAFIC INTERNETD.TOGOCEL (40G)" },
+      { id: "dm4", label: "Lome-SASx-02 ➡️TRAFIC INTERNETD.TOGOCEL (40G)" }
+    ]},
+    { kind: "rule" },
+    { kind: "total", id: "tot_mobile", label: "TOTAL DATA MOBILE",
+      sumOf: ["dm1", "dm2", "dm3", "dm4"], suffix: "Gb/s",
+      format: function (v) { return "❇️TOTAL DATA MOBILE = " + v.sum + " Gb/s"; }
+    },
+    { kind: "total", id: "tot_adsl", label: "TOTAL ADSL&FTTH",
+      fields: [{ key: "gb", suffix: "Gb/s", wide: true }],
+      format: function (v) { return "❇️ TOTAL ADSL&FTTH:  " + v.gb + " Gb/s"; }
+    }
+  ];
+
+  // ── Point 2 : FAULT-KPI & ROAMING ──────────────────────────
+  var MSS = ["CAC01", "CACV_NEW", "LOM01", "LOME_NEW"];
+
+  // Les quatre MSS sont relevés à l'identique pour chaque KPI.
+  function mssRows(prefix) {
+    return MSS.map(function (n) {
+      return { id: prefix + "_" + n.toLowerCase(), label: "MSS " + n + ":" };
+    });
+  }
+
+  var KPI_STRUCT = [
+    { kind: "sec", title: "🚨 KPI CORE: MSS", gap: false },
+    { kind: "grp", title: "💠CSSR   (90%)", fmt: "num", rows: mssRows("cssr") },
+    { kind: "grp", title: "💠Average successful setup time (4s)", fmt: "num", rows: mssRows("setup") },
+    { kind: "grp", title: "💠Intra-VLR Location Update success ratio per LAC, for access types 2G  (98%)",
+      fmt: "num", rows: mssRows("lu2g") },
+    { kind: "grp", title: "💠Intra-VLR Location Update success ratio per LAC, for access types 3G (98%)",
+      fmt: "num", rows: mssRows("lu3g") },
+    { kind: "grp", title: "💠CGR utilization", fmt: "num", rows: [
+      { id: "cgr_523", label: "523/SMOOV" },
+      { id: "cgr_527", label: "527SMOOV2" },
+      { id: "cgr_533", label: "533/SMOOV" },
+      { id: "cgr_537", label: "537/SMOOV2" }
+    ]},
+
+    { kind: "sec", title: "🚨CORE NODE" },
+    { kind: "grp", title: "", fmt: "num", pad: false, rows: [
+      { id: "cn_alarms", label: "💠CRITICAL ALARMS CORE CS + PS  (CBAM CBIS  HLR MGW MSC ISBC  FNS  HSS  NTAS NENDS) :" }
+    ]},
+    { kind: "checks", rows: [
+      { id: "cn_ctrl", label: "💠CONTRÔLEURS CRITICAL ALARM(BSC+RNC) :" }
+    ]},
+
+    { kind: "sec", title: "🚨 ROAMING VERS ORANGE" },
+    { kind: "grp", title: "💠STP CACAVELLI", fmt: "keycap", rows: [
+      { id: "stp_cac", label: "   SPC DOWN:" }
+    ]},
+    { kind: "grp", title: "💠STP LOME", fmt: "keycap", rows: [
+      { id: "stp_lom", label: "   SPC DOWN:" }
+    ]},
+
+    { kind: "checks", rows: [
+      { id: "eir",  label: "🚨TIETO SIGNALISATIONS LINKS (EIR) :" },
+      { id: "attach", label: "🚨MSS AVG ATTACHED SUBSC PER OPERATOR :" }
+    ], solo: true }
+  ];
+
+  var TYPES = [
+    {
+      id: "isp",
+      label: "TRAFIC ISP",
+      title: "POINT iSOC - TRAFIC ISP",
+      ruleTop: RULE_LONG,
+      hint: "Saisissez uniquement le nombre : l'unité est ajoutée automatiquement. Un lien vide sort en « --% », un lien marqué « down » sort en « down% ».",
+      struct: ISP_STRUCT
+    },
+    {
+      id: "kpi",
+      label: "FAULT-KPI & ROAMING",
+      title: "POINT iSOC FAULT-KPI & ROAMING-",
+      ruleTop: RULE,
+      hint: "Relevé des KPI cœur, des nœuds et du roaming. Les compteurs SPC DOWN sortent en chiffres émoji.",
+      struct: KPI_STRUCT
+    }
+  ];
+
+  var STORE_KEY = "isoc_ph_core";
+  var typeId = "isp";
+  var store = {};             // { typeId: { rowId: { v, down, ok } } }
+  var lastPoint = {};         // dernier point généré, par type
+
+  function loadData() {
+    try { store = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+    catch (e) { store = {}; }
+    if (!store || typeof store !== "object") store = {};
+  }
+  function saveData() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {}
+  }
+  function cell(id) {
+    if (!store[typeId]) store[typeId] = {};
+    if (!store[typeId][id]) store[typeId][id] = {};
+    return store[typeId][id];
+  }
+  function currentType() {
+    for (var i = 0; i < TYPES.length; i++) if (TYPES[i].id === typeId) return TYPES[i];
+    return TYPES[0];
+  }
+
+  // ── mise en forme ──────────────────────────────────────────
+  function pad2(n) { return String(n).padStart(2, "0"); }
+
+  // Longueur « visuelle » : un émoji compte pour un signe.
+  function vlen(s) {
+    return Array.from(String(s).replace(/[︎️]/g, "")).length;
+  }
+  function padTo(label, width) {
+    var miss = width - vlen(label);
+    return label + (miss > 0 ? new Array(miss + 1).join(" ") : "");
+  }
+  function num(v) {
+    if (v == null || String(v).trim() === "") return null;
+    var n = parseFloat(String(v).replace(",", "."));
+    return isNaN(n) ? null : n;
+  }
+  function clean(v) { return String(v == null ? "" : v).trim().replace(",", "."); }
+
+  // 12 → 1️⃣2️⃣
+  function keycap(v) {
+    return String(v).split("").map(function (ch) {
+      return /[0-9]/.test(ch) ? ch + "️⃣" : ch;
+    }).join("");
+  }
+
+  function headerDate(d) {
+    if (!d) return "À RENSEIGNER";
+    return pad2(d.getDate()) + "/" + pad2(d.getMonth() + 1) + "/" + d.getFullYear() +
+           "@" + pad2(d.getHours()) + "H" + pad2(d.getMinutes());
+  }
+
+  function suffixOf(fmt) {
+    return fmt === "gb" ? "Gb/s" : (fmt === "num" || fmt === "keycap") ? "" : "%";
+  }
+  function hasDown(fmt) { return fmt !== "num" && fmt !== "keycap"; }
+
+  // Valeur d'une ligne : « 58% », « down% », « 93.55 », « 0️⃣ » ou « -- ».
+  function rowValue(row, fmt) {
+    var c = cell(row.id);
+    if (hasDown(fmt) && c.down) return "down" + (fmt === "pct" ? "%" : "");
+    var v = clean(c.v);
+    if (v === "") return "--" + suffixOf(fmt);
+    if (fmt === "keycap") return keycap(v);
+    return v + suffixOf(fmt);
+  }
+
+  function sumOf(ids) {
+    var total = 0, seen = false;
+    ids.forEach(function (id) {
+      var c = cell(id);
+      if (c.down) return;
+      var n = num(c.v);
+      if (n != null) { total += n; seen = true; }
+    });
+    if (!seen) return null;
+    return Math.round(total * 100) / 100;
+  }
+
+  // ══════════════ FORMULAIRE ══════════════
+  function renderTabs() {
+    var bar = document.getElementById("phTabs");
+    bar.textContent = "";
+    TYPES.forEach(function (t) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "phc-tab" + (t.id === typeId ? " active" : "");
+      btn.setAttribute("role", "tab");
+      btn.setAttribute("aria-selected", t.id === typeId ? "true" : "false");
+      btn.textContent = t.label;
+      btn.addEventListener("click", function () {
+        if (t.id === typeId) return;
+        typeId = t.id;
+        renderAll();
+        showPreview();
+      });
+      bar.appendChild(btn);
+    });
+  }
+
+  function fieldBox(id, key, suffix, wide) {
+    var c = cell(id);
+    var box = document.createElement("span");
+    box.className = "phc-field" + (wide ? " wide" : "") + (suffix ? "" : " bare");
+
+    var input = document.createElement("input");
+    input.className = "phc-input";
+    input.type = "text";
+    input.inputMode = "decimal";
+    input.autocomplete = "off";
+    input.placeholder = "0";
+    input.value = c[key] != null ? c[key] : "";
+    input.addEventListener("input", function () {
+      c[key] = input.value;
+      saveData();
+      refreshCount();
+    });
+    box.appendChild(input);
+
+    if (suffix) {
+      var sfx = document.createElement("span");
+      sfx.className = "phc-suffix";
+      sfx.textContent = suffix;
+      box.appendChild(sfx);
+    }
+    return { box: box, input: input };
+  }
+
+  // ligne de relevé : valeur (+ bouton « down » pour les liens)
+  function valueRow(row, fmt) {
+    var c = cell(row.id);
+    var el = document.createElement("div");
+    el.className = "phc-row";
+
+    var label = document.createElement("span");
+    label.className = "phc-label";
+    label.textContent = row.label.trim();
+    label.title = row.label.trim();
+
+    var f = fieldBox(row.id, "v", suffixOf(fmt), fmt === "gb");
+    f.input.setAttribute("aria-label", row.label.trim());
+
+    el.appendChild(label);
+    el.appendChild(f.box);
+
+    if (hasDown(fmt)) {
+      var down = document.createElement("button");
+      down.type = "button";
+      down.className = "phc-down";
+      down.textContent = "down";
+      down.title = "Marquer le lien comme down";
+
+      function paint() {
+        down.classList.toggle("is-on", !!c.down);
+        down.setAttribute("aria-pressed", c.down ? "true" : "false");
+        f.input.disabled = !!c.down;
+      }
+      down.addEventListener("click", function () {
+        c.down = !c.down;
+        saveData();
+        paint();
+        refreshCount();
+      });
+      paint();
+      el.appendChild(down);
+    }
+    return el;
+  }
+
+  // ligne « coche » ✅ / ❌
+  function checkRow(row) {
+    var c = cell(row.id);
+    var el = document.createElement("div");
+    el.className = "phc-row";
+
+    var label = document.createElement("span");
+    label.className = "phc-label";
+    label.textContent = row.label.replace(/\*/g, "").trim();
+    label.title = label.textContent;
+
+    var wrap = document.createElement("label");
+    wrap.className = "phc-check";
+    var box = document.createElement("input");
+    box.type = "checkbox";
+    box.checked = c.ok !== false;            // ✅ par défaut
+    var txt = document.createElement("span");
+    txt.className = "phc-check-txt";
+
+    function paint() {
+      txt.textContent = box.checked ? "✅" : "❌";
+      wrap.classList.toggle("is-ko", !box.checked);
+    }
+    box.addEventListener("change", function () { c.ok = box.checked; paint(); saveData(); });
+    paint();
+
+    wrap.appendChild(box);
+    wrap.appendChild(txt);
+    el.appendChild(label);
+    el.appendChild(wrap);
+    return el;
+  }
+
+  // ligne « total »
+  function totalRow(block) {
+    var el = document.createElement("div");
+    el.className = "phc-row";
+
+    var label = document.createElement("span");
+    label.className = "phc-label";
+    label.textContent = block.label;
+    label.title = block.label;
+    el.appendChild(label);
+
+    if (block.sumOf) {
+      var calc = document.createElement("span");
+      calc.className = "phc-calc";
+      calc.id = "phCalc_" + block.id;
+      calc.title = "Somme automatique des lignes ci-dessus";
+      paintCalc(calc, block);
+      el.appendChild(calc);
+    } else {
+      block.fields.forEach(function (f) {
+        el.appendChild(fieldBox(block.id, f.key, f.suffix, f.wide).box);
+      });
+    }
+    return el;
+  }
+
+  function paintCalc(el, block) {
+    var s = sumOf(block.sumOf);
+    el.textContent = s == null ? "—" : s + " " + block.suffix;
+    el.className = "phc-calc" + (s == null ? " empty" : "");
+  }
+  function refreshCalcs() {
+    currentType().struct.forEach(function (b) {
+      if (b.kind === "total" && b.sumOf) {
+        var el = document.getElementById("phCalc_" + b.id);
+        if (el) paintCalc(el, b);
+      }
+    });
+  }
+
+  function buildForm() {
+    var form = document.getElementById("phForm");
+    form.textContent = "";
+    var type = currentType();
+    document.getElementById("phHint").textContent = type.hint || "";
+
+    var body = null;
+    // Un titre vide donne un bloc sans en-tête.
+    function newSection(title) {
+      var sec = document.createElement("div");
+      sec.className = "phc-sec";
+      if (title) {
+        var hd = document.createElement("div");
+        hd.className = "phc-sec-hd";
+        hd.textContent = title;
+        sec.appendChild(hd);
+      }
+      body = document.createElement("div");
+      body.className = "phc-sec-body";
+      sec.appendChild(body);
+      form.appendChild(sec);
+      return body;
+    }
+    function target() { return body || newSection("Relevé"); }
+
+    type.struct.forEach(function (block) {
+      if (block.kind === "rule") return;
+
+      if (block.kind === "sec") { newSection(block.title.replace(/🚨/g, "").trim()); return; }
+
+      if (block.kind === "zone" || block.kind === "cable") {
+        var t = document.createElement("div");
+        t.className = block.kind === "zone" ? "phc-zone" : "phc-cable";
+        t.textContent = block.title.replace(/\*/g, "").trim();
+        target().appendChild(t);
+        return;
+      }
+
+      if (block.kind === "checks") {
+        if (block.solo) newSection("");
+        var tc = target();
+        block.rows.forEach(function (row) { tc.appendChild(checkRow(row)); });
+        return;
+      }
+
+      if (block.kind === "grp") {
+        var tg = target();
+        if (block.title) {
+          var g = document.createElement("div");
+          g.className = "phc-grp";
+          g.textContent = block.title;
+          g.title = block.title;
+          tg.appendChild(g);
+        }
+        block.rows.forEach(function (row) { tg.appendChild(valueRow(row, block.fmt || "pct")); });
+        return;
+      }
+
+      if (block.kind === "total") target().appendChild(totalRow(block));
+    });
+
+    refreshCount();
+  }
+
+  function refreshCount() {
+    refreshCalcs();
+    var total = 0, done = 0;
+    currentType().struct.forEach(function (b) {
+      if (b.kind !== "grp") return;
+      b.rows.forEach(function (row) {
+        total++;
+        var c = cell(row.id);
+        if (c.down || clean(c.v) !== "") done++;
+      });
+    });
+    document.getElementById("phCount").textContent = done + " / " + total + " valeurs renseignées";
+  }
+
+  // ══════════════ GÉNÉRATION ══════════════
+  function buildPoint() {
+    var type = currentType();
+    var dp = window.DatePicker && DatePicker.get("phDate");
+    var d = dp ? dp.value : null;
+
+    var out = [
+      type.ruleTop,
+      "🎯 *" + type.title + " " + headerDate(d) + "*",
+      RULE,
+      ""
+    ];
+
+    type.struct.forEach(function (block) {
+      if (block.kind === "rule") { out.push(block.char === "_" ? UNDER : RULE); return; }
+
+      if (block.kind === "sec" || block.kind === "zone" || block.kind === "cable") {
+        // une section s'ouvre toujours sur une ligne vide, y compris
+        // juste après un séparateur
+        if (out.length && out[out.length - 1] !== "") out.push("");
+        out.push(block.title);
+        if (block.gap !== false) out.push("");
+        return;
+      }
+
+      if (block.kind === "checks") {
+        var w = 0;
+        if (!block.solo) block.rows.forEach(function (r) { w = Math.max(w, vlen(r.label)); });
+        block.rows.forEach(function (r) {
+          var mark = cell(r.id).ok === false ? "❌" : "✅";
+          out.push(padTo(r.label, w) + " " + mark);
+          if (block.solo) out.push("");
+        });
+        if (!block.solo) out.push("");
+        return;
+      }
+
+      if (block.kind === "grp") {
+        var fmt = block.fmt || "pct";
+        if (block.title) out.push(block.title);
+        if (block.pad === false) {
+          block.rows.forEach(function (r) { out.push(r.label + rowValue(r, fmt)); });
+        } else {
+          var wg = 0;
+          block.rows.forEach(function (r) { wg = Math.max(wg, vlen(r.label)); });
+          block.rows.forEach(function (r) { out.push(padTo(r.label, wg + 4) + rowValue(r, fmt)); });
+        }
+        if (block.gap !== false) out.push("");
+        return;
+      }
+
+      if (block.kind === "total") {
+        var v = {};
+        if (block.sumOf) {
+          var s = sumOf(block.sumOf);
+          v.sum = s == null ? "—" : s;
+        } else {
+          block.fields.forEach(function (f) {
+            var raw = clean(cell(block.id)[f.key]);
+            v[f.key] = raw === "" ? "—" : raw;
+          });
+        }
+        out.push(block.format(v));
+        out.push("");
+      }
+    });
+
+    while (out.length && out[out.length - 1] === "") out.pop();
+    return out;
+  }
+
+  // ── aperçu coloré ──
+  function renderPreview(lines) {
+    var html = lines.map(function (line) {
+      var t = line.trim();
+      if (t === "") return "<div class='l-gap'></div>";
+      if (/^[-_]{5,}$/.test(t)) return "<div class='l-div'></div>";
+
+      var cls = "l-line";
+      if (line.indexOf("POINT iSOC") !== -1)  cls = "l-h1";
+      else if (line.indexOf("🚨") !== -1)     cls = "l-sec";
+      else if (line.indexOf("❇️") !== -1)     cls = "l-tot";
+      else if (t.charAt(0) === "[")           cls = "l-zone";
+      else if (/^[0-9]️?⃣/.test(t)) cls = "l-cable";
+      else if (line.indexOf("down%") !== -1)  cls = "l-down";
+      else if (/[✅❌]/.test(line))            cls = "l-ok";
+      else if (/^\s*💠/.test(line))           cls = "l-grp";
+
+      var esc = line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return "<div class='" + cls + "'>" + esc + "</div>";
+    }).join("");
+    document.getElementById("phOut").innerHTML = html;
+  }
+
+  function emptyPreview() {
+    document.getElementById("phOut").innerHTML =
+      "<div class='empty-st'><div class='empty-icon' aria-hidden='true'>" +
+      "<svg viewBox='0 0 24 24'><circle cx='12' cy='12' r='9'/><polyline points='12 7 12 12 15.5 14'/></svg>" +
+      "</div><p class='empty-text'>Aucun point généré</p></div>";
+  }
+  function showPreview() {
+    if (lastPoint[typeId]) renderPreview(lastPoint[typeId].split("\n"));
+    else emptyPreview();
+  }
+
+  function note(text, state) {
+    if (typeof setMsg === "function") setMsg(text, state || "");
+  }
+
+  // ══════════════ MODAL ══════════════
+  var phModal = document.getElementById("phModal");
+
+  function renderAll() {
+    renderTabs();
+    buildForm();
+  }
+
+  function openPh() {
+    phModal.classList.add("show");
+    var dp = window.DatePicker && DatePicker.get("phDate");
+    if (dp && !dp.value) dp.setNow();
+  }
+  function closePh() { phModal.classList.remove("show"); }
+
+  document.getElementById("phBtn").addEventListener("click", openPh);
+  document.getElementById("phClose").addEventListener("click", closePh);
+  phModal.addEventListener("click", function (e) { if (e.target === phModal) closePh(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && phModal.classList.contains("show")) closePh();
+  });
+
+  document.getElementById("phGenBtn").addEventListener("click", function () {
+    var lines = buildPoint();
+    lastPoint[typeId] = lines.join("\n");
+    renderPreview(lines);
+    note("Point horaire « " + currentType().label + " » généré", "ok");
+  });
+
+  document.getElementById("phCopyBtn").addEventListener("click", function () {
+    if (!lastPoint[typeId]) { note("Générez d'abord le point", "err"); return; }
+    navigator.clipboard.writeText(lastPoint[typeId])
+      .then(function () { note("Point horaire copié", "ok"); })
+      .catch(function () { note("Copie impossible", "err"); });
+  });
+
+  document.getElementById("phResetBtn").addEventListener("click", function () {
+    if (!confirm("Remettre à zéro les valeurs du point « " + currentType().label + " » ?")) return;
+    store[typeId] = {};
+    saveData();
+    delete lastPoint[typeId];
+    buildForm();
+    emptyPreview();
+    note("Point horaire remis à zéro", "");
+  });
+
+  loadData();
+  renderAll();
 })();
 </script>
 </body>

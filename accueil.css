@@ -74,6 +74,24 @@ footer .text-on-surface-variant { color: rgba(240,246,253,.82); }
 footer .text-primary { color: #cfd6ff; }
 footer .bg-surface-container { background-color: rgba(255,255,255,.12); }
 
+/* ══════════════ ENCART D'INTRODUCTION ══════════════
+   Le texte d'accroche est posé dans une carte orange, au même
+   traitement que les cartes outils : une seule teinte dans les
+   deux éclairages, pour tenir sur la photo de la salle. */
+.intro-card {
+  margin-top: 10px;
+  padding: 20px 28px;
+  border-radius: 12px;
+  background-color: #123a6b;
+  border: 1px solid rgba(147, 197, 253, .5);
+  box-shadow: 0 14px 34px -14px rgba(4, 8, 16, .6);
+}
+.intro-card p {
+  color: #e4eefc;
+  text-shadow: none;
+  margin: 0;
+}
+
 /* ══════════════ CARTES OUTILS ══════════════ */
 .platform-card { transition: transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s cubic-bezier(.4,0,.2,1), border-color .3s; }
 .platform-card:not(.is-soon):hover {

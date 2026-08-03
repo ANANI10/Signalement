@@ -13,6 +13,66 @@
 <link rel="stylesheet" href="components/date-picker.css">
 <link rel="stylesheet" href="components/search-select.css">
 <link rel="stylesheet" href="components/dropdown.css">
+<style>
+  /* Bouton « Point horaire » : mise en avant en rouge (page transmission uniquement) */
+  #pointHoraireLink {
+    background: var(--red-dim);
+    border-color: var(--red);
+    color: var(--red);
+    font-weight: 600;
+  }
+  #pointHoraireLink:hover {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+  }
+  #pointHoraireLink:focus-visible { outline-color: var(--red); }
+
+  /* Champ « Début de l'incident » : mise en avant en orange */
+  #startDate .dp-field {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+  #startDate .dp-field:hover { border-color: var(--amber); }
+  #startDate .dp-field svg { color: var(--amber); }
+  #startDate .dp-value,
+  #startDate .dp-value.is-empty { color: var(--amber); }
+  #startDate .dp-field:focus-visible,
+  #startDate .dp-field.is-open {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px var(--amber-dim);
+  }
+
+  /* Bouton « Base de données » : mise en avant en vert */
+  #dbLink {
+    background: var(--green-dim);
+    border-color: var(--green);
+    color: var(--green);
+    font-weight: 600;
+  }
+  #dbLink:hover {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+  #dbLink:focus-visible { outline-color: var(--green); }
+
+  /* Historique : filtre sur la période de création */
+  .hist-filter {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 9px 11px; margin-bottom: 2px;
+    background: var(--ov-02);
+    border: 1px solid var(--borderlo); border-radius: 8px;
+  }
+  .hist-filter-lbl {
+    font-size: 12px; font-weight: 700; letter-spacing: .04em;
+    color: var(--text2); flex-shrink: 0;
+  }
+  .hist-filter .dp-field { min-width: 150px; height: 32px; font-size: 12.5px; }
+  .hist-filter #histFilterClear { margin-left: auto; }
+  .hist-filter.is-on { border-color: var(--blue); background: var(--blue-dim); }
+</style>
 <script>
 // ── Éclairage : applique le thème enregistré avant le rendu (évite le flash) ──
 (function () {
@@ -62,7 +122,7 @@
   <header class="page-hd">
     <div class="page-hd-left">
       <h1>Générateur de signalement transmission</h1>
-      <p class="page-desc">Collez vos lignes d'alarme brutes (alarmes PON, cartes ou OLT), puis cliquez sur <strong>Générer</strong> pour obtenir le bloc de signalement formaté.</p>
+      <p class="page-desc">Collez vos lignes d'alarme brutes (Routeur, Lien DWDM, OSN ou LIEN IP/MPLS), puis cliquez sur <strong>Générer</strong> pour obtenir le bloc de signalement formaté.</p>
     </div>
     <div class="page-hd-right">
       <div class="status-chip" role="status">
@@ -140,11 +200,13 @@
       id="escaladePick"
       label="Escalade"
       placeholder="À renseigner"
+      searchable
       options="EMEF|TRANS FO/FTTH|TRANS_FO|PROJET|EMEF / TRANS FO/FTTH"></isoc-dropdown>
     <isoc-dropdown
       id="causePick"
       label="Cause"
       placeholder="À renseigner"
+      searchable
       options="Investigation en cours|Coupure fibre|Panne énergie|Panne équipement|Travaux tiers"></isoc-dropdown>
     <div class="tb-sep" aria-hidden="true"></div>
     <div class="status-msg" id="msg" role="status" aria-live="polite">
@@ -206,13 +268,15 @@
         <span class="card-tag" aria-hidden="true">STREAM / IN</span>
       </div>
       <div class="card-body">
-        <label for="input" class="sr-only">Lignes CSV d'alarmes réseau</label>
+        <label for="input" class="sr-only">Lignes d'alarmes transmission</label>
         <textarea
           id="input"
           spellcheck="false"
           autocomplete="off"
-          placeholder="Severity,Event Time,Cleared Time,Source Name,Mnemonic,...
-Major,6 juillet 2026 00:46:55 GMT,,PON Port:YOKOE-FX8:R1.S1.LT5.PON16,LOS,..."
+          placeholder="Routeur
+Lien DWDM
+OSN
+LIEN IP/MPLS"
         ></textarea>
 
         <div class="infobox" role="note">
@@ -223,15 +287,19 @@ Major,6 juillet 2026 00:46:55 GMT,,PON Port:YOKOE-FX8:R1.S1.LT5.PON16,LOS,..."
           <div class="infobox-rows">
             <div class="inforow">
               <span class="ir-dot" aria-hidden="true"></span>
-              <span><span class="ir-code">PON Port:OLT:R.S.LTn.PONm</span> <span class="ir-sep">→</span> Alarme port PON</span>
+              <span><span class="ir-code">Routeur</span></span>
             </div>
             <div class="inforow">
               <span class="ir-dot" aria-hidden="true"></span>
-              <span><span class="ir-code">Slot:OLT:R.S.LTn</span> <span class="ir-sep">→</span> Alarme carte (LT)</span>
+              <span><span class="ir-code">Lien DWDM</span></span>
             </div>
             <div class="inforow">
               <span class="ir-dot" aria-hidden="true"></span>
-              <span><span class="ir-code">Agent:OLT:IACM/IHUB</span> <span class="ir-sep">→</span> Alarme OLT (Resource Isolation)</span>
+              <span><span class="ir-code">OSN</span></span>
+            </div>
+            <div class="inforow">
+              <span class="ir-dot" aria-hidden="true"></span>
+              <span><span class="ir-code">LIEN IP/MPLS</span></span>
             </div>
           </div>
         </div>
@@ -367,6 +435,13 @@ Major,6 juillet 2026 00:46:55 GMT,,PON Port:YOKOE-FX8:R1.S1.LT5.PON16,LOS,..."
       <!-- vue liste -->
       <div id="histListView">
         <p class="mod-hint">Chaque signalement généré est enregistré ici. Cliquez sur un incident pour lui ajouter une mise à jour ou le clôturer.</p>
+        <!-- Filtre sur la période de création — voir components/date-picker.js -->
+        <div class="hist-filter" role="group" aria-label="Filtrer par période de création">
+          <span class="hist-filter-lbl">Créés</span>
+          <isoc-date-picker id="histFrom" date-only placeholder="Du…"></isoc-date-picker>
+          <isoc-date-picker id="histTo" date-only placeholder="Au…"></isoc-date-picker>
+          <button class="btn-ghost modal-ft-btn" id="histFilterClear" type="button">Toute la période</button>
+        </div>
         <div class="mod-table" id="histTable"></div>
       </div>
 
@@ -401,6 +476,7 @@ Major,6 juillet 2026 00:46:55 GMT,,PON Port:YOKOE-FX8:R1.S1.LT5.PON16,LOS,..."
             <isoc-dropdown
               id="updEscaladePick"
               placeholder="À renseigner"
+              searchable
               options="EMEF|TRANS FO/FTTH|TRANS_FO|PROJET|EMEF / TRANS FO/FTTH"></isoc-dropdown>
           </div>
           <div class="upd-field upd-wide">
@@ -925,7 +1001,7 @@ function buildClusterBlock(oltNames, events, tech) {
   const impactsValue = clientsInfo.matchedCount > 0
     ? (clientsInfo.total + " CLIENTS FTTH")
     : "À renseigner";
-  const dash = "------------------------------------------------------------------------";
+  const dash = "---------------------------------------------------------";
   const lines = [
     dash, EMOJI.siren+" SIGNALEMENT D'INCIDENT "+EMOJI.siren, dash,
     "*➡️STATUT INCIDENT : DEBUT* ", dash,
@@ -933,7 +1009,7 @@ function buildClusterBlock(oltNames, events, tech) {
     "Nature de l'incident :",
     "Indisponibilité de l'OLT "+oltNames.join("/")+".",
     "",
-    "Début :", EMOJI.clock+" "+(fmt||"À renseigner"),
+    "Début : "+EMOJI.clock+" "+(fmt||"À renseigner"),
     "",
     EMOJI.chart+" IMPACTS RX FIXE : "+impactsValue,
     "",
@@ -977,14 +1053,14 @@ function buildBlockForOlt(oltName, events, tech) {
     const l = groups[k].type==="pon" ? "TRANS FO/FTTH" : "EMEF";
     if (!esc.includes(l)) esc.push(l);
   });
-  const dash = "------------------------------------------------------------------------";
+  const dash = "---------------------------------------------------------";
   return [
     dash, EMOJI.siren+" SIGNALEMENT D'INCIDENT "+EMOJI.siren, dash,
     "*➡️STATUT INCIDENT : DEBUT* ", dash,
     "Details :",
     "Nature de l'incident :", ...sentences,
     "",
-    "Début :", EMOJI.clock+" "+(fmt||"À renseigner"),
+    "Début : "+EMOJI.clock+" "+(fmt||"À renseigner"),
     "",
     EMOJI.chart+" IMPACTS RX FIXE : À renseigner",
     "",
@@ -1178,9 +1254,9 @@ function renderPreview(lines) {
     if (line.startsWith("1-") || line.includes("SIGNALEMENT D'INCIDENT")) cls = "l-title";
     else if (line.startsWith("➡️") || /^UPDATE \d+ :/.test(line)) cls = "l-update";
     else if (line==="Nature de l'incident :" ||
-             line==="Début :" ||
              line==="Details :")                        cls = "l-section";
-    else if (line.startsWith(EMOJI.clock))               cls = "l-date";
+    else if (line.startsWith("Début : ") ||
+             line.startsWith(EMOJI.clock))               cls = "l-date";
     else if (line.startsWith(EMOJI.chart))                cls = "l-clients";
     else if (line.startsWith(EMOJI.family) ||
              line.startsWith(EMOJI.mensRoom))            cls = "l-impact";
@@ -1649,7 +1725,7 @@ var INCIDENTS = loadJSON(HIST_KEY, []) || [];
 // (routeur, date, impact, nature, sites, OLT, escalade, cause)
 // et l'affiche dans « Sortie — Signalement généré », prêt à copier.
 (function () {
-  var DASH = "------------------------------------------------------------------------";
+  var DASH = "---------------------------------------------------------";
 
   function pad2(n) { return String(n).padStart(2, "0"); }
   function groupNum(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
@@ -1972,8 +2048,7 @@ var INCIDENTS = loadJSON(HIST_KEY, []) || [];
       inc.natureLine ||
         ("Indisponibilité du routeur IP/MPLS: " + (inc.routers.length ? inc.routers.join(" / ") : "À renseigner")),
       "",
-      "Début :",
-      CLOCK2 + " " + fmtDateISO(inc.startISO),
+      "Début : " + CLOCK2 + " " + fmtDateISO(inc.startISO),
       "",
       EMOJI.chart + " IMPACTS RX :"
     ];
@@ -2036,12 +2111,51 @@ var INCIDENTS = loadJSON(HIST_KEY, []) || [];
     return { cls: "debut", txt: "DEBUT" };
   }
 
+  // ── filtre sur la période de création ──
+  // Les incidents enregistrés avant l'ajout de « createdAt » n'ont que
+  // leur date de début : on s'en sert comme date de création de repli.
+  function creationDate(inc) {
+    var iso = inc.createdAt || inc.startISO;
+    if (!iso) return null;
+    var d = new Date(iso);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  function filterRange() {
+    var from = window.DatePicker && DatePicker.get("histFrom");
+    var to   = window.DatePicker && DatePicker.get("histTo");
+    return {
+      from: from && from.value ? new Date(from.value.getFullYear(), from.value.getMonth(), from.value.getDate()) : null,
+      // borne haute incluse : on va jusqu'à la fin de la journée choisie
+      to:   to && to.value ? new Date(to.value.getFullYear(), to.value.getMonth(), to.value.getDate(), 23, 59, 59, 999) : null
+    };
+  }
+
+  function filteredIncidents() {
+    var r = filterRange();
+    if (!r.from && !r.to) return INCIDENTS.slice();
+    return INCIDENTS.filter(function (inc) {
+      var d = creationDate(inc);
+      if (!d) return false;               // sans date, on ne peut pas trancher
+      if (r.from && d < r.from) return false;
+      if (r.to && d > r.to) return false;
+      return true;
+    });
+  }
+
   function renderHistList() {
     histTable.textContent = "";
+    var list = filteredIncidents();
+    var r = filterRange();
+    var filtering = !!(r.from || r.to);
+    document.querySelector(".hist-filter").classList.toggle("is-on", filtering);
+
     if (!INCIDENTS.length) {
       histTable.innerHTML = '<div class="mod-empty">Aucun incident enregistré — générez un signalement</div>';
+    } else if (!list.length) {
+      histTable.innerHTML = '<div class="mod-empty">Aucun incident créé sur cette période</div>';
     }
-    INCIDENTS.slice().reverse().forEach(function (inc) {
+    list.slice().reverse().forEach(function (inc) {
       var st = statusOf(inc);
       var row = document.createElement("div");
       row.className = "hist-row";
@@ -2093,9 +2207,25 @@ var INCIDENTS = loadJSON(HIST_KEY, []) || [];
   }
 
   function updateHistCount() {
+    var shown = filteredIncidents().length;
     document.getElementById("histCount").textContent =
-      INCIDENTS.length + " incident(s) enregistré(s)";
+      shown === INCIDENTS.length
+        ? INCIDENTS.length + " incident(s) enregistré(s)"
+        : shown + " incident(s) sur " + INCIDENTS.length + " — filtre actif";
   }
+
+  // le filtre se recalcule dès qu'une borne change
+  ["histFrom", "histTo"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener("datepicker:change", renderHistList);
+  });
+  document.getElementById("histFilterClear").addEventListener("click", function () {
+    ["histFrom", "histTo"].forEach(function (id) {
+      var dp = window.DatePicker && DatePicker.get(id);
+      if (dp) dp.clear();
+    });
+    renderHistList();
+  });
 
   // ── vue détail ──
   function openDetail(inc) {

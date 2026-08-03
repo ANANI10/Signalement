@@ -19,6 +19,9 @@
    value        valeur initiale
    states       "ok|warn" — pastille verte / orange par option,
                 dans l'ordre des options (optionnel)
+   searchable   force le champ de recherche, quel que soit le nombre
+                d'options, et permet de taper directement sur le
+                conteneur pour lancer la recherche (optionnel)
 
    ── API (sur l'élément) ──
    el.setOptions(list)   liste de chaînes ou de {value,label,state}
@@ -91,6 +94,7 @@
     var self = this;
     var label = this.getAttribute("label") || "";
     this._placeholder = this.getAttribute("placeholder") || "Choisir…";
+    this._searchable = this.hasAttribute("searchable");
 
     var field = document.createElement("button");
     field.className = "dd-field";
@@ -120,7 +124,19 @@
 
     field.addEventListener("click", function () { self.toggle(); });
     field.addEventListener("keydown", function (e) {
-      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); self.open(); }
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); self.open(); return; }
+      // saisie directe : taper une lettre sur le conteneur ouvre le
+      // menu et démarre la recherche sur ce caractère
+      if (self._searchable && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        self.open();
+        if (self._searchEl) {
+          self._searchEl.value = e.key;
+          self._filter = e.key;
+          self._activeIndex = -1;
+          self._renderMenu();
+        }
+      }
     });
     menu.addEventListener("keydown", function (e) { self._onKey(e); });
     this._onDocClick = function (e) { if (!self.contains(e.target)) self.close(); };
@@ -218,7 +234,7 @@
     this._menu.textContent = "";
     this._searchEl = null;
 
-    if (this._options.length > SEARCH_FROM) {
+    if (this._searchable || this._options.length > SEARCH_FROM) {
       var wrap = document.createElement("div");
       wrap.className = "dd-search-wrap";
       var icon = document.createElement("span");

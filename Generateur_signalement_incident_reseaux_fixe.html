@@ -883,7 +883,7 @@ function buildClusterBlock(oltNames, events, tech) {
     "Nature de l'incident :",
     "Indisponibilité de l'OLT "+oltNames.join("/")+".",
     "",
-    "Début :", EMOJI.clock+" "+(fmt||"À renseigner"),
+    "Début : "+EMOJI.clock+" "+(fmt||"À renseigner"),
     "",
     EMOJI.chart+" IMPACTS RX FIXE : "+impactsValue,
     "",
@@ -934,7 +934,7 @@ function buildBlockForOlt(oltName, events, tech) {
     "Details :",
     "Nature de l'incident :", ...sentences,
     "",
-    "Début :", EMOJI.clock+" "+(fmt||"À renseigner"),
+    "Début : "+EMOJI.clock+" "+(fmt||"À renseigner"),
     "",
 
     EMOJI.chart + " IMPACTS RX FIXE : " +
@@ -1135,9 +1135,9 @@ function renderPreview(lines) {
     if (line.startsWith("1-") || line.includes("SIGNALEMENT D'INCIDENT")) cls = "l-title";
     else if (line.startsWith("➡️"))                     cls = "l-update";
     else if (line==="Nature de l'incident :" ||
-             line==="Début :" ||
              line==="Details :")                        cls = "l-section";
-    else if (line.startsWith(EMOJI.clock))               cls = "l-date";
+    else if (line.startsWith("Début : ") ||
+             line.startsWith(EMOJI.clock))               cls = "l-date";
     else if (line.startsWith(EMOJI.chart))                cls = "l-clients";
     else if (line.startsWith(EMOJI.family) ||
              line.startsWith(EMOJI.mensRoom))            cls = "l-impact";
