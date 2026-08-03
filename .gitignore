@@ -1,0 +1,13 @@
+# Dépendances (réinstallables via npm install)
+node_modules/
+
+# Netlify
+.netlify/
+
+# Base technique interne — ne doit pas être publiée sur le web
+NOUVEAU BASE TECH DT.xlsx
+
+# Divers
+*.log
+.DS_Store
+Thumbs.db
