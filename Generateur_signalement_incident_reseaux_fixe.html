@@ -135,12 +135,7 @@
       Historique
     </button>
 
-    <div class="tb-sep" aria-hidden="true"></div>
-
-    <label class="upd-check" for="includeDiagChk" style="margin:0;">
-      <input type="checkbox" id="includeDiagChk" checked>
-      Inclure diagnostic OLT
-    </label>
+    
 
     <div class="tb-sep" aria-hidden="true"></div>
     <div class="status-msg" id="msg" role="status" aria-live="polite">
@@ -209,17 +204,58 @@ Major,6 juillet 2026 00:46:55 GMT,,PON Port:YOKOE-FX8:R1.S1.LT5.PON16,LOS,..."
         </div>
         <span class="card-tag" aria-hidden="true">STREAM / OUT</span>
       </div>
+
+
+
       <div class="card-body">
-        <div class="outbox" id="preview" role="region" aria-label="Résultat du signalement" aria-live="polite">
-          <div class="empty-st">
-            <div class="empty-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            </div>
-            <p class="empty-text">Aucun signalement généré</p>
-          </div>
-        </div>
-        <textarea id="output" class="is-hidden" readonly aria-hidden="true" tabindex="-1"></textarea>
+        <div class="card-label" style="margin-bottom:2px;">Signalement</div>
+ 
+        <!-- Pour le signalement -->
+<div class="outbox-wrapper">
+  <div class="outbox" id="previewSignalement" role="region" aria-label="Résultat du signalement" aria-live="polite" style="min-height:140px;">
+    <div class="empty-st">
+      <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <p class="empty-text">Aucun signalement généré</p>
+    </div>
+  </div>
+
+
+  <button class="copy-section-btn" id="copySignalementBtn" type="button" title="Copier le signalement" aria-label="Copier le signalement" style="display:none;">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+  
+</div>
+
       </div>
+    
+      <div class="tb-sep" style="height:1px;width:auto;margin:0 16px;"></div>
+    
+      <div class="card-body"  id="diagnosticContainer" style="display:none;">
+        <div class="card-label" style="margin-bottom:2px;">Diagnostic</div>
+
+
+        <!-- Pour le diagnostic -->
+<div class="outbox-wrapper">
+  <div class="outbox" id="previewDiagnostic" role="region" aria-label="Résultat du diagnostic" aria-live="polite" style="min-height:140px;">
+    <div class="empty-st">
+      <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <p class="empty-text">Aucun diagnostic généré</p>
+    </div>
+  </div>
+  <button class="copy-section-btn" id="copyDiagnosticBtn" type="button" title="Copier le diagnostic" aria-label="Copier le diagnostic">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+      </div>
+    
+      <textarea id="output" class="is-hidden" readonly aria-hidden="true" tabindex="-1"></textarea>
+    
+
+
+
+
+
+      
     </section>
 
   </div>
@@ -1039,24 +1075,37 @@ function buildOltDiagnosticBlock(oltName, diagDate, tech) {
   ];
 }
 
-function buildClusterBlock(oltNames, events, tech, includeDiag) {
+function buildClusterBlock(oltNames, events, tech) {
   let ts=null, fmt=null, fmtDiag=null;
   for (const e of events)
-    if (e.dateInfo && (ts===null || e.dateInfo.timestamp<ts)) { ts=e.dateInfo.timestamp; fmt=e.dateInfo.formatted; fmtDiag=e.dateInfo.formattedDiag; }
+    if (e.dateInfo && (ts===null || e.dateInfo.timestamp<ts)) {
+      ts=e.dateInfo.timestamp;
+      fmt=e.dateInfo.formatted;
+      fmtDiag=e.dateInfo.formattedDiag;
+    }
+
   const clientsInfo = computeClientsForNames(oltNames);
   const impactsValue = clientsInfo.matchedCount > 0
     ? (clientsInfo.total + " CLIENTS FTTH")
     : "À renseigner";
+
   const dash = "------------------------------------------------------";
-  const lines = [
-    dash, EMOJI.siren+" SIGNALEMENT D'INCIDENT "+EMOJI.siren, dash,
-    "*➡️STATUT INCIDENT : DEBUT* ", dash,
+
+  const sigLines = [
+    dash,
+    EMOJI.siren+" SIGNALEMENT D'INCIDENT "+EMOJI.siren,
+    dash,
+    "*➡️STATUT INCIDENT : DEBUT* ",
+    dash,
     
     "Details :",
     "Nature de l'incident :",
-    "Indisponibilité de l'OLT "+oltNames.join("/")+".",
+    "Indisponibilité de l'OLT "+oltNames.join("/")+ ".",
     "",
+
     "Début : "+EMOJI.clock+" "+(fmt||"À renseigner"),
+
+    EMOJI.clock+" Début : "+(fmt||"À renseigner"),
     "",
     EMOJI.chart+" IMPACTS RX FIXE : "+impactsValue,
     "",
@@ -1066,12 +1115,17 @@ function buildClusterBlock(oltNames, events, tech, includeDiag) {
     "",
     EMOJI.warning+" CAUSE : INVESTIGATION EN COURS."
   ];
-  if (includeDiag) {
-    oltNames.forEach(name => {
-      lines.push(...buildOltDiagnosticBlock(name, fmtDiag, tech));
-    });
-  }
-  return lines;
+
+  const diagLines = [];
+
+  oltNames.forEach(name => {
+    diagLines.push(...buildOltDiagnosticBlock(name, fmtDiag, tech));
+  });
+
+  return {
+    sigLines,
+    diagLines
+  };
 }
 
 function buildBlockForOlt(oltName, events, tech) {
@@ -1109,7 +1163,10 @@ function buildBlockForOlt(oltName, events, tech) {
     "Details :",
     "Nature de l'incident :", ...sentences,
     "",
+
     "Début : "+EMOJI.clock+" "+(fmt||"À renseigner"),
+
+    EMOJI.clock+" Début : "+(fmt||"À renseigner"),
     "",
 
     EMOJI.chart + " IMPACTS RX FIXE : " +
@@ -1127,8 +1184,13 @@ function buildBlockForOlt(oltName, events, tech) {
     EMOJI.warning+" CAUSE : INVESTIGATION EN COURS."
   ];
 }
-
+let lastUnits = null; // contiendra { unitOrder, units }
 let lastReport = "";
+let lastSigLines = [];
+let lastDiagLines = [];
+let hasOltInReport = false;
+
+
 
 function setMsg(text, state) {
   const el = document.getElementById("msg");
@@ -1137,12 +1199,22 @@ function setMsg(text, state) {
 }
 
 function clearAll() {
+  const sigCopyBtn = document.getElementById("copySignalementBtn");
+  if (sigCopyBtn) sigCopyBtn.style.display = "none";
+  lastSigLines = [];
+  lastDiagLines = [];
+  hasOltInReport = false;
+  document.getElementById("diagnosticContainer").style.display = "none";
   document.getElementById("input").value = "";
   document.getElementById("output").value = "";
-  document.getElementById("preview").innerHTML =
+  document.getElementById("previewSignalement").innerHTML =
     '<div class="empty-st"><div class="empty-icon" aria-hidden="true">' +
-    '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
-    '</div><p class="empty-text">Aucun signalement généré</p></div>';
+    '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>' +
+    '<p class="empty-text">Aucun signalement généré</p></div>';
+  document.getElementById("previewDiagnostic").innerHTML =
+    '<div class="empty-st"><div class="empty-icon" aria-hidden="true">' +
+    '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>' +
+    '<p class="empty-text">Aucun diagnostic généré</p></div>';
   lastReport = "";
   hideResolveBanner();
   setMsg("Effacé", "");
@@ -1253,63 +1325,159 @@ document.getElementById("copyBtn").addEventListener("click", () => {
 document.getElementById("deleteBtn").addEventListener("click", clearAll);
 
 
-const includeDiagChk = document.getElementById("includeDiagChk");
 
 function generate() {
   const raw = document.getElementById("input").value;
   const events = parseLines(raw);
+
   if (events.length === 0) {
     setMsg("Aucune ligne d'alarme reconnue", "err");
     document.getElementById("output").value = "";
-    document.getElementById("preview").innerHTML =
-      '<div class="empty-st"><div class="empty-icon" aria-hidden="true">' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">' +
-      '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' +
-      '</svg></div><p class="empty-text">Format non reconnu</p></div>';
-    lastReport = ""; hideResolveBanner(); return;
+    document.getElementById("previewSignalement").innerHTML =
+  '<div class="empty-st"><div class="empty-icon" aria-hidden="true">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">' +
+  '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' +
+  '</svg></div><p class="empty-text">Format non reconnu</p></div>';
+document.getElementById("previewDiagnostic").innerHTML =
+  '<div class="empty-st"><div class="empty-icon" aria-hidden="true">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">' +
+  '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' +
+  '</svg></div><p class="empty-text">Format non reconnu</p></div>';
+    lastReport = "";
+    hideResolveBanner();
+    return;
   }
 
-  const unitOrder=[], units={};
+  const unitOrder = [], units = {};
+
   for (const e of events) {
-    if (e.type==="olt") {
+    if (e.type === "olt") {
       const key = "cluster|" + getBaseName(e.oltName);
-      if (!units[key]) { units[key]={kind:"cluster",oltNames:[],events:[]}; unitOrder.push(key); }
-      if (!units[key].oltNames.includes(e.oltName)) units[key].oltNames.push(e.oltName);
+
+      if (!units[key]) {
+        units[key] = {
+          kind: "cluster",
+          oltNames: [],
+          events: []
+        };
+        unitOrder.push(key);
+      }
+
+      if (!units[key].oltNames.includes(e.oltName)) {
+        units[key].oltNames.push(e.oltName);
+      }
+
       units[key].events.push(e);
+
     } else {
       const key = "device|" + e.oltName;
-      if (!units[key]) { units[key]={kind:"device",oltName:e.oltName,events:[]}; unitOrder.push(key); }
+
+      if (!units[key]) {
+        units[key] = {
+          kind: "device",
+          oltName: e.oltName,
+          events: []
+        };
+        unitOrder.push(key);
+      }
+
       units[key].events.push(e);
     }
   }
 
   const tech = getSelectedTech();
-  const allLines = [];
+
+  const sigLinesAll = [];
+  const diagLinesAll = [];
+
   const missingAll = [];
+
   unitOrder.forEach((key, i) => {
-    if (i > 0) allLines.push("");
+
+    if (i > 0) {
+      sigLinesAll.push("");
+    }
+
     const u = units[key];
+
     if (u.kind === "device") {
-      allLines.push(...buildBlockForOlt(u.oltName, u.events, tech));
+
+      sigLinesAll.push(
+        ...buildBlockForOlt(u.oltName, u.events, tech)
+      );
+
     } else {
-      allLines.push(...buildClusterBlock(u.oltNames, u.events, tech, includeDiagChk.checked));
+
+      const result = buildClusterBlock(
+        u.oltNames,
+        u.events,
+        tech
+      );
+
+      sigLinesAll.push(...result.sigLines);
+      diagLinesAll.push(...result.diagLines);
+
       const info = computeClientsForNames(u.oltNames);
-      info.missing.forEach(n => { if (!missingAll.includes(n)) missingAll.push(n); });
+
+      info.missing.forEach(n => {
+        if (!missingAll.includes(n)) {
+          missingAll.push(n);
+        }
+      });
     }
   });
 
+
+  lastUnits = { unitOrder, units };
+
+  lastSigLines = sigLinesAll;
+  lastDiagLines = diagLinesAll;
+
+  const allLines = [
+    ...sigLinesAll,
+    ...(diagLinesAll.length ? ["", ...diagLinesAll] : [])
+  ];
+
   lastReport = allLines.join("\n");
+
   document.getElementById("output").value = lastReport;
-  renderPreview(allLines);
-  setMsg(events.length + " ligne(s) · " + unitOrder.length + " signalement(s) généré(s)", "ok");
-  if (missingAll.length > 0) renderResolveBanner(missingAll); else hideResolveBanner();
+
+  renderPreview(sigLinesAll, diagLinesAll);
+
+  setMsg(
+    events.length + " ligne(s) · " +
+    unitOrder.length + " signalement(s) généré(s)",
+    "ok"
+  );
+
+  const showSigCopy = diagLinesAll.length > 0;
+const sigCopyBtn = document.getElementById("copySignalementBtn");
+if (sigCopyBtn) {
+  sigCopyBtn.style.display = showSigCopy ? "" : "none";
 }
 
-function renderPreview(lines) {
-  const parts = lines.map(line => {
+  const hasOltInReport = diagLinesAll.length > 0;
+
+  const diagContainer = document.getElementById("diagnosticContainer");
+if (diagContainer) {
+  diagContainer.style.display = (diagLinesAll.length > 0) ? "" : "none";
+}
+
+
+  if (missingAll.length > 0) {
+    renderResolveBanner(missingAll);
+  } else {
+    hideResolveBanner();
+  }
+}
+
+function linesToHTML(lines){
+  return lines.map(line=>{
     if (line === "") return "<div class='l-gap'></div>";
     if (line.startsWith("---")) return "<div class='l-div'></div>";
+
     let cls = "l-sentence";
+
     if (line.startsWith("1-") || line.includes("SIGNALEMENT D'INCIDENT")) cls = "l-title";
     else if (line.startsWith("➡️"))                     cls = "l-update";
     else if (line==="Nature de l'incident :" ||
@@ -1324,10 +1492,106 @@ function renderPreview(lines) {
     else if (line.startsWith("*NOM OLT*"))                cls = "l-diag-title";
     else if (line.startsWith("*"))                        cls = "l-diag";
     const esc = line.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+
+    if (line.startsWith("1-") || line.includes("SIGNALEMENT D'INCIDENT"))
+      cls = "l-title";
+    else if (line.startsWith("➡️"))
+      cls = "l-update";
+    else if (line==="Nature de l'incident :" || line==="Details :")
+      cls = "l-section";
+    else if (line.startsWith("Début : ") || line.startsWith(EMOJI.clock))
+      cls = "l-date";
+    else if (line.startsWith(EMOJI.chart))
+      cls = "l-clients";
+    else if (line.startsWith(EMOJI.family) || line.startsWith(EMOJI.mensRoom))
+      cls = "l-impact";
+    else if (line.startsWith(EMOJI.warning))
+      cls = "l-cause";
+    else if (line==="À renseigner")
+      cls = "l-todo";
+    else if (line.startsWith("*NOM OLT*"))
+      cls = "l-diag-title";
+    else if (line.startsWith("*"))
+      cls = "l-diag";
+
+    const esc = line
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;");
+
+
     return "<div class='" + cls + "'>" + esc + "</div>";
-  });
-  document.getElementById("preview").innerHTML = parts.join("");
+
+  }).join("");
 }
+
+
+function renderPreview(sigLines, diagLines){
+  document.getElementById("previewSignalement").innerHTML = linesToHTML(sigLines);
+  document.getElementById("previewDiagnostic").innerHTML = linesToHTML(diagLines);
+}
+
+
+
+function refreshReportFromStoredUnits() {
+    if (!lastUnits) return;
+    const { unitOrder, units } = lastUnits;
+    const tech = getSelectedTech();
+    const sigLinesAll = [];
+    const diagLinesAll = [];
+    const missingAll = [];
+
+    unitOrder.forEach((key, i) => {
+        if (i > 0) sigLinesAll.push("");
+        const u = units[key];
+        if (u.kind === "device") {
+            sigLinesAll.push(...buildBlockForOlt(u.oltName, u.events, tech));
+        } else {
+            const result = buildClusterBlock(u.oltNames, u.events, tech);
+            sigLinesAll.push(...result.sigLines);
+            diagLinesAll.push(...result.diagLines);
+            const info = computeClientsForNames(u.oltNames);
+            info.missing.forEach(n => { if (!missingAll.includes(n)) missingAll.push(n); });
+        }
+    });
+
+    lastSigLines = sigLinesAll;
+    lastDiagLines = diagLinesAll;
+
+    const allLines = [
+        ...sigLinesAll,
+        ...(diagLinesAll.length ? ["", ...diagLinesAll] : [])
+    ];
+    lastReport = allLines.join("\n");
+    document.getElementById("output").value = lastReport;
+    renderPreview(sigLinesAll, diagLinesAll);
+
+
+    const showSigCopy = diagLinesAll.length > 0;
+const sigCopyBtn = document.getElementById("copySignalementBtn");
+if (sigCopyBtn) {
+  sigCopyBtn.style.display = showSigCopy ? "" : "none";
+}
+
+    // Afficher/masquer le diagnostic
+    const diagContainer = document.getElementById("diagnosticContainer");
+    if (diagContainer) {
+        diagContainer.style.display = (diagLinesAll.length > 0) ? "" : "none";
+    }
+
+    setMsg("Rapport mis à jour (" + unitOrder.length + " signalement(s))", "ok");
+    if (missingAll.length > 0) renderResolveBanner(missingAll);
+    else hideResolveBanner();
+}
+
+
+document.getElementById("clientCount").addEventListener("input", function () {
+    if (lastReport && lastUnits) {
+        refreshReportFromStoredUnits();
+    }
+});
+
 
 // ══════════════ BANNIÈRE DE RÉSOLUTION (OLT non reconnus) ══════════════
 function hideResolveBanner() {
@@ -1568,9 +1832,6 @@ function openFromHash() {
   else if (h === "#tech") openTechModal();
 }
 
-includeDiagChk.addEventListener("input", () => {
-    if (lastReport) generate();
-});
 
 window.addEventListener("hashchange", openFromHash);
 
@@ -2020,7 +2281,7 @@ function block(label, items, count){
 
     (window.getIncidentsFixe ? window.getIncidentsFixe() : []).forEach(function(inc){
       if (inc.closed) return;
-      var date = extractFieldGlobal(inc.baseLines, EMOJI.clock + " ");
+      var date = extractFieldGlobal(inc.baseLines, EMOJI.clock + " Début : ");
       var impacts = extractFieldGlobal(inc.baseLines, EMOJI.chart + " IMPACTS RX FIXE : ");
       extractSentences(inc.baseLines).forEach(function(s){
         var cat = classify(s);
@@ -2113,6 +2374,38 @@ sortByDateDesc(groups.pon);
   });
 })();
 
+
+
+
+function copySignalement() {
+  if (!lastSigLines || lastSigLines.length === 0) {
+    setMsg("Aucun signalement à copier", "err");
+    return;
+  }
+  const text = lastSigLines.join("\n");
+  navigator.clipboard.writeText(text).then(() => {
+    setMsg("Signalement copié", "ok");
+  }).catch(() => {
+    setMsg("Échec de la copie", "err");
+  });
+}
+
+function copyDiagnostic() {
+  if (!lastDiagLines || lastDiagLines.length === 0) {
+    setMsg("Aucun diagnostic à copier", "err");
+    return;
+  }
+  const text = lastDiagLines.join("\n");
+  navigator.clipboard.writeText(text).then(() => {
+    setMsg("Diagnostic copié", "ok");
+  }).catch(() => {
+    setMsg("Échec de la copie", "err");
+  });
+}
+
+document.getElementById("copySignalementBtn").addEventListener("click", copySignalement);
+document.getElementById("copyDiagnosticBtn").addEventListener("click", copyDiagnostic);
+// (Le bouton de copie du signalement n'existe pas dans le fixe, donc pas besoin)
 
 // Initialisation
 syncTechInput();

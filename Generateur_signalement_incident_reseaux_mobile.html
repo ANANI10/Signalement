@@ -19,8 +19,7 @@
   gap:10px;
   align-items:center;
   background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
+
   padding:12px;
   margin-bottom:16px;
 }
@@ -96,12 +95,6 @@
   color:var(--blue);
 }
 
-.tb-sep{
-  width:1px;
-  align-self:stretch;
-  background:var(--border);
-  margin:0 2px;
-}
 
 .tb-combo-wrap{
   display:flex;
@@ -218,29 +211,11 @@
   border-color:var(--blue);
 }
 
-.status-msg{
-  margin-left:auto;
-  display:flex;
-  align-items:center;
-  gap:7px;
-  font-size:12.5px;
-  color:var(--text-dim);
-}
 
-.status-msg .dot{
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background:var(--text-faint);
-}
 
-.status-msg.ok .dot{
-  background:var(--green);
-}
 
-.status-msg.err .dot{
-  background:var(--red);
-}
+
+
 
 /* Bandeau sélection du site porteur (chaîne) */
 
@@ -269,6 +244,10 @@
   color:var(--text);
 }
 
+
+.textarea {
+  min-height: 150px;
+}
 
 
 
@@ -345,14 +324,18 @@
       </button>
     </div>
 
-    <select class="tb-select" id="escaladePick" aria-label="Escalade diagnostic">
-      <option value="">Escalade — À sélectionner</option>
-      <option value="RAN">RAN</option>
-      <option value="TRANSMISSION">TRANSMISSION</option>
-      <option value="ENERGIE">ENERGIE</option>
-      <option value="SECURITE">SECURITE</option>
-      <option value="EMEF">EMEF</option>
-    </select>
+    <div class="tb-combo" id="escaladeCombo">
+      <input type="text" class="tb-combo-input" id="escaladeSearch"
+        placeholder="Escalade — À sélectionner" autocomplete="off"
+        role="combobox" aria-expanded="false" aria-autocomplete="list"
+        aria-controls="escaladeDropdown" aria-label="Choisir l'escalade">
+      <span class="tb-combo-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </span>
+      <div class="tb-combo-dropdown" id="escaladeDropdown" role="listbox" aria-label="Résultats escalade"></div>
+    </div>
+
+
 
     <select class="tb-select" id="transEtatPick" aria-label="État transmission">
       <option value="">TRANS — À renseigner</option>
@@ -365,6 +348,18 @@
       <option value="JOIGNABLE">JOIGNABLE</option>
       <option value="INJOIGNABLE">INJOIGNABLE</option>
     </select>
+
+
+    <input type="text" class="tb-combo-input" id="rfVoltageInput"
+  placeholder="RF VOLTAGE — ex: 46V A 9H45" autocomplete="off" style="width:190px;">
+
+<input type="text" class="tb-combo-input" id="infoInput"
+  placeholder="INFO — agent" autocomplete="off" style="width:220px;">
+
+
+<input type="text" class="tb-combo-input" id="commentInput"
+  placeholder="COMMENT — ALL RFMs MISSING" autocomplete="off" style="width:220px;">
+
 
     <button class="btn-ghost" id="manageSiteBtn" type="button">
       <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
@@ -398,20 +393,19 @@
       </div>
       <div class="card-body">
         <label for="input" class="sr-only">Lignes d'alarmes BTS</label>
-        <textarea id="input" spellcheck="false" autocomplete="off" placeholder="Major&#9;2026-07-31 06:00:54&#9;SEVEHO&#9;WCDMA BASE STATION OUT OF USE&#9;
-Major&#9;2026-07-31 06:01:20&#9;DJAKPAGA-MOOV&#9;WCDMA BASE STATION OUT OF USE&#9;"></textarea>
+        <textarea class="textarea" id="input" spellcheck="false" autocomplete="off" placeholder="Major&#9;2026-07-31 06:00:54&#9;SEVEHO&#9;WCDMA BASE STATION OUT OF USE&#9;"></textarea>
+<label for="inputNetact" class="sr-only">Alarmes NETACT</label>
+<textarea class="textarea" id="inputNetact" spellcheck="false" autocomplete="off"
+  placeholder="Alarmes NETACT…"></textarea>
 
-        <div class="infobox" role="note">
-          <div class="infobox-hd">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            Comment ça marche
-          </div>
-          <div class="infobox-rows">
-            <div class="inforow"><span class="ir-dot" aria-hidden="true"></span><span>1 seul site détecté <span class="ir-sep">→</span> signalement + diagnostic de ce site</span></div>
-            <div class="inforow"><span class="ir-dot" aria-hidden="true"></span><span>Plusieurs sites détectés <span class="ir-sep">→</span> chaîne : choisissez le site porteur pour le diagnostic</span></div>
-            <div class="inforow"><span class="ir-dot" aria-hidden="true"></span><span>Colonnes attendues <span class="ir-sep">→</span> <span class="ir-code">Sévérité, Date/heure, Nom du site, Type d'alarme</span></span></div>
-          </div>
-        </div>
+<label for="inputNeteco" class="sr-only">Alarmes NET ECO</label>
+<textarea class="textarea" id="inputNeteco" spellcheck="false" autocomplete="off"
+  placeholder="Alarmes NET ECO…"></textarea>
+
+<label for="inputBattery" class="sr-only">Données batterie</label>
+<textarea class="textarea" id="inputBattery" spellcheck="false" autocomplete="off"
+  placeholder="Données énergie (Voltage, SOC, Remaining Backup Time)…"></textarea>
+
       </div>
     </section>
 
@@ -420,16 +414,51 @@ Major&#9;2026-07-31 06:01:20&#9;DJAKPAGA-MOOV&#9;WCDMA BASE STATION OUT OF USE&#
         <div class="card-label" id="lbl-output"><span class="clabel-dot dot-green" aria-hidden="true"></span>Sortie — Signalement &amp; diagnostic</div>
         <span class="card-tag" aria-hidden="true">STREAM / OUT</span>
       </div>
+    
       <div class="card-body">
-        <div class="outbox" id="preview" role="region" aria-label="Résultat du signalement" aria-live="polite">
-          <div class="empty-st">
-            <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-            <p class="empty-text">Aucun signalement généré</p>
-          </div>
-        </div>
-        <textarea id="output" class="is-hidden" readonly aria-hidden="true" tabindex="-1"></textarea>
+        <div class="card-label" style="margin-bottom:2px;">Signalement</div>
+ 
+        <!-- Pour le signalement -->
+<div class="outbox-wrapper">
+  <div class="outbox" id="previewSignalement" role="region" aria-label="Résultat du signalement" aria-live="polite" style="min-height:140px;">
+    <div class="empty-st">
+      <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <p class="empty-text">Aucun signalement généré</p>
+    </div>
+  </div>
+  <button class="copy-section-btn" id="copySignalementBtn" type="button" title="Copier le signalement" aria-label="Copier le signalement">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
       </div>
+    
+      <div class="tb-sep" style="height:1px;width:auto;margin:0 16px;"></div>
+    
+      <div class="card-body">
+        <div class="card-label" style="margin-bottom:2px;">Diagnostic</div>
+
+
+        <!-- Pour le diagnostic -->
+<div class="outbox-wrapper">
+  <div class="outbox" id="previewDiagnostic" role="region" aria-label="Résultat du diagnostic" aria-live="polite" style="min-height:140px;">
+    <div class="empty-st">
+      <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <p class="empty-text">Aucun diagnostic généré</p>
+    </div>
+  </div>
+  <button class="copy-section-btn" id="copyDiagnosticBtn" type="button" title="Copier le diagnostic" aria-label="Copier le diagnostic">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+      </div>
+    
+      <textarea id="output" class="is-hidden" readonly aria-hidden="true" tabindex="-1"></textarea>
+    
+    
+      
     </section>
+
   </div>
 </main>
 
@@ -1893,6 +1922,62 @@ function renderTechDropdownList(query){
     dropdown.appendChild(item);
   });
 }
+
+
+
+const ESCALADE_OPTIONS = ["RAN","TRANSMISSION","ENERGIE","SECURITE","EMEF"];
+let selectedEscalade = "";
+
+function openEscaladeDropdown(){
+  renderEscaladeDropdownList(document.getElementById("escaladeSearch").value);
+  document.getElementById("escaladeDropdown").classList.add("show");
+  document.getElementById("escaladeSearch").setAttribute("aria-expanded","true");
+}
+function closeEscaladeDropdown(){
+  document.getElementById("escaladeDropdown").classList.remove("show");
+  document.getElementById("escaladeSearch").setAttribute("aria-expanded","false");
+}
+function chooseEscalade(val){
+  const input = document.getElementById("escaladeSearch");
+  selectedEscalade = val || "";
+  input.value = selectedEscalade;
+  closeEscaladeDropdown();
+  if (lastReport) generate();
+}
+function renderEscaladeDropdownList(query){
+  const dropdown = document.getElementById("escaladeDropdown");
+  const q = normSearch(query);
+  const list = ESCALADE_OPTIONS.filter(o=>!q||normSearch(o).includes(q));
+  dropdown.innerHTML="";
+  const clearItem=document.createElement("div");
+  clearItem.className="tb-combo-item clear";
+  clearItem.textContent="— À sélectionner —";
+  clearItem.addEventListener("mousedown",(e)=>{e.preventDefault();chooseEscalade("");});
+  dropdown.appendChild(clearItem);
+  if (list.length===0){
+    const empty=document.createElement("div");
+    empty.className="tb-combo-empty";
+    empty.textContent="Aucune option";
+    dropdown.appendChild(empty);
+    return;
+  }
+  list.forEach(o=>{
+    const item=document.createElement("div");
+    item.className="tb-combo-item";
+    item.setAttribute("role","option");
+    item.textContent = o;
+    item.addEventListener("mousedown",(e)=>{e.preventDefault();chooseEscalade(o);});
+    dropdown.appendChild(item);
+  });
+}
+document.getElementById("escaladeSearch").addEventListener("input",()=>{ selectedEscalade=""; openEscaladeDropdown(); });
+document.getElementById("escaladeSearch").addEventListener("focus", openEscaladeDropdown);
+document.getElementById("escaladeSearch").addEventListener("keydown",(e)=>{
+  if (e.key==="Escape"){ closeEscaladeDropdown(); document.getElementById("escaladeSearch").blur(); }
+});
+document.addEventListener("click",(e)=>{ if(!document.getElementById("escaladeCombo").contains(e.target)) closeEscaladeDropdown(); });
+
+
 document.getElementById("techSearch").addEventListener("input",()=>{ selectedTechId=null; openTechDropdown(); });
 document.getElementById("techSearch").addEventListener("focus", openTechDropdown);
 document.getElementById("techSearch").addEventListener("keydown",(e)=>{
@@ -1900,10 +1985,14 @@ document.getElementById("techSearch").addEventListener("keydown",(e)=>{
 });
 document.addEventListener("click",(e)=>{ if(!document.getElementById("techCombo").contains(e.target)) closeTechDropdown(); });
 
-document.getElementById("escaladePick").addEventListener("change", ()=>{ if(lastReport) generate(); });
 document.getElementById("transEtatPick").addEventListener("change", ()=>{ if(lastReport) generate(); });
 document.getElementById("ranEtatPick").addEventListener("change", ()=>{ if(lastReport) generate(); });
 document.getElementById("porteurPick").addEventListener("change", ()=>{ if(lastParsedEvents.length) generate(); });
+document.getElementById("rfVoltageInput").addEventListener("input", ()=>{ if(lastReport) generate(); });
+document.getElementById("infoInput").addEventListener("input", ()=>{ if(lastReport) generate(); });
+document.getElementById("commentInput").addEventListener("input", ()=>{ if(lastReport) generate(); });
+document.getElementById("copySignalementBtn").addEventListener("click", copySignalement);
+document.getElementById("copyDiagnosticBtn").addEventListener("click", copyDiagnostic);
 
 // ══════════════ PARSING DES ALARMES ══════════════
 const MOIS_NUM_RE = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/;
@@ -1949,6 +2038,11 @@ let lastParsedEvents = [];
 let lastUniqueSites = [];
 let currentPorteur = "";
 
+
+let lastSigLines = [];
+let lastDiagLines = [];
+
+
 function setMsg(text, state){
   const el = document.getElementById("msg");
   el.innerHTML = '<span class="dot" aria-hidden="true"></span>' + text;
@@ -1956,12 +2050,25 @@ function setMsg(text, state){
 }
 
 function clearAll(){
+  document.getElementById("escaladeSearch").value = "";
+  selectedEscalade = "";
+  closeEscaladeDropdown();
+  document.getElementById("rfVoltageInput").value = "";
+  document.getElementById("infoInput").value = "";
+  document.getElementById("commentInput").value = "";
+  document.getElementById("inputNetact").value = "";
+  document.getElementById("inputNeteco").value = "";
+  document.getElementById("inputBattery").value = "";
   document.getElementById("input").value = "";
   document.getElementById("output").value = "";
-  document.getElementById("preview").innerHTML =
+  document.getElementById("previewSignalement").innerHTML =
     '<div class="empty-st"><div class="empty-icon" aria-hidden="true">' +
-    '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' +
-    '</div><p class="empty-text">Aucun signalement généré</p></div>';
+    '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>' +
+    '<p class="empty-text">Aucun signalement généré</p></div>';
+  document.getElementById("previewDiagnostic").innerHTML =
+    '<div class="empty-st"><div class="empty-icon" aria-hidden="true">' +
+    '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>' +
+    '<p class="empty-text">Aucun diagnostic généré</p></div>';
   lastReport = ""; lastParsedEvents = []; lastUniqueSites = []; currentPorteur = "";
   hideResolveBanner();
   hideChainBanner();
@@ -2027,6 +2134,8 @@ function buildSignalement(uniqueSites, eventsBySite, porteur){
     const name = site===porteur ? "*"+site+"*" : site;
     return e.dateInfo.dateOnly + " " + e.dateInfo.hhmm + "\t      " + name;
   });
+  lines.push("");      // ligne vide
+
   lines.push("*HS*");
   return lines;
 }
@@ -2038,10 +2147,14 @@ function techLine(tech){
   return tech.num ? nom + "/" + tech.num : nom;
 }
 
-function buildDiagnostic(porteur, eventDateInfo, tech, escalade, transEtat, ranEtat){
+function buildDiagnostic(porteur, eventDateInfo, tech, escalade, transEtat, ranEtat, netactAlarms, netEcoAlarms, batteryData, rfVoltage, infoText, comment){
   const entry = resolveSiteEntry(porteur);
   const energie = entry && entry.typEnergie ? entry.typEnergie : "À renseigner";
-  const zone = entry && (entry.zone || entry.base) ? (entry.zone || entry.base) : "À renseigner";
+  // ZONE : on utilise la base, ou la région, jamais la "zone rouge"
+  const zone = entry && (entry.base || entry.region) ? (entry.base || entry.region) : "À renseigner";
+  // Détection de la zone rouge
+  const isZoneRouge = entry && entry.zone && entry.zone.toUpperCase().includes("ZONE ROUGE");
+
   const isFttm = entry && String(entry.siteFttm).trim().toUpperCase() === "OK";
   const transType = entry ? (isFttm ? "FTTM/ONT" : (entry.transmission || "À renseigner")) : "À renseigner";
   const transSuffix = transEtat ? " " + transEtat : " (À renseigner)";
@@ -2050,36 +2163,56 @@ function buildDiagnostic(porteur, eventDateInfo, tech, escalade, transEtat, ranE
   const netEcoOn = entry && String(entry.netEco).trim().toUpperCase() === "PRESENT";
   const agent = entry && entry.numAgent && entry.numAgent !== "N/A" ? entry.numAgent : "À renseigner";
 
+  // Construction de la première ligne
+  let firstLine = "*" + porteur + "* (" + energie + ")" +
+                  (isZoneRouge ? " *ZONE ROUGE*" : "") +
+                  "/HS@" + (eventDateInfo ? eventDateInfo.hhmm : "À renseigner");
+
   const lines = [
-    "*" + porteur + "* (" + energie + ")/HS@" + (eventDateInfo ? eventDateInfo.hhmm : "À renseigner"),
+    firstLine,
     "*ZONE*: " + zone,
-    "*RAN*:" + ranSuffix,
+    "*RAN*:" + ranSuffix + (comment ? "/" + comment : ""),
     "*TRANS*: " + transType + transSuffix,
     "*NRJ*:",
     "*1-NETACT*",
-    "*EXT ALARM*: À renseigner",
-    "*RF VOLTAGE*: À renseigner",
+    "*EXT ALARM*:" + (netactAlarms.length ? "" : " À renseigner"),
+    ...(netactAlarms.length ? netactAlarms.map(a => a.name + "\t" + a.dateStr) : []),
+    "*RF VOLTAGE*: " + (rfVoltage || "À renseigner"),
     "*2-NET ECO*:"
   ];
+
   if (netEcoOn){
-    lines.push(
-      "*ALARM*:",
-      "*BAIE VOLTAGE*:",
-      "*CHARGE BATT(SOC)*:",
-      "*BATT BACKUP TIME*:"
-    );
+    if (netEcoAlarms.length) {
+      netEcoAlarms.forEach(a => lines.push("*ALARM*: " + a.name + "\t" + a.dateStr));
+    } else {
+      lines.push("*ALARM*: N/A");
+    }
+    // Mise en forme avec espace avant les deux‑points pour Voltage et Backup
+    lines.push("*BAIE VOLTAGE* : " + (batteryData.voltage ? batteryData.voltage.value + "\t" + batteryData.voltage.dateStr : "À renseigner"));
+    lines.push("*CHARGE BATT(SOC)*: " + (batteryData.soc ? batteryData.soc.value + "\t" + batteryData.soc.dateStr : "À renseigner"));
+    lines.push("*BATT BACKUP TIME* : " + (batteryData.backup ? batteryData.backup.value + "\t" + batteryData.backup.dateStr : "À renseigner"));
   } else {
     lines.push("N/A");
   }
+
   lines.push(
     "*ESCALADE DIAGNO* : " + (escalade || "À sélectionner"),
     "*TECH INF* : " + techLine(tech),
     "*AGENT SECU*",
     "*Contact* : " + agent,
-    "*INFO* À renseigner"
+    "*INFO*: " + (infoText || "À renseigner")    // ← deux‑points ajoutés
   );
+
   return { lines, entry };
 }
+
+
+
+
+
+
+
+
 
 // ══════════════ GÉNÉRATION ══════════════
 function generate(){
@@ -2087,14 +2220,16 @@ function generate(){
   const events = parseAlarmLines(raw);
   lastParsedEvents = events;
 
+
   if (events.length === 0){
     setMsg("Aucune ligne d'alarme reconnue", "err");
     document.getElementById("output").value = "";
-    document.getElementById("preview").innerHTML =
-      '<div class="empty-st"><div class="empty-icon" aria-hidden="true">' +
+    const emptyErr = '<div class="empty-st"><div class="empty-icon" aria-hidden="true">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">' +
       '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' +
       '</svg></div><p class="empty-text">Format non reconnu</p></div>';
+    document.getElementById("previewSignalement").innerHTML = emptyErr;
+    document.getElementById("previewDiagnostic").innerHTML = emptyErr;
     lastReport = ""; hideResolveBanner(); hideChainBanner();
     return;
   }
@@ -2126,24 +2261,27 @@ function generate(){
   currentPorteur = porteur;
 
   const tech = getSelectedTech();
-  const escalade = document.getElementById("escaladePick").value;
+  const escalade = selectedEscalade;
   const transEtat = document.getElementById("transEtatPick").value;
   const ranEtat = document.getElementById("ranEtatPick").value;
+  const rfVoltage = document.getElementById("rfVoltageInput").value.trim();
+  const infoText = document.getElementById("infoInput").value.trim();
+  const comment = document.getElementById("commentInput").value.trim();
 
 
   const dash = "------------------------------------------------------------------------";
   const sigLines = buildSignalement(uniqueSites, eventsBySite, porteur);
-  const { lines: diagLines, entry } = buildDiagnostic(porteur, eventsBySite[porteur].dateInfo, tech, escalade, transEtat, ranEtat);
-
-  const allLines = [
-    ...sigLines,
-    dash,
-    ...diagLines
-  ];
-
-  lastReport = allLines.join("\n");
+  const netactAlarms = parseNetactAlarms(document.getElementById("inputNetact").value);
+  const netEcoAlarms  = parseNetEcoAlarms(document.getElementById("inputNeteco").value);
+  const batteryData   = parseBatteryData(document.getElementById("inputBattery").value);
+  const { lines: diagLines, entry } = buildDiagnostic(porteur, eventsBySite[porteur].dateInfo, tech, escalade, transEtat, ranEtat, netactAlarms, netEcoAlarms, batteryData, rfVoltage, infoText, comment);
+  lastReport = [...sigLines, dash, ...diagLines].join("\n");
   document.getElementById("output").value = lastReport;
-  renderPreview(allLines);
+  renderPreview(sigLines, diagLines);
+
+
+  lastSigLines = sigLines;
+  lastDiagLines = diagLines;
 
   const missing = uniqueSites.filter(s=>!resolveSiteEntry(s));
   if (missing.length){
@@ -2163,8 +2301,38 @@ document.getElementById("copyBtn").addEventListener("click", ()=>{
   navigator.clipboard.writeText(lastReport).then(()=>setMsg("Copié dans le presse-papiers", "ok"));
 });
 
-function renderPreview(lines){
-  const parts = lines.map(line=>{
+
+
+
+function copySignalement() {
+  if (!lastSigLines || lastSigLines.length === 0) {
+    setMsg("Aucun signalement à copier", "err");
+    return;
+  }
+  const text = lastSigLines.join("\n");
+  navigator.clipboard.writeText(text).then(() => {
+    setMsg("Signalement copié", "ok");
+  }).catch(() => {
+    setMsg("Échec de la copie", "err");
+  });
+}
+
+function copyDiagnostic() {
+  if (!lastDiagLines || lastDiagLines.length === 0) {
+    setMsg("Aucun diagnostic à copier", "err");
+    return;
+  }
+  const text = lastDiagLines.join("\n");
+  navigator.clipboard.writeText(text).then(() => {
+    setMsg("Diagnostic copié", "ok");
+  }).catch(() => {
+    setMsg("Échec de la copie", "err");
+  });
+}
+
+
+function linesToHTML(lines){
+  return lines.map(line=>{
     if (line === "") return "<div class='l-gap'></div>";
     if (line.startsWith("---")) return "<div class='l-div'></div>";
     let cls = "l-diag";
@@ -2177,8 +2345,11 @@ function renderPreview(lines){
     else if (line.startsWith("*") ) cls = "l-diag";
     const esc = line.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
     return "<div class='" + cls + "'>" + esc + "</div>";
-  });
-  document.getElementById("preview").innerHTML = parts.join("");
+  }).join("");
+}
+function renderPreview(sigLines, diagLines){
+  document.getElementById("previewSignalement").innerHTML = linesToHTML(sigLines);
+  document.getElementById("previewDiagnostic").innerHTML = linesToHTML(diagLines);
 }
 
 // ══════════════ MODAL BASE SITES ══════════════
@@ -2333,6 +2504,67 @@ document.getElementById("techResetBtn").addEventListener("click", ()=>{
   saveJSON("isoc_tech_list_mobile", techList);
   renderTechTable(); syncTechInput();
 });
+
+
+
+
+function parseNetactAlarms(raw){
+  const DATE_RE = /(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/;
+  const out = [];
+  raw.split(/\r?\n/).forEach(rawLine=>{
+    const line = rawLine.trim();
+    if (!line) return;
+    const cols = line.split("\t").map(s=>s.trim()).filter(s=>s.length>0);
+    if (cols.length < 2) return;
+
+    const dateColIdx = cols.findIndex(c=>DATE_RE.test(c));
+    if (dateColIdx === -1) return;
+
+    const dateCol = cols[dateColIdx];
+    const m = dateCol.match(DATE_RE);
+    const dateStr = m[1];
+
+    let name = dateCol.slice(0, m.index).trim();
+    if (!name){
+      // la date occupe sa propre colonne : le nom est dans la (les) colonne(s)
+      // précédente(s), après la sévérité (col 0)
+      name = cols.slice(1, dateColIdx).join(" ").trim();
+    }
+    if (!name) return;
+
+    out.push({ name, dateStr, dateInfo: parseAlarmDate(dateStr) });
+  });
+  return out;
+}
+
+function parseNetEcoAlarms(raw){
+  const out = [];
+  raw.split(/\r?\n/).forEach(rawLine=>{
+    const line = rawLine.replace(/\r$/,"");
+    if (!line.trim() || /^Operation\b/i.test(line.trim())) return;
+    const cols = line.split("\t").map(s=>s.trim());
+    const name = cols[2] || "";
+    const dateStr = cols[4] || "";
+    if (!name || !MOIS_NUM_RE.test(dateStr)) return;
+    out.push({ name, dateStr, dateInfo: parseAlarmDate(dateStr) });
+  });
+  return out;
+}
+
+function parseBatteryData(raw){
+  const data = {};
+  raw.split(/\r?\n/).forEach(rawLine=>{
+    const cols = rawLine.trim().split("\t").map(s=>s.trim()).filter(s=>s.length>0);
+    if (cols.length < 3) return;
+    const label = cols[0].toLowerCase();
+    const value = cols[1], dateStr = cols[2];
+    if (label === "voltage") data.voltage = { value, dateStr };
+    else if (label === "soc") data.soc = { value, dateStr };
+    else if (label === "remaining backup time") data.backup = { value, dateStr };
+  });
+  return data;
+}
+
 
 // Initialisation
 syncTechInput();

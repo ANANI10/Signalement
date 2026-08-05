@@ -377,6 +377,7 @@ textarea:focus {
   box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
+
 /* ══════════════ INFO BOX ══════════════ */
 .infobox { border: 1px solid var(--borderlo); border-radius: 7px; overflow: hidden; background: var(--ov-015); }
 
@@ -964,8 +965,8 @@ textarea:focus {
 .pointhor {
   height: 38px;
   padding: 0 18px;
-  background:rgb(245, 226, 11);
-  border: 1px solid rgba(140, 150, 25, 0.45);
+  background:rgb(245, 235, 126);
+  border: 1px solid rgba(102, 108, 34, 0.45);
   border-radius: 7px;
   color: #1a1200;
   font-family: "Plus Jakarta Sans", sans-serif;
@@ -977,7 +978,7 @@ textarea:focus {
 }
 
 .pointhor:hover {
-  background:rgb(125, 129, 4);
+  background:rgb(254, 239, 77);
   box-shadow: 0 6px 18px rgba(111, 122, 11, 0.35);
 }
 
@@ -989,3 +990,68 @@ textarea:focus {
   outline: 2px solid #f59e0b;
   outline-offset: 2px;
 }
+
+
+.outbox-wrapper {
+  position: relative;
+}
+
+.copy-section-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--card-hd);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  transition: background 0.2s, border-color 0.2s;
+  z-index: 5;
+}
+
+.copy-section-btn:hover {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+.copy-section-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  display: block;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
