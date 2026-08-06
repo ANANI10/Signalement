@@ -127,7 +127,19 @@
   </div>
 
 
-  <select class="tb-select" id="oltEtatPick" aria-label="État transmission">
+  <div class="tb-combo" id="escaladeCombo">
+    <input type="text" class="tb-combo-input" id="escaladeSearch"
+      placeholder="Escalade — À sélectionner" autocomplete="off"
+      role="combobox" aria-expanded="false" aria-autocomplete="list"
+      aria-controls="escaladeDropdown" aria-label="Choisir l'escalade">
+    <span class="tb-combo-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </span>
+    <div class="tb-combo-dropdown" id="escaladeDropdown" role="listbox" aria-label="Résultats escalade"></div>
+  </div>
+
+
+  <select class="tb-select" id="oltEtatPick" aria-label="État olt">
     <option value="">OLT — À renseigner</option>
     <option value="JOIGNABLE">JOIGNABLE</option>
     <option value="INJOIGNABLE">INJOIGNABLE</option>
@@ -142,7 +154,7 @@
         min="0">
 </div>
 
-  <select class="tb-select" id="routeurEtatPick" aria-label="État transmission">
+  <select class="tb-select" id="routeurEtatPick" aria-label="État routeur">
     <option value="">ROUTEUR — À renseigner</option>
     <option value="JOIGNABLE">JOIGNABLE</option>
     <option value="INJOIGNABLE">INJOIGNABLE</option>
@@ -1135,7 +1147,7 @@ function buildClusterBlock(oltNames, events, tech) {
     "",
     EMOJI.chart+" IMPACTS RX FIXE : "+impactsValue,
     "",
-    EMOJI.family+" Escalade : EMEF",
+    EMOJI.family+" Escalade : "+(selectedEscalade || "EMEF"),
     "",
     EMOJI.mensRoom+" TECH INF : "+techLine(tech),
     "",
@@ -1177,11 +1189,19 @@ function buildBlockForOlt(oltName, events, tech) {
     if (g.type==="card") return buildCardSentence(oltName, g.lts);
     return buildOltSentence(oltName);
   });
+
+  let escLine;
+if (selectedEscalade) {
+  escLine = selectedEscalade;
+} else {
   const esc = [];
   groupOrder.forEach(k => {
     const l = groups[k].type==="pon" ? "TRANS FO/FTTH" : "EMEF";
     if (!esc.includes(l)) esc.push(l);
   });
+  escLine = esc.join(" / ");
+}
+
   const dash = "------------------------------------------------------";
   return [
     dash, EMOJI.siren+" SIGNALEMENT D'INCIDENT "+EMOJI.siren, dash,
@@ -1201,7 +1221,7 @@ function buildBlockForOlt(oltName, events, tech) {
 ),
 
     "",
-    EMOJI.family+" Escalade : "+esc.join(" / "),
+    EMOJI.family+" Escalade : "+escLine,
     "",
     EMOJI.mensRoom+" TECH INF : "+techLine(tech),
     "",
@@ -1223,6 +1243,11 @@ function setMsg(text, state) {
 }
 
 function clearAll() {
+  document.getElementById("clientCount").value = "";
+  document.getElementById("escaladeSearch").value = "";
+  selectedEscalade = "";                            
+  selectedTechId = null;
+  document.getElementById("techSearch").value = "";
   const sigCopyBtn = document.getElementById("copySignalementBtn");
   if (sigCopyBtn) sigCopyBtn.style.display = "none";
   lastSigLines = [];
@@ -1357,6 +1382,63 @@ document.getElementById("oltEtatPick").addEventListener("change", function () {
 document.getElementById("routeurEtatPick").addEventListener("change", function () {
     if (lastReport && lastUnits) refreshReportFromStoredUnits();
 });
+
+
+
+const ESCALADE_OPTIONS = ["TRANS FO/FTTH","EMEF","RAN","TRANSMISSION","ENERGIE"];
+let selectedEscalade = "";
+
+function openEscaladeDropdown(){
+  renderEscaladeDropdownList(document.getElementById("escaladeSearch").value);
+  document.getElementById("escaladeDropdown").classList.add("show");
+  document.getElementById("escaladeSearch").setAttribute("aria-expanded","true");
+}
+function closeEscaladeDropdown(){
+  document.getElementById("escaladeDropdown").classList.remove("show");
+  document.getElementById("escaladeSearch").setAttribute("aria-expanded","false");
+}
+function chooseEscalade(val){
+  const input = document.getElementById("escaladeSearch");
+  selectedEscalade = val || "";
+  input.value = selectedEscalade;
+  closeEscaladeDropdown();
+  if (lastReport) generate();
+}
+function renderEscaladeDropdownList(query){
+  const dropdown = document.getElementById("escaladeDropdown");
+  const q = normSearch(query);
+  const list = ESCALADE_OPTIONS.filter(o=>!q||normSearch(o).includes(q));
+  dropdown.innerHTML="";
+  const clearItem=document.createElement("div");
+  clearItem.className="tb-combo-item clear";
+  clearItem.textContent="— À sélectionner —";
+  clearItem.addEventListener("mousedown",(e)=>{e.preventDefault();chooseEscalade("");});
+  dropdown.appendChild(clearItem);
+  if (list.length===0){
+    const empty=document.createElement("div");
+    empty.className="tb-combo-empty";
+    empty.textContent="Aucune option";
+    dropdown.appendChild(empty);
+    return;
+  }
+  list.forEach(o=>{
+    const item=document.createElement("div");
+    item.className="tb-combo-item";
+    item.setAttribute("role","option");
+    item.textContent = o;
+    item.addEventListener("mousedown",(e)=>{e.preventDefault();chooseEscalade(o);});
+    dropdown.appendChild(item);
+  });
+}
+document.getElementById("escaladeSearch").addEventListener("input",()=>{ selectedEscalade=""; openEscaladeDropdown(); });
+document.getElementById("escaladeSearch").addEventListener("focus", openEscaladeDropdown);
+document.getElementById("escaladeSearch").addEventListener("keydown",(e)=>{
+  if (e.key==="Escape"){ closeEscaladeDropdown(); document.getElementById("escaladeSearch").blur(); }
+});
+document.addEventListener("click",(e)=>{ if(!document.getElementById("escaladeCombo").contains(e.target)) closeEscaladeDropdown(); });
+
+
+
 
 function generate() {
   const raw = document.getElementById("input").value;
