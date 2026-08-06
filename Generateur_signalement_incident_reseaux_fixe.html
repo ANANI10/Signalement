@@ -1473,22 +1473,6 @@ function linesToHTML(lines){
 
     let cls = "l-sentence";
 
-    if (line.startsWith("1-") || line.includes("SIGNALEMENT D'INCIDENT")) cls = "l-title";
-    else if (line.startsWith("➡️"))                     cls = "l-update";
-    else if (line==="Nature de l'incident :" ||
-             line==="Details :")                        cls = "l-section";
-    else if (line.startsWith("Début : ") ||
-             line.startsWith(EMOJI.clock))               cls = "l-date";
-    else if (line.startsWith(EMOJI.chart))                cls = "l-clients";
-    else if (line.startsWith(EMOJI.family) ||
-             line.startsWith(EMOJI.mensRoom))            cls = "l-impact";
-    else if (line.startsWith(EMOJI.warning))              cls = "l-cause";
-    else if (line==="À renseigner")                       cls = "l-todo";
-    else if (line.startsWith("*NOM OLT*"))                cls = "l-diag-title";
-    else if (line.startsWith("*"))                        cls = "l-diag";
-    const esc = line.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-
-
     if (line.startsWith("1-") || line.includes("SIGNALEMENT D'INCIDENT"))
       cls = "l-title";
     else if (line.startsWith("➡️"))
@@ -1515,11 +1499,12 @@ function linesToHTML(lines){
       .replace(/</g,"&lt;")
       .replace(/>/g,"&gt;");
 
-
     return "<div class='" + cls + "'>" + esc + "</div>";
-
   }).join("");
 }
+
+
+
 
 
 function renderPreview(sigLines, diagLines){
