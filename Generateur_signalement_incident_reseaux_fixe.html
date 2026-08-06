@@ -125,6 +125,30 @@
           placeholder="Nb clients"
           min="0">
   </div>
+
+
+  <select class="tb-select" id="oltEtatPick" aria-label="État transmission">
+    <option value="">OLT — À renseigner</option>
+    <option value="JOIGNABLE">JOIGNABLE</option>
+    <option value="INJOIGNABLE">INJOIGNABLE</option>
+  </select>
+
+  <div class="tb-client-wrap">
+    <input
+        type="number"
+        id="trafic"
+        class="tb-combo-input"
+        placeholder="Trafic"
+        min="0">
+</div>
+
+  <select class="tb-select" id="routeurEtatPick" aria-label="État transmission">
+    <option value="">ROUTEUR — À renseigner</option>
+    <option value="JOIGNABLE">JOIGNABLE</option>
+    <option value="INJOIGNABLE">INJOIGNABLE</option>
+  </select>
+
+
     <button class="btn-ghost" id="manageOltBtn" type="button">
       <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
       Base OLT
@@ -582,6 +606,7 @@ Major,6 juillet 2026 00:46:55 GMT,,PON Port:YOKOE-FX8:R1.S1.LT5.PON16,LOS,..."
 const THEME_KEY = "isoc_theme";
 const themeBtn = document.getElementById("themeBtn");
 const clientCountInput = document.getElementById("clientCount");
+const traficInput = document.getElementById("trafic");
 
 function currentTheme() {
   return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
@@ -1052,20 +1077,28 @@ function buildOltDiagnosticBlock(oltName, diagDate, tech) {
   const region = getOltRegion(oltName);
   const router = getOltRouter(oltName);
   const port = getOltPort(oltName);
+
+  const oltEtat = document.getElementById("oltEtatPick").value || "INJOIGNABLE";
+  const routeurEtat = document.getElementById("routeurEtatPick").value || "JOIGNABLE";
+  const traficVal = traficInput.value
+    ? traficInput.value + "MBits/s"
+    : "0MBits/s";
+
   const routerLine = router
-    ? "*ROUTEUR*:*" + router + "* /JOIGNABLE"
-    : "*ROUTEUR*:*À renseigner* /JOIGNABLE";
+    ? "*ROUTEUR*:*" + router + "* /" + routeurEtat
+    : "*ROUTEUR*:*À renseigner* /" + routeurEtat;
   const portLine = port
     ? "*PORT ROUTEUR* : NUMERO PORT" + port + "/ DOWN "
     : "*PORT ROUTEUR* : NUMERO PORT(À renseigner)DOWN";
+
   return [
     "*NOM OLT* (" + oltName + ")",
     "*DATE*: " + (diagDate || "À renseigner"),
     "*REGION*: " + (region || "À renseigner"),
-    "*OLT*: INJOIGNABLE",
+    "*OLT*: " + oltEtat,
     routerLine,
     portLine,
-    "*TRAFIC OLT* : 0MBits/s",
+    "*TRAFIC OLT* : " + traficVal,
     "*TECH INF*: " + techLine(tech)
   ];
 }
@@ -1197,6 +1230,9 @@ function clearAll() {
   hasOltInReport = false;
   document.getElementById("diagnosticContainer").style.display = "none";
   document.getElementById("input").value = "";
+  document.getElementById("trafic").value = "";
+  document.getElementById("oltEtatPick").value = "";
+  document.getElementById("routeurEtatPick").value = "";
   document.getElementById("output").value = "";
   document.getElementById("previewSignalement").innerHTML =
     '<div class="empty-st"><div class="empty-icon" aria-hidden="true">' +
@@ -1315,7 +1351,12 @@ document.getElementById("copyBtn").addEventListener("click", () => {
 });
 document.getElementById("deleteBtn").addEventListener("click", clearAll);
 
-
+document.getElementById("oltEtatPick").addEventListener("change", function () {
+    if (lastReport && lastUnits) refreshReportFromStoredUnits();
+});
+document.getElementById("routeurEtatPick").addEventListener("change", function () {
+    if (lastReport && lastUnits) refreshReportFromStoredUnits();
+});
 
 function generate() {
   const raw = document.getElementById("input").value;
@@ -1563,6 +1604,13 @@ if (sigCopyBtn) {
 
 
 document.getElementById("clientCount").addEventListener("input", function () {
+    if (lastReport && lastUnits) {
+        refreshReportFromStoredUnits();
+    }
+});
+
+
+document.getElementById("trafic").addEventListener("input", function () {
     if (lastReport && lastUnits) {
         refreshReportFromStoredUnits();
     }
